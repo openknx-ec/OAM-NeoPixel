@@ -14,6 +14,8 @@ import subprocess
 import sys
 import tempfile
 import xml.etree.ElementTree as ET
+import gzip
+import re
 
 REPO = Path(__file__).resolve().parent.parent
 FINGERPRINT = 'src/EffectParameters.fingerprint'
@@ -63,6 +65,27 @@ with tempfile.TemporaryDirectory(prefix='neopixel-build-clean-') as directory:
     def generate():
         run(fixture, '-File', 'scripts/Build-EffectParameters.ps1', '-SkipOpenKNXproducer')
 
+    # gzip encoders differ across .NET/zlib versions. Establish this host's
+    # encoding in the disposable fixture, checking that only the compression
+    # representation (and its recorded checksum) differs from the committed data.
+    catalog = 'src/WebUi/NeoPixelEffectCatalog.generated.h'
+    (fixture / catalog).unlink()
+    generate()
+    native = snapshot(fixture, outputs + [FINGERPRINT])
+    for path in baseline:
+        if path not in (catalog, FINGERPRINT):
+            assert native[path] == baseline[path], f'host normalization changed {path}'
+    payload = rb'(inline const uint8_t gzip\[\] = \{)([\s\S]*?)(\};)'
+    def decoded(header):
+        body = re.search(payload, header).group(2)
+        return gzip.decompress(bytes(int(value, 16) for value in re.findall(rb'0x([0-9a-fA-F]{2})', body)))
+    assert decoded(native[catalog]) == decoded(baseline[catalog]), 'host normalization changed the catalog JSON'
+    assert re.sub(payload, rb'\1PAYLOAD\3', native[catalog]) == re.sub(payload, rb'\1PAYLOAD\3', baseline[catalog]), 'host normalization changed availability metadata'
+    def without_catalog_checksum(data):
+        return b'\n'.join(line for line in data.splitlines() if not line.endswith(catalog.encode()))
+    assert without_catalog_checksum(native[FINGERPRINT]) == without_catalog_checksum(baseline[FINGERPRINT])
+    baseline = native
+
     def edit(path, old, new):
         target = fixture / path
         text = target.read_bytes()
@@ -79,7 +102,8 @@ with tempfile.TemporaryDirectory(prefix='neopixel-build-clean-') as directory:
     edit('src/NeoPixel.Segment.templ.xml', b'Text="Speed (Wipe)" Value="25"', b'Text="Speed (Wipe)" Value="26"')
     assert effect_check(fixture) == 1, 'an edit inside a generated block counts as current'
     generate()
-    assert snapshot(fixture, outputs + [FINGERPRINT]) == baseline, 'the run did not restore the generated block'
+    restored = snapshot(fixture, outputs + [FINGERPRINT])
+    assert restored == baseline, 'the run did not restore: ' + ', '.join(p for p in baseline if restored[p] != baseline[p])
     assert effect_check(fixture) == 0, 'outputs not current after restoring a block'
 
     # a run that rewrites the lock file (EN name differs from the header) stores the hash of the rewritten lock
@@ -95,7 +119,7 @@ with tempfile.TemporaryDirectory(prefix='neopixel-build-clean-') as directory:
     assert snapshot(fixture, outputs + [FINGERPRINT]) == baseline, '-Clean -Check changed a file'
 
     if '--full' in sys.argv:
-        run(fixture, '-File', 'scripts/Build-Release.ps1', '-SkipFirmware')
+        run(fixture, '-File', 'scripts/Build-Release.ps1', '-SkipFirmware', '-SkipOknx')
         # The local producer may lack the KNX XSDs. Still enforce the schema's
         # 255-character separator Text limit on the fully expanded product.
         product = ET.parse(fixture / 'src/NeoPixel-Dev.debug.xml')

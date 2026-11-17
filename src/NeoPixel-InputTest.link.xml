@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<KNX xmlns="http://knx.org/xml/project/20">
+  <ManufacturerData><Manufacturer><ApplicationPrograms><ApplicationProgram><Static><ParameterTypes>
+    <!-- Same extension mechanism as RaumController; values are BI KO numbers. -->
+    <ParameterType Id="%AID%_PT-BTNInputs" Name="BTNInputs">
+      <TypeRestriction Base="Value" SizeInBit="16">
+        <Enumeration Text="Binäreingang 1 (Hardware-Zuordnung)" Value="2000" Id="%ENID%" DisplayOrder="200" />
+        <Enumeration Text="Binäreingang 2 (Hardware-Zuordnung)" Value="2001" Id="%ENID%" DisplayOrder="201" />
+      </TypeRestriction>
+    </ParameterType>
+  </ParameterTypes></Static></ApplicationProgram></ApplicationPrograms></Manufacturer></ManufacturerData>
+</KNX>

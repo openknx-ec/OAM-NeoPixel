@@ -1,6 +1,18 @@
 #pragma once
 #include "HardwareConfig.h"
 
+#ifdef NEOPIXEL_DISABLE_LOCAL_INPUTS
+    #undef NEOPIXEL_LOCAL_INPUTS
+#endif
+
+// Application-owned mapping is resolved from HardwareConfig's input-port schema.
+#if defined(NEOPIXEL_LOCAL_INPUTS) || defined(NEOPIXEL_LOCAL_INPUT_TEST) || defined(NEOPIXEL_INPUT_SIZE_TEST)
+    #define OPENKNX_BI_DYNAMIC_PINS
+    #define OPENKNX_BI_GPIO_PINS 255, 255
+    #define OPENKNX_BI_GPIO_COUNT 2
+    #define OPENKNX_BI_ONLEVEL LOW
+#endif
+
 #ifdef ARDUINO_ARCH_RP2040
 //     #include "OpenKNXHardware.h"
 

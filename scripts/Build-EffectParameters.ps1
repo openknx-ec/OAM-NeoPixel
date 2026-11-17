@@ -4907,6 +4907,30 @@ function Write-WebEffectCatalog {
   } finally { $gzip.Dispose() }
   $compressed = $memory.ToArray()
   $memory.Dispose()
+  # Different .NET/zlib versions can encode identical JSON differently. Reuse a
+  # valid existing payload when its decoded content is unchanged; still rebuild
+  # the availability tables below, whose preprocessor conditions may have changed.
+  $headerPath = Resolve-RepoPath 'src/WebUi/NeoPixelEffectCatalog.generated.h'
+  if (Test-Path -LiteralPath $headerPath) {
+    $oldHeader = [System.IO.File]::ReadAllText($headerPath)
+    $payload = [regex]::Match($oldHeader, 'inline const uint8_t gzip\[\] = \{([\s\S]*?)\};')
+    if ($payload.Success) {
+      $inputStream = $null; $decoder = $null; $reader = $null
+      try {
+        [byte[]]$oldBytes = @([regex]::Matches($payload.Groups[1].Value, '0x([0-9a-fA-F]{2})') | ForEach-Object { [Convert]::ToByte($_.Groups[1].Value, 16) })
+        $inputStream = [System.IO.MemoryStream]::new($oldBytes)
+        $decoder = [System.IO.Compression.GZipStream]::new($inputStream, [System.IO.Compression.CompressionMode]::Decompress)
+        $reader = [System.IO.StreamReader]::new($decoder, [System.Text.Encoding]::UTF8)
+        if ($reader.ReadToEnd() -ceq $json) { $compressed = $oldBytes }
+      } catch {
+        # Missing or malformed cached payload: replace it with the freshly encoded one.
+      } finally {
+        if ($null -ne $reader) { $reader.Dispose() }
+        elseif ($null -ne $decoder) { $decoder.Dispose() }
+        if ($null -ne $inputStream) { $inputStream.Dispose() }
+      }
+    }
+  }
   $header = @('#pragma once', '#include <cstdint>', '', 'namespace NeoPixelEffectCatalog', '{', '    inline const uint8_t gzip[] = {')
   for ($offset = 0; $offset -lt $compressed.Length; $offset += 20) {
     $last = [Math]::Min($offset + 19, $compressed.Length - 1)

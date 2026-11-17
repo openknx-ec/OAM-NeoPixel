@@ -1,0 +1,341 @@
+{
+  "results": [
+    {
+      "board": "KNeoPiX S3 V1.5 IP",
+      "environment": "release_OKNXHW_OPENKNXIAO_KNEOPIX_ESP32S3_V15_IP",
+      "kind": "inputs",
+      "exit_code": 0,
+      "ram": {
+        "used": 74884,
+        "limit": 327680,
+        "free": 252796
+      },
+      "flash": {
+        "used": 1939170,
+        "limit": 2621440,
+        "free": 682270
+      },
+      "image_bytes": 2016064,
+      "image_capacity": {
+        "limit": 2621440,
+        "used": 2016064,
+        "free": 605376,
+        "fits": true
+      },
+      "symbol_check_note": "ELF auto-cleaned by the shared build cache; regular input enable flags checked separately.",
+      "image_sha256": "13e8ad11492ea5ebdd6a7930360e2932890164ff1863cd22b7ef6aa58b4efc16"
+    },
+    {
+      "board": "OpenKNXiao C6 Mini",
+      "environment": "release_OKNXHW_OPENKNXIAO_ESP32C6_MINI_V1",
+      "kind": "inputs",
+      "exit_code": 0,
+      "ram": {
+        "used": 43828,
+        "limit": 327680,
+        "free": 283852
+      },
+      "flash": {
+        "used": 1246060,
+        "limit": 2621440,
+        "free": 1375380
+      },
+      "image_bytes": 1394512,
+      "image_capacity": {
+        "limit": 2621440,
+        "used": 1394512,
+        "free": 1226928,
+        "fits": true
+      },
+      "symbol_check_note": "ELF auto-cleaned by the shared build cache; regular input enable flags checked separately.",
+      "image_sha256": "fa198fbe6a34df6746016c03ff7c4eacc02292955b4e7805909217c0faa3a1a1"
+    },
+    {
+      "board": "UP1-GW-UART",
+      "environment": "release_OKNXHW_UP1_GW_UART",
+      "kind": "inputs",
+      "exit_code": 0,
+      "ram": {
+        "used": 28200,
+        "limit": 262144,
+        "free": 233944
+      },
+      "flash": {
+        "used": 669564,
+        "limit": 1036288,
+        "free": 366724
+      },
+      "image_bytes": 681600,
+      "image_capacity": {
+        "limit": 917504,
+        "used": 681600,
+        "free": 235904,
+        "fits": true
+      },
+      "symbol_check_note": "ELF auto-cleaned by the shared build cache; regular input enable flags checked separately.",
+      "image_sha256": "cd8c35d06138ef22b550e4e9d4893539cb254c2b1811b476abc3aeb679a1da93"
+    },
+    {
+      "board": "QuinLED Dig-Quad V3 WiFi (4 MB)",
+      "environment": "release_QUINLED_DIG_QUAD_V3_WIFI",
+      "kind": "inputs",
+      "exit_code": 0,
+      "ram": {
+        "used": 75464,
+        "limit": 327680,
+        "free": 252216
+      },
+      "flash": {
+        "used": 1997561,
+        "limit": 2621440,
+        "free": 623879
+      },
+      "image_bytes": 2073104,
+      "image_capacity": {
+        "limit": 2621440,
+        "used": 2073104,
+        "free": 548336,
+        "fits": true
+      },
+      "module_symbols": {
+        "GpioBinaryInputModule": true,
+        "VirtualButtonModule": true
+      },
+      "image_sha256": "9eca9c1a21feb3827ed98b175fc939c511dfae467168390a894511ee1e16674c"
+    },
+    {
+      "board": "KNeoPiX S3 V1.5 IP",
+      "environment": "inputbaseline_OKNXHW_OPENKNXIAO_KNEOPIX_ESP32S3_V15_IP",
+      "kind": "normal",
+      "exit_code": 0,
+      "ram": {
+        "used": 74820,
+        "limit": 327680,
+        "free": 252860
+      },
+      "flash": {
+        "used": 1931090,
+        "limit": 2621440,
+        "free": 690350
+      },
+      "image_bytes": 2006832,
+      "image_capacity": {
+        "limit": 2621440,
+        "used": 2006832,
+        "free": 614608,
+        "fits": true
+      },
+      "module_symbols": {
+        "GpioBinaryInputModule": false,
+        "VirtualButtonModule": false
+      },
+      "image_sha256": "08d0a5cdb04f351e4c58918aac2af305cb141bdf80592b2d4e4131249b8c249a"
+    },
+    {
+      "board": "OpenKNXiao C6 Mini",
+      "environment": "inputbaseline_OKNXHW_OPENKNXIAO_ESP32C6_MINI_V1",
+      "kind": "normal",
+      "exit_code": 0,
+      "ram": {
+        "used": 43764,
+        "limit": 327680,
+        "free": 283916
+      },
+      "flash": {
+        "used": 1236516,
+        "limit": 2621440,
+        "free": 1384924
+      },
+      "image_bytes": 1382448,
+      "image_capacity": {
+        "limit": 2621440,
+        "used": 1382448,
+        "free": 1238992,
+        "fits": true
+      },
+      "module_symbols": {
+        "GpioBinaryInputModule": false,
+        "VirtualButtonModule": false
+      },
+      "image_sha256": "021d774d2538ecb71d5cdba251ee5b45b9bcce932bee0187585d1423aedc7263"
+    },
+    {
+      "board": "UP1-GW-UART",
+      "environment": "inputbaseline_OKNXHW_UP1_GW_UART",
+      "kind": "normal",
+      "exit_code": 0,
+      "ram": {
+        "used": 28136,
+        "limit": 262144,
+        "free": 234008
+      },
+      "flash": {
+        "used": 662348,
+        "limit": 1036288,
+        "free": 373940
+      },
+      "image_bytes": 674384,
+      "image_capacity": {
+        "limit": 917504,
+        "used": 674384,
+        "free": 243120,
+        "fits": true
+      },
+      "module_symbols": {
+        "GpioBinaryInputModule": false,
+        "VirtualButtonModule": false
+      },
+      "image_sha256": "3e118626430484524fb590bf4ae8e917ba8719d8221a189750c9e5c6b2e502d9"
+    },
+    {
+      "board": "QuinLED Dig-Quad V3 WiFi (4 MB)",
+      "environment": "inputbaseline_QUINLED_DIG_QUAD_V3_WIFI",
+      "kind": "normal",
+      "exit_code": 0,
+      "ram": {
+        "used": 75416,
+        "limit": 327680,
+        "free": 252264
+      },
+      "flash": {
+        "used": 1989265,
+        "limit": 2621440,
+        "free": 632175
+      },
+      "image_bytes": 2063664,
+      "image_capacity": {
+        "limit": 2621440,
+        "used": 2063664,
+        "free": 557776,
+        "fits": true
+      },
+      "module_symbols": {
+        "GpioBinaryInputModule": false,
+        "VirtualButtonModule": false
+      },
+      "image_sha256": "e29101dd32bf6b28202c5985a228eca0d4e6385619c14be0d0e72f70b3e8c39e"
+    }
+  ],
+  "comparisons": [
+    {
+      "board": "KNeoPiX S3 V1.5 IP",
+      "normal_ok": true,
+      "inputs_ok": true,
+      "flash_increase": 8080,
+      "image_increase": 9232,
+      "image_free": 605376,
+      "image_fits": true
+    },
+    {
+      "board": "OpenKNXiao C6 Mini",
+      "normal_ok": true,
+      "inputs_ok": true,
+      "flash_increase": 9544,
+      "image_increase": 12064,
+      "image_free": 1226928,
+      "image_fits": true
+    },
+    {
+      "board": "UP1-GW-UART",
+      "normal_ok": true,
+      "inputs_ok": true,
+      "flash_increase": 7216,
+      "image_increase": 7216,
+      "image_free": 235904,
+      "image_fits": true
+    },
+    {
+      "board": "QuinLED Dig-Quad V3 WiFi (4 MB)",
+      "normal_ok": true,
+      "inputs_ok": true,
+      "flash_increase": 8296,
+      "image_increase": 9440,
+      "image_free": 548336,
+      "image_fits": true
+    }
+  ],
+  "note": "Regular release environments include both modules; inputbaseline_* excludes them for comparison against the same Dev product. GPIO suitability and OTA staging require physical qualification. Image headroom uses actual application slots / RP KNX boundary, not nominal chip size.",
+  "application_version": "Dev 2.7 / Release 1.1",
+  "dependency_patches_sha256": {
+    "OFM-BinaryInput.patch": "7854e3933da7a2279820e5f2c2643dd50b094fc94d42bc842693e303cebfc0e1",
+    "OGM-HardwareConfig.patch": "5af0e9238fed17faa2221088fa998be32bf4d79174f461ac4f207c8f8c92db3b"
+  },
+  "additional_release_checks": [
+    {
+      "environment": "release_OKNXHW_OPENKNXIAO_ESP32C3_MINI_V1",
+      "kind": "inputs",
+      "exit_code": 0,
+      "application_version": "Release 1.1",
+      "ram": {
+        "used": 42272,
+        "limit": 327680
+      },
+      "flash": {
+        "used": 1282848,
+        "limit": 2621440
+      },
+      "artifact_note": "Successful build recorded from log; artifact auto-cleaned by shared build cache."
+    },
+    {
+      "environment": "release_OKNXHW_OPENKNXIAO_ESP32C5_MINI_V1",
+      "kind": "inputs",
+      "exit_code": 0,
+      "application_version": "Release 1.1",
+      "ram": {
+        "used": 47704,
+        "limit": 327680
+      },
+      "flash": {
+        "used": 1297502,
+        "limit": 2621440
+      },
+      "artifact_note": "Successful build recorded from log; artifact auto-cleaned by shared build cache."
+    },
+    {
+      "environment": "release_OKNXHW_OPENKNXIAO_RP2350_MINI_V1",
+      "kind": "inputs",
+      "exit_code": 0,
+      "application_version": "Release 1.1",
+      "ram": {
+        "used": 34184,
+        "limit": 524288
+      },
+      "flash": {
+        "used": 659968,
+        "limit": 1036288
+      },
+      "artifact_note": "Successful build recorded from log; artifact auto-cleaned by shared build cache."
+    },
+    {
+      "environment": "release_QUINLED_DIG_QUAD_V3_ETHERNET",
+      "kind": "inputs",
+      "exit_code": 0,
+      "application_version": "Release 1.1",
+      "ram": {
+        "used": 58932,
+        "limit": 327680
+      },
+      "flash": {
+        "used": 1558837,
+        "limit": 2621440
+      },
+      "artifact_note": "Successful build recorded from log; artifact auto-cleaned by shared build cache."
+    }
+  ],
+  "final_source_filter_check": {
+    "environment": "release_OKNXHW_OPENKNXIAO_KNEOPIX_ESP32S3_V15_IP",
+    "note": "Canonical source filter verified with duplicate numbered .cpp files present; no duplicate files deleted.",
+    "ram": {
+      "used": 74884,
+      "limit": 327680
+    },
+    "flash": {
+      "used": 1939170,
+      "limit": 2621440
+    },
+    "module_symbols": {
+      "GpioBinaryInputModule": true,
+      "VirtualButtonModule": true
+    }
+  }
+}

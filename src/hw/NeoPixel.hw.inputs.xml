@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+@@# Board-specific input selectors share the channel's byte, just like output port selectors.
+@@set $pin = @{ Number = '%TT%%CC%1{{D3 (100 + $b.Slot)}}' }
+<KNX xmlns="http://knx.org/xml/project/20" xmlns:op="http://github.com/OpenKNX/OpenKNXproducer">
+  <ManufacturerData><Manufacturer><ApplicationPrograms><ApplicationProgram><Static><ParameterTypes>
+    <ParameterType Id="%AID%_PT-NeoPixelInputValue" Name="NeoPixelInputValue"><TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="255" /></ParameterType>
+@@use @hw/InputListTypes.xml @{ Name = 'NeoPixelInputPortHW'; PlaceholderText = 'Nicht verwendet'; PlaceholderValue = 255; EmptyText = 'Keine freigegebenen Eingänge'; EmptyFillerText = 'Nicht verfügbar'; EmptyFillerValue = 254 }
+  </ParameterTypes></Static></ApplicationProgram></ApplicationPrograms></Manufacturer></ManufacturerData>
+  <Block name="Parameters">
+    <Union SizeInBit="8">
+      <Memory CodeSegment="%AID%_RS-04-00000" Offset="4" BitOffset="0" />
+      <Parameter Id="%AID%_UP-%TT%%CC%100" Name="Channel%C%Port" Offset="0" BitOffset="0" ParameterType="%AID%_PT-NeoPixelInputValue" Text="Eingangsanschluss" Value="255" Access="None" />
+@@use @hw/BoardParameter.xml ($pin + @{ Part = 'Parameter'; Offset = '0'; Name = 'Channel%C%PortHW{{$b.Slot}}'; Type = 'NeoPixelInputPortHW{{$b.Slot}}'; Text = 'Eingangsanschluss'; Value = '255' })
+    </Union>
+  </Block>
+  <Block name="ParameterRefs">
+    <ParameterRef Id="%AID%_UP-%TT%%CC%100_R-%TT%%CC%10001" RefId="%AID%_UP-%TT%%CC%100" />
+@@use @hw/BoardParameter.xml ($pin + @{ Part = 'ParameterRef' })
+  </Block>
+  <Block name="Select">
+    <choose ParamRefId="%NEOHW_SelectRef%">
+@@use @hw/BoardParameter.xml ($pin + @{ Part = 'When'; HelpContext = 'Empty' })
+    </choose>
+    <op:include href="NeoPixel.hw.conflicts.gen.xml" xpath="//Block[@name='ConflictChannel_Input']/*" prefix="NEO" />
+  </Block>
+</KNX>

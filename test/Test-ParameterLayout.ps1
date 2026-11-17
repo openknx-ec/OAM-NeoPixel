@@ -112,6 +112,7 @@ foreach ($line in Get-Content -Path $KnxprodHeader) {
     # carriers: the name the firmware reads the shared byte of a family through
     elseif ($name -eq 'NEOSTRIP_NEODataPort') { $family = 'NEOSTRIP_NEOGPIODataPortHW' }
     elseif ($name -eq 'NEOSTRIP_NEOClockPort') { $family = 'NEOSTRIP_NEOGPIOClockPortHW' }
+    elseif ($name -eq 'BI_ChannelPort') { $family = 'BI_ChannelPortHW' }
     elseif ($name -match '^NEO_NEOExternalRelay(\d)Port$') { $family = "NEO_NEORelay$($Matches[1])GPIOPortHW" }
     $parameters += [pscustomobject]@{ Name = $name; Offset = $offset; Desc = $desc; Bits = $bits; Family = $family }
 }
