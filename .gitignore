@@ -15,7 +15,7 @@ include/buildtime.h
 /.vscode/settings.json
 **/*.html
 include/webassets.h
-# outputs of the hardware generator (HardwareProfile.xml), written by Build-Release / Build-HardwareProfile.ps1
+# outputs of the hardware generator (HardwareManifest.xml), written by Build-Release / Build-HardwareProfile.ps1
 src/NeoPixel.hw.conf.xml
 src/NeoPixel.hw.*.gen.xml
 src/NeoPixel.hw.module.gen.js
@@ -30,6 +30,8 @@ src/Baggages/Icons/memory.png
 # OpenKNXproducer output, compiled into the firmware
 include/knxprod.h
 # Temporary input-prototype generator inputs (normal release generators restore the standard product).
+/HardwareManifest.inputtest.generated.xml
+/HardwareManifest.inputtest.generated.slots
 /HardwareProfile.inputtest.generated.xml
 /HardwareProfile.inputtest.generated.slots
 /src/NeoPixel-InputTest.xml
@@ -41,3 +43,6 @@ include/knxprod.h
 /src/Baggages/Help_de/BI-*.md
 
 __pycache__/
+
+# Workspace-local pinned dependencies.
+/local-dependencies/

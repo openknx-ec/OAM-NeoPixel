@@ -207,7 +207,6 @@
                 <Enumeration Text="Blitz" Value="16" Id="%ENID%"/> <!-- EN: Lightning -->
                 <Enumeration Text="Gradient" Value="17" Id="%ENID%"/>
                 <Enumeration Text="Kerze" Value="18" Id="%ENID%"/> <!-- EN: Candle -->
-                <Enumeration Text="Laufschrift" Value="19" Id="%ENID%"/> <!-- EN: Scroll Text -->
                 <!-- GENERATED_EFFECT_ENUMERATIONS_NO2D_END -->
               </TypeRestriction>
               </ParameterType>
@@ -294,7 +293,6 @@
                 <Enumeration Text="Blitz" Value="16" Id="%AID%_PT-NEOSceneEffectTypeNo2D_EN-16"/>
                 <Enumeration Text="Gradient" Value="17" Id="%AID%_PT-NEOSceneEffectTypeNo2D_EN-17"/>
                 <Enumeration Text="Kerze" Value="18" Id="%AID%_PT-NEOSceneEffectTypeNo2D_EN-18"/>
-                <Enumeration Text="Laufschrift" Value="19" Id="%AID%_PT-NEOSceneEffectTypeNo2D_EN-19"/>
                 <!-- GENERATED_SCENE_EFFECT_ENUMERATIONS_NO2D_END -->
                 <Enumeration Text="Effektmanager 1 starten" Value="200" Id="%AID%_PT-NEOSceneEffectTypeNo2D_EN-200"/>
                 <Enumeration Text="Effektmanager 2 starten" Value="201" Id="%AID%_PT-NEOSceneEffectTypeNo2D_EN-201"/>

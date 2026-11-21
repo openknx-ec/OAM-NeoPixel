@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<KNX xmlns="http://knx.org/xml/project/20" xmlns:op="http://github.com/OpenKNX/OpenKNXproducer">
+  <!-- The producer generates the enable parameters from the module definitions.
+       Grouped modules need explicit references because the producer only creates references for top-level channels. -->
+  <Block name="ModuleRefs">
+    <ParameterRef Id="%AID%_UP-0099826_R-009982601" RefId="%AID%_UP-0099826" Text="Funktionsblöcke" />
+    <ParameterRef Id="%AID%_UP-0099824_R-009982401" RefId="%AID%_UP-0099824" Text="Binäreingänge" />
+    <ParameterRef Id="%AID%_UP-0099850_R-009985001" RefId="%AID%_UP-0099850" Text="Virtuelle Taster" />
+  </Block>
+</KNX>

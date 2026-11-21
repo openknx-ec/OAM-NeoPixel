@@ -137,7 +137,6 @@
                 <Enumeration Text="Blitz" Value="16" Id="%AID%_PT-CueEffectNo2D_EN-16"/>
                 <Enumeration Text="Gradient" Value="17" Id="%AID%_PT-CueEffectNo2D_EN-17"/>
                 <Enumeration Text="Kerze" Value="18" Id="%AID%_PT-CueEffectNo2D_EN-18"/>
-                <Enumeration Text="Laufschrift" Value="19" Id="%AID%_PT-CueEffectNo2D_EN-19"/>
                 <!-- GENERATED_CUE_EFFECT_ENUMERATIONS_NO2D_END -->
               </TypeRestriction>
             </ParameterType>

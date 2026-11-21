@@ -37,10 +37,11 @@ assert.equal(ctx.NEOHW_conflictBoards[0x2120].inputs[3], 32, 'Q4 is GPIO32, neve
 // Invalid and unselected connections occupy no GPIO, including an unsupported Gledopto board.
 assert.equal(flags(0x1322, {ports: {Input1: 64, Input2: 255}}).Input1, 0);
 assert.equal(flags(0x2000, {ports: {Input1: 0}}).Input1, 0);
-// Output sentinel values 10/15 are ordinary input-port indexes; only 255 is unused.
-for (const port of [10, 15]) {
+// Removed pad selections must not claim GPIOs after a catalog upgrade.
+for (const port of [8, 10, 15]) {
     result = flags(0x1311, {ports: {Input1: port, Input2: port}});
-    assert.equal(result.Input1, 1);
-    assert.equal(result.Input2, 1);
+    assert.equal(result.Input1, 0);
+    assert.equal(result.Input2, 0);
 }
+assert.deepEqual(Array.from(ctx.NEOHW_conflictBoards[0x1322].inputs), [41, 42, 40, 39]);
 console.log('ETS input/output/relay conflicts, activation, invalid selections and Q4 mapping passed');

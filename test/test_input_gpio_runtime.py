@@ -67,6 +67,7 @@ int main() {
  selected=0x1322; moduleEnabled=false; NeoPixelInputs::prepare(); assert(!NeoPixelInputs::claims(41));
  moduleEnabled=true; knx.loaded=false; NeoPixelInputs::prepare(); assert(!NeoPixelInputs::claims(41));
  knx.loaded=true; ports[0]=255; NeoPixelInputs::prepare(); assert(!NeoPixelInputs::claims(255));
+ ports[0]=4; NeoPixelInputs::prepare(); assert(openknxGpioBinaryInputModule.pins[0]==255); // removed LED-connected pad
  ports[0]=64; NeoPixelInputs::prepare(); assert(openknxGpioBinaryInputModule.pins[0]==255);
 }
 ''')

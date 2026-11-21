@@ -1665,6 +1665,30 @@ function Get-EffectDropdownText {
   return $baseName
 }
 
+# @brief Dimensions an effect renders, from getCapabilities() of its header (DIM_1D / DIM_2D / DIM_3D; no override = DIM_1D):
+#        '1D' (strip only), '1D2D' (strip and matrix), '2D' (matrix only). DIM_3D is not used by any effect and stops the run.
+function Get-EffectDimension {
+  param([Parameter(Mandatory)][string]$ClassName)
+
+  if (-not $script:EffectDimensionByClass) { $script:EffectDimensionByClass = @{} }
+  if ($script:EffectDimensionByClass.ContainsKey($ClassName)) { return $script:EffectDimensionByClass[$ClassName] }
+  if (-not $script:EffectHeaderByClass) { [void](Get-EffectDescriptionDE -ClassName $ClassName) }
+  if (-not $script:EffectHeaderByClass.ContainsKey($ClassName)) { throw "Effect header of class $ClassName not found (getCapabilities)" }
+  $content = Get-Content $script:EffectHeaderByClass[$ClassName] -Raw -Encoding UTF8
+  $dim = '1D'
+  $m = [regex]::Match($content, '(?s)getCapabilities\s*\(\s*\)\s*const[^{;]*\{\s*return\s+([^;]+);')
+  if ($m.Success) {
+    $expr = $m.Groups[1].Value
+    if ($expr -match 'DIM_3D') { throw "Effect $ClassName advertises DIM_3D: the ETS lists know 1D and 2D only" }
+    $has1D = $expr -match 'DIM_1D'
+    $has2D = $expr -match 'DIM_2D'
+    if (-not $has1D -and -not $has2D) { throw "Effect ${ClassName}: getCapabilities() returns '$expr', expected DIM_1D and/or DIM_2D" }
+    if ($has1D -and $has2D) { $dim = '1D2D' } elseif ($has2D) { $dim = '2D' }
+  }
+  $script:EffectDimensionByClass[$ClassName] = $dim
+  return $dim
+}
+
 function Test-Is2DEffect {
   param(
     [Parameter(Mandatory)][string]$ClassName,
@@ -1672,12 +1696,7 @@ function Test-Is2DEffect {
     [string]$NameEN
   )
 
-  $baseName = if ($NameDE) { $NameDE } elseif ($NameEN) { $NameEN } else { $ClassName }
-  # A class name ending in 2D is the reliable marker: the display name may not carry it at all
-  # (TRON, Starfield Warp, Plasma Nebula, UFO Swarm), and the token check below would miss those.
-  return ($baseName -match '(?<![A-Za-z0-9])2D(?![A-Za-z0-9])' -or
-    $ClassName -match '2D(Effect)?$' -or
-    $ClassName -match '(?<![A-Za-z0-9])2D(?![A-Za-z0-9])')
+  return ((Get-EffectDimension -ClassName $ClassName) -eq '2D')
 }
 
 # ====================================================================
@@ -2300,8 +2319,16 @@ function Update-EffectTypeEnumerationInShareXml {
   $null = Write-FileIfChanged -Path $ShareXmlPath -Value $newXmlContent -NoNewline
 
   # Second variant without the 2D effects, for hardware built with NEOPIXEL_DISABLE_2D.
-  # The list is already sorted with the 2D effects last, so dropping them keeps the order.
-  $no2dLines = @($enumXml -split "`n" | Where-Object { $_ -notmatch 'op:headerName="[A-Za-z]*2D"' })
+  # The list is already sorted with the 2D effects last, so dropping them keeps the order. A 2D effect is one whose
+  # getCapabilities() has no DIM_1D (Get-EffectDimension, filled while the list above was built); its line carries the
+  # C++ enum name of its class in op:headerName.
+  $twoDNames = @($script:EffectDimensionByClass.Keys | Where-Object { $script:EffectDimensionByClass[$_] -eq '2D' } |
+      ForEach-Object { $n = $_ -replace 'Effect$', '' -replace '^Effect', ''; if ($n) { $n } else { $_ } })
+  $allLines = @($enumXml -split "`n")
+  $no2dLines = @($allLines | Where-Object { -not ($_ -match 'op:headerName="([^"]*)"' -and $twoDNames -contains $Matches[1]) })
+  if ($allLines.Count - $no2dLines.Count -ne $twoDNames.Count) {
+    throw "NEOEffectTypeNo2D: $($allLines.Count - $no2dLines.Count) lines left out, but $($twoDNames.Count) effects are 2D ($($twoDNames -join ', '))"
+  }
   $no2dXml = ($no2dLines -join "`n") -replace ' op:headerName="[^"]*"', ''
 
   $startNo2D = $script:Config.Markers.EnumNo2DStart
@@ -3325,7 +3352,7 @@ function Get-EffectPoolMembership {
     $ownFlag = if ($own.Count) { $own[0] } else { $null }
     $twoD = ($null -ne $ownFlag -and $twoDFlags -contains $ownFlag)
     $is2D = [bool](Test-Is2DEffect -ClassName $effect.ClassName -NameDE $effect.NameDE -NameEN $effect.NameEN)
-    if ($twoD -ne $is2D) { throw "Effect $($e.Number) ($($effect.ClassName)): member of NEOPIXEL_DISABLE_2D = $twoD, but the 2D name check says $is2D (No2D lists of ETS)" }
+    if ($twoD -ne $is2D) { throw "Effect $($e.Number) ($($effect.ClassName)): member of NEOPIXEL_DISABLE_2D = $twoD, but getCapabilities() says $is2D (No2D lists of ETS)" }
     $out += [pscustomobject]@{ Number = $e.Number; ClassName = $effect.ClassName; Getter = $e.Getter; OwnFlag = $ownFlag
       Extended = ($e.Flags -contains 'NEOPIXEL_MINIMAL_EFFECTS'); TwoD = $twoD }
   }
@@ -4862,8 +4889,7 @@ finally {
 
 if ($effects.Count -eq 0) {
   Write-Host ""
-  Write-Host "No effects with parameters found!" -ForegroundColor Yellow
-  exit 0
+  throw "No effects with parameters found in $effectsDir"
 }
 
 function Write-WebEffectCatalog {
@@ -5303,9 +5329,9 @@ try {
     if (-not $SkipOpenKNXproducer) {
       # The producer reads src/NeoPixel.script.js and the hardware generator outputs (not committed): assemble
       # them from the current sources first, as Build-Release does, so this run validates the current state
-      Write-Host "  Generating hardware files (HardwareProfile.xml)..." -ForegroundColor Cyan
+      Write-Host "  Generating hardware files (HardwareManifest.xml)..." -ForegroundColor Cyan
       $global:LASTEXITCODE = 0
-      & (Resolve-RepoPath "lib/OGM-HardwareConfig/generator/Build-HardwareProfile.ps1") -Manifest (Resolve-RepoPath "HardwareProfile.xml")
+      & (Resolve-RepoPath "lib/OGM-HardwareConfig/generator/Build-HardwareProfile.ps1") -Manifest (Resolve-RepoPath "HardwareManifest.xml")
       if ($global:LASTEXITCODE -ne 0) { throw "Hardware generation failed (lib/OGM-HardwareConfig/generator/Build-HardwareProfile.ps1)" }
       # Validate against Dev XML (primary) — same template used by Release
       $testResult = Test-OpenKNXproducer -WorkingDir "." `

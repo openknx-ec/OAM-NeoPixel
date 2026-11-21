@@ -21,11 +21,11 @@ def notes(board):
                'RP2040': 'No additional free back GPIOs declared.',
                'ESP32C3': 'No additional free back GPIOs declared.'}[mcu]
         if 'MINI' in board:
-            access, text = 'terminal + module pad', 'Eight direct 3.3 V terminals D1-D5/D8-D10; share GPIOs with outputs.'
+            access, text = 'terminal only', 'Eight direct 3.3 V terminals D1-D5/D8-D10; share GPIOs with outputs.'
         elif board.endswith('_V1'):
-            access, text = 'terminal + module pad', 'V1 TXS0108E terminals are bidirectional with internal pullups: dry contact to GND, LED disconnected.'
+            access, text = 'terminal only', 'V1 TXS0108E terminals are bidirectional with internal pullups: dry contact to GND, LED disconnected.'
         else:
-            access, text = 'raw module pad only', 'V1.5 LED terminals are output-only. Input access is exclusively on raw MCU-module pads, including D1-D5/D8-D10 that share GPIOs with LED outputs.'
+            access, text = 'raw module pad only', 'V1.5 LED terminals are output-only. Only free MCU-module solder pads are offered; GPIOs connected to LED terminals are excluded.'
         evidence = 'OGM-HardwareConfig/include/HardwareConfig/OpenKNX/Xiao.h'
         if 'KNEOPIX' in board:
             evidence += '; OpenKNX-KNeoPiX/Hardware/EDA-Files/Source/' + ('KNeoPiX_v1.3.kicad_sch; https://www.ti.com/product/TXS0108E' if board.endswith('_V1') else 'v1.5/KNeoPiX_v1.5.kicad_sch')
@@ -33,7 +33,7 @@ def notes(board):
                 'ESP32C5': 'xiao_esp32c5_getting_started', 'ESP32C6': 'xiao_esp32c6_getting_started'}
         if mcu in wiki:
             evidence += '; https://wiki.seeedstudio.com/' + wiki[mcu] + '/'
-        return (access, text + ' ' + raw + ' Raw pads are 3.3 V only and may be obscured by the carrier: solder access is required. No JTAG/camera/add-on on claimed pads. Observe MCU boot straps; V1.5 contacts must never be connected to buffered LED terminals. Source-verified mapping; physical board test pending.', evidence)
+        return (access, text + (' ' + raw if access == 'raw module pad only' else '') + ' Raw pads are 3.3 V only and may be obscured by the carrier: solder access is required. No JTAG/camera/add-on on claimed pads. Observe MCU boot straps; V1.5 contacts must never be connected to buffered LED terminals. Source-verified mapping; physical board test pending.', evidence)
     if 'UP1' in board:
         return ('isolated terminal', 'Rx/GPIO21 crosses a digital isolator; isolated-side supply and bias required. Tx/Out cannot be reversed. This is not a passive dry-contact input.',
                 'OpenKNX-UP1/hardware/EDA-Files/UP1-GW-UART/uart.kicad_sch')

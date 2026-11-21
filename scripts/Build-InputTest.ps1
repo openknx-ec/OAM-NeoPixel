@@ -23,7 +23,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Prototype composition failed' }
     & scripts/Build-EffectParameters.ps1 -SkipOpenKNXproducer
     if (!$?) { throw 'Effect generation failed' }
-    & lib/OGM-HardwareConfig/generator/Build-HardwareProfile.ps1 -Manifest HardwareProfile.inputtest.generated.xml
+    & lib/OGM-HardwareConfig/generator/Build-HardwareProfile.ps1 -Manifest HardwareManifest.inputtest.generated.xml
     if ($LASTEXITCODE -ne 0) { throw 'Prototype hardware generation failed' }
     & $python scripts/inputtest.py bind
     if ($LASTEXITCODE -ne 0) { throw 'Input conflict binding failed' }

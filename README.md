@@ -447,10 +447,10 @@ OpenKNX NeoPixel runs on a wide range of OpenKNX-compatible controllers. The **O
 
 ## Hardware-profile inputs and virtual buttons
 
-On branch `v1dev-inputtest`, both normal products (Dev 2.7 and Release 1.1) include
+On branch `v1dev-inputtest`, both normal products (Dev 2.10 and Release 1.3) include
 two configurable binary-input channels and four virtual buttons on every regular
-hardware environment. Inputs default to inactive/unassigned. Each channel selects
-a board-defined connection in ETS, using the same generator and shared-byte
+hardware environment. Both ETS pages are under **Funktionsblöcke**. Inputs
+default to inactive/unassigned. Each channel selects a board-defined connection in ETS, using the same generator and shared-byte
 selector pattern as LED outputs. Existing production parameter locations and
 output port numbers are preserved.
 
@@ -461,12 +461,10 @@ without ETS, the build also supplies an unsigned `NeoPixel-Dev-xknx.knxprod` or
 `NeoPixel-Release-xknx.knxprod`. Generate the matching application before invoking
 PlatformIO directly for any `release_*` or debug environment. Scripts never upload.
 
-HardwareConfig and BinaryInput carry the input changes as local commits on their
-`v1dev-inputtest` branches. The `lib` links use the sibling dependency repositories
-directly, following the usual OpenKNX checkout layout. `dependencies.inputtest.txt`
-records the full tested dependency set, including these local commits. These
-commits have not been pushed; use the local sibling checkouts to build this test
-branch. VirtualButton uses its unchanged tested revision.
+The dependency manifests record the exact build revisions. OGM-HardwareConfig
+uses the input changes on top of `07dd617`. The HardwareConfig and BinaryInput
+commits are local, with their patches in `patches/` for use with the pinned
+upstream bases. VirtualButton is pinned at `f822931`.
 
 The board schema is `HW_INPUT_COUNT`, `HW_INPUT_n_GPIO`, `HW_INPUT_n_LABEL`, with
 optional MODE (0 external bias, 1 pullup, 2 pulldown) and ONLEVEL (0 low, 1 high).
@@ -485,10 +483,11 @@ link its command/status KOs to the appropriate segment group addresses.
 See `test/hardware-input-audit.csv` for all 40 boards / 44 regular environments,
 connector labels, electrical requirements and evidence. Mini terminals are direct
 3.3 V GPIOs. KNeoPiX V1 TXS0108E terminals support dry contacts to GND with the LED
-disconnected; V1.5 terminals are output-only. Raw module pads are offered separately,
-starting with GPIO41/42 on S3 V1.5. RP2350 back pads and ESP32 JTAG pads need solder
-access and no connected debugger/camera/add-on. Raw LED GPIO pads share signals
-with buffered outputs and cannot be used simultaneously. UP1 Rx is an externally
+disconnected; V1.5 terminals are output-only. Input-capable terminals take priority:
+module solder pads are offered only on boards without input-capable terminals.
+GPIOs connected to output-only LED terminals are excluded even at their raw pads.
+S3 V1.5 offers only GPIO41/42/40/39. RP2350 back pads and ESP32 JTAG pads need solder
+access and no connected debugger/camera/add-on. The retained input connection numbers and all LED output numbers stay unchanged. UP1 Rx is an externally
 supplied isolated logic input. QuinLED uses raw GPIO headers and button inputs,
 never buffered LED/Q1R terminals. GL-C-017WL offers DIY IO13. Other unverified
 Gledopto input connections remain unavailable. Source-based mappings require a

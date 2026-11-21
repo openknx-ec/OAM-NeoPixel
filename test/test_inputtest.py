@@ -66,9 +66,25 @@ class InputTestIntegration(unittest.TestCase):
             self.assertIn(name, parameters)
             self.assertEqual(parameters[name].get("Value"), "0")
 
+    def test_inputs_grouped_under_function_blocks_with_independent_switches(self):
+        dynamic = self.app.find(".//k:ApplicationProgram/k:Dynamic", NS)
+        group = dynamic.find(".//k:Channel[@Number='FCB']", NS)
+        self.assertIsNotNone(group)
+        enabled = group.find("k:choose/k:when/k:ParameterBlock[@Name='FCB_FunctionBlockSettings']", NS)
+        self.assertIsNotNone(enabled)
+        for prefix, page, ref in [("BI", "BinaryInputs", "009982401"), ("BTN", "VirtualButtons", "009985001")]:
+            self.assertIsNone(dynamic.find(f".//k:Channel[@Number='{prefix}']", NS))
+            choose = next(node for node in group.findall("k:choose", NS) if node.get("ParamRefId").endswith(ref))
+            block = choose.find(f"k:when[@test='1']/k:ParameterBlock[@Name='{page}']", NS)
+            self.assertIsNotNone(block)
+            self.assertEqual(block.get("ShowInComObjectTree"), "true")
+            self.assertIsNotNone(block.find(f"k:ParameterBlock[@Name='{prefix}_Basic']", NS))
+            module_page = dynamic.find(".//k:ParameterBlock[@Name='BASE_OpenKNXproducerGeneratedModules']", NS)
+            self.assertIsNotNone(module_page.find(f"k:ParameterRefRef[@RefId='{choose.get('ParamRefId')}']", NS))
+
     def test_packaged_product_identity_and_regex(self):
         products = [(ROOT / f"NeoPixel-{variant}-xknx.knxprod", number, version)
-                    for variant, number, version in [("Dev", "AD01", "39"), ("Release", "AD00", "17")]]
+                    for variant, number, version in [("Dev", "AD01", "42"), ("Release", "AD00", "19")]]
         available = [(path, number, version) for path, number, version in products if path.exists()]
         self.assertTrue(available, "Generate a normal Dev or Release XKNX product first")
         for path, number, version in available:
@@ -91,7 +107,7 @@ class InputTestIntegration(unittest.TestCase):
 #include "HardwareProfileData.h"
 static_assert(OPENKNX_BI_GPIO_COUNT == 2, "two channels");
 static_assert(hwInputGpio(0) == 41 && hwInputGpio(1) == 42, "board-defined raw pads");
-static_assert(hwInputGpio(12) == 255 && hwInputGpio(255) == 255, "invalid connections stay disabled");
+static_assert(HW_INPUT_COUNT == 4 && hwInputGpio(4) == 255 && hwInputGpio(12) == 255 && hwInputGpio(255) == 255, "invalid connections stay disabled");
 static_assert(HardwareProfile::inputSignalGpio(0x1322, 0) == 41, "own hardware");
 static_assert(HardwareProfile::inputSignalGpio(0x1320, 0) == 255, "other hardware refused");
 static_assert(!HardwareProfile::isReservedGpio(41), "inputs reserved only when active");

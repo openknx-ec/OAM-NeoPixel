@@ -32,6 +32,7 @@ def prepare_wrappers(root=ROOT):
     share = (base / "BinaryInputChannel.share.xml").read_text()
     share = share.replace('href="BinaryInputChannel.templ.xml"', 'href="NeoPixel.BinaryInput.templ.generated.xml"')
     share = share.replace("</ParameterTypes>", '<op:include href="NeoPixel.inputs.gen.xml" xpath="//ApplicationProgram/Static/ParameterTypes/ParameterType" /></ParameterTypes>', 1)
+    share = share.replace("</ParameterRefs>", '<op:include href="NeoPixel.FunctionBlocks.part.xml" xpath="//Block[@name=\'ModuleRefs\']/*" IsInner="true" /></ParameterRefs>', 1)
     (root / "src/NeoPixel.BinaryInput.share.generated.xml").write_text(share)
     template = (base / "BinaryInputChannel.templ.xml").read_text()
     template = template.replace("</Parameters>", '<op:include href="NeoPixel.inputs.gen.xml" xpath="//Block[@name=\'Parameters\']/*" /></Parameters>', 1)
@@ -43,20 +44,20 @@ def prepare_wrappers(root=ROOT):
 def prepare(root=ROOT):
     prepare_wrappers(root)
     app = ET.parse(root / "src/NeoPixel-Dev.xml").getroot()
-    app.find(f"{{{OP}}}ETS").set("ApplicationVersion", "2.7")
+    version = app.find(f"{{{OP}}}ETS").get("ApplicationVersion")
     for config in app.findall(f"{{{OP}}}config"):
         if config.get("name") == "%NEO_ProductVersion%":
-            config.set("value", "2.7 (Input-Test)")
+            config.set("value", f"{version} (Input-Test)")
     write_xml(root / "src/NeoPixel-InputTest.xml", app)
 
-    profile = ET.parse(root / "HardwareProfile.xml").getroot()
+    profile = ET.parse(root / "HardwareManifest.xml").getroot()
     # The generator requires a hardware selection with at least two boards. Keep the
     # normal board IDs/slots for project migration and add the prototype env's pins.
     ET.SubElement(profile, "Boards", platformio="inputtest_*")
     ET.SubElement(profile, "Boards", platformio="inputsize_*")
-    write_xml(root / "HardwareProfile.inputtest.generated.xml", profile)
+    write_xml(root / "HardwareManifest.inputtest.generated.xml", profile)
     # Keep all existing board slot numbers, even though the prototype offers only this board.
-    (root / "HardwareProfile.inputtest.generated.slots").write_bytes((root / "HardwareProfile.slots").read_bytes())
+    (root / "HardwareManifest.inputtest.generated.slots").write_bytes((root / "HardwareManifest.slots").read_bytes())
 
 
 def bind(root=ROOT):
