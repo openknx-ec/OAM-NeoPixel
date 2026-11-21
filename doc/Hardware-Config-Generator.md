@@ -9,8 +9,8 @@ generic generator of OGM-HardwareConfig. Reference: `lib/OGM-HardwareConfig/gene
 |---|---|
 | `lib/OGM-HardwareConfig/include/HardwareConfig/**/*.h` | per board `DEVICE_HW_ID`, `DEVICE_NAME`, ports `HW_PORT_COUNT` / `HW_PORT_<n>_GPIO` / `HW_PORT_<n>_LABEL`, hard-wired relays `HW_RELAY_COUNT` / `HW_RELAY_<n>_GPIO` / `HW_RELAY_<n>_LABEL` (onboard relays: QuinLED Dig2Go IO12, Gledopto GL-C-017WL IO18, GL-C-620WL IO18), `DEVICE_THIRD_PARTY`, `HW_LEVELSHIFTER` |
 | `platformio.custom.ini` | the `release_*` / `debug_*` envs with the board define and build flags (`NEOPIXEL_DISABLE_2D`); the level shifter comes from `HW_LEVELSHIFTER` of the board header |
-| `HardwareProfile.xml` | manifest: boards = every `release_*` env; hardware module (prefix `NEOHW`, ModuleType 45); Network (`KNX_IP_LAN`/`KNX_IP_WIFI` in some env: third-party boards and KNeoPix S3 V1/V1.5), No2D (env flag), Wifi (`KNX_IP_WIFI` in any env of the board: the NETW selection and WiFi page are wrapped in `%NEOHW_CAP_Wifi_OR_NONE%`), ThirdParty (`DEVICE_THIRD_PARTY`), Relays (`<Value expr="HW_RELAY_COUNT" query="false">`, `<Set>` for KNeoPix 4, UP1 1, QuinLED Uno/Quad (V3, V4), Octa (V1, V2, V4) and Next2 1, Gledopto 309WL 1, 017WL 2, ETS only); `<Ports board="*" excludeRelayPins="true">`; the `<Generate>` list |
-| `HardwareProfile.slots` | board number per HW-ID (part of the parameter IDs `...HW<n>`); committed, never renumbered |
+| `HardwareManifest.xml` | manifest: boards = every `release_*` env; hardware module (prefix `NEOHW`, ModuleType 45); Network (`KNX_IP_LAN`/`KNX_IP_WIFI` in some env: third-party boards and KNeoPix S3 V1/V1.5), No2D (env flag), Wifi (`KNX_IP_WIFI` in any env of the board: the NETW selection and WiFi page are wrapped in `%NEOHW_CAP_Wifi_OR_NONE%`), ThirdParty (`DEVICE_THIRD_PARTY`), Relays (`<Value expr="HW_RELAY_COUNT" query="false">`, `<Set>` for KNeoPix 4, UP1 1, QuinLED Uno/Quad (V3, V4), Octa (V1, V2, V4) and Next2 1, Gledopto 309WL 1, 017WL 2, ETS only); `<Ports board="*" excludeRelayPins="true">`; the `<Generate>` list |
+| `HardwareManifest.slots` | board number per HW-ID (part of the parameter IDs `...HW<n>`); committed, never renumbered |
 | `src/hw/*.xml` | NeoPixel templates: port types, relay types, share blocks, strip blocks |
 | `src/NeoPixel.script.src.js` | ETS script source; `@@use` lines expand to the board tables (port labels, port GPIOs, board numbers, network list), the effect blocks are filled by `Build-EffectParameters.ps1` |
 
@@ -18,12 +18,13 @@ generic generator of OGM-HardwareConfig. Reference: `lib/OGM-HardwareConfig/gene
 
 | File | Used by |
 |---|---|
-| `src/NeoPixel.hw.module.gen.xml`, `src/NeoPixel.hw.module.gen.js` | the hardware module (`op:define prefix="NEOHW"` in `NeoPixel-Dev.xml` / `NeoPixel-Release.xml`): the page block `Profile` (intro, selection, button "Hardware vom Gerät abfragen", hints while nothing is selected, board text `HW_INFO_TEXT`, third-party notice, info image; texts from `<Page>` / `<Notice>` of `HardwareProfile.xml`) that `NeoPixel-Dev.xml` / `NeoPixel-Release.xml` compose as page OpenKNX → "Hardware" directly after "Allgemein" |
-| `src/NeoPixel.hw.types.gen.xml`, `src/NeoPixel.hw.relaytypes.gen.xml` | `NeoPixel.share.xml` (ParameterTypes include) |
+| `src/NeoPixel.hw.module.gen.xml`, `src/NeoPixel.hw.module.gen.js` | the hardware module (`op:define prefix="NEOHW"` in `NeoPixel-Dev.xml` / `NeoPixel-Release.xml`): the page block `Profile` (intro, selection, button "Vom Gerät lesen" with its help box and steps picture, hints while nothing is selected, board text `HW_INFO_TEXT`, third-party notice, info image; texts from `<Page>` / `<Notice>` of `HardwareManifest.xml`) that `NeoPixel-Dev.xml` / `NeoPixel-Release.xml` compose as page OpenKNX → "Gerät" (tree text from `%NEOHW_PageTextRef%`) directly after "Allgemein" |
+| `src/NeoPixel.hw.types.gen.xml` | `NeoPixel.share.xml` (ParameterTypes include) |
+| `src/NeoPixel.hw.filters.gen.xml` (`<Filters>`: relay count per board; effect lists without the 2D effects on No2D boards: `SegmentFx`, `SceneFx`, `CueFx`, values from `src/NeoPixel.Effects2D.values`) | types in `NeoPixel.share.xml`; parameters and refs in `NeoPixel.share.xml` (relays), `NeoPixel.Segment.templ.xml`, `NeoPixel.Scene.part.xml` and `NeoPixel.Cue.part.xml` (the parts hold them in `<FilterParameters>`, which the templates take outside their unions); rows on the relay page, segment page, segment overview (`Ov<n>`, `Ov<n>Ro`), scene page, cue page and cue table (`Table`) |
 | `src/NeoPixel.hw.share.gen.xml` | `NeoPixel.share.xml` (`op:include ... xpath="//Block[@name='...']/*"`) |
 | `src/NeoPixel.hw.strip.gen.xml` | `NeoPixel.Strip.templ.xml` |
 | `src/NeoPixel.hw.conf.xml` | application XML (`op:config`, feature flags such as `%NEOHW_SelectRef%`, `%NEOHW_CAP_No2D%`) |
-| `src/NeoPixel.hw.dev.gen.xml` | developer view module (`op:define prefix="NEOHWDEV"` ModuleType 46, only in `NeoPixel-Dev.xml`): checkbox „Entwickleransicht" (no memory, default off) and per board the sections Board, Module und Funktionen, Ports (table), Fest verdrahtete Relais, included at the end of the hardware page |
+| `src/NeoPixel.hw.dev.gen.xml` | developer view module (`op:define prefix="NEOHWDEV"` ModuleType 46, only in `NeoPixel-Dev.xml`): checkbox „Entwickleransicht" (no memory, default off) per board the sections Board, Module und Funktionen, Ports (table), Fest verdrahtete Relais; while no device type is selected: module, all boards and the bit order of the device query; included at the end of the hardware page |
 | `src/Baggages/Icons/memory.png` | page icon (MDI `memory`, Apache-2.0), copied from OGM-HardwareConfig `generator/assets/icons` (`<Page icon>`) |
 | `src/NeoPixel.script.js` | product XML `<Script>` |
 | `include/HardwareProfileData.h` | firmware: own HW-ID, capability bits, the HW-IDs of the ETS module (device query, `src/HardwareMappingLogic.h`) |
@@ -32,8 +33,8 @@ An output is only written when its content changes.
 
 ## Running it
 
-- `scripts/Build-Release.ps1` runs `Build-EffectParameters.ps1`, then the generator, then `Normalize-LineEndings.ps1`
-  and the producer.
+- `scripts/Build-Release.ps1` runs `Build-EffectParameters.ps1`, then `Normalize-LineEndings.ps1`, then the shared
+  OGM-Common preprocess, which runs the generator and the producer.
 - Alone (VS Code task "Build HardwareConfig"): `pwsh lib/OGM-HardwareConfig/generator/Build-HardwareProfile.ps1`
   in the repository root; it yields a current `src/NeoPixel.script.js` from `src/NeoPixel.script.src.js`.
 
@@ -66,9 +67,13 @@ Gledopto 309WL (IO12) and 017WL (IO13) are normal ports: LED or relay, as in 2.0
 ## Network and WiFi modules
 
 The network module is switched by the OpenKNX module checkbox „Netzwerk" (`BASE_ModuleEnabled_NET`, page OpenKNX →
-„Module"). The calculation `NEO_SetNetworkModuleVisibility` sets it from the hardware selection: on for the boards with
-capability Network (`KNX_IP_LAN` or `KNX_IP_WIFI` in some env of the board) and while nothing is selected (state after
-"Aktualisieren", so a download keeps the network settings), off for the other boards. Off hides the Netzwerk channel.
+„Module"). `<Fix name="NetOff" capability="!Network" value="0" show="assign">` of `HardwareManifest.xml` switches it off on
+the boards without capability Network (`KNX_IP_LAN` or `KNX_IP_WIFI` in some env of the board) (block `Fix_NetOff` in the
+hardware page of both product XMLs). On the boards with Network and while nothing is selected (state after "Aktualisieren")
+no Assign is active and the checkbox has its own value (default on), so a download keeps the network settings. After leaving
+a board without Network the Assign no longer applies and the checkbox has its own value again (ETS6, measured with the demo
+module: it comes back); a value an earlier Dev version wrote by script (off) stays. Off hides the
+Netzwerk channel.
 
 Firmware (`src/main.cpp`): an IP build (`MASK_VERSION 0x57B0`) always adds the network module. A TP build with
 `KNX_IP_LAN`/`KNX_IP_WIFI` adds it when the device is unprogrammed or the checkbox is on, and logs "network module not
@@ -98,7 +103,7 @@ selection and reports a capability that differs from the expected profile. 158/1
 
 ## Port conflicts
 
-The generator's check (`HardwareProfile.xml <Conflicts>`, OGM-HardwareConfig README "GPIO-Konflikte"): one calculation
+The generator's check (`HardwareManifest.xml <Conflicts>`, OGM-HardwareConfig README "GPIO-Konflikte"): one calculation
 (`PC-%TT%00900`, `NEOHW_conflictCheck` in `NeoPixel.hw.module.gen.js`) resolves every active signal to a GPIO of the selected
 board and flags two signals on one GPIO. Signals: data and clock of strips 1..NumberOfLEDStrips (per-board port parameter of
 the selected board; "Manuell" = `SPIMOSIGPIO` for the SPI LED types 5 6 21 22 23 24 25, else `DataGPIO`; clock only for
@@ -112,7 +117,7 @@ No board selected: no check. Flags without memory: relays `P-%TT%00900..00903`, 
 
 ## Board table EffectsOff (effects per board)
 
-`HardwareProfile.xml` holds `<BoardTable name="EffectsOff" header="src/NeoPixelEffectGroups.h" scan="^NEO_FXOFF_(\d+)$" />`
+`HardwareManifest.xml` holds `<BoardTable name="EffectsOff" header="src/NeoPixelEffectGroups.h" scan="^NEO_FXOFF_(\d+)$" />`
 (OGM-HardwareConfig README "Board-Tabellen"). Per `release_*` env the generator runs the preprocessor over
 `src/NeoPixelEffectGroups.h` with the `-D` flags of the env (no `build_unflags`, no `-include`) and reads every
 `NEO_FXOFF_<n>` (1 = effect number n is left out of that firmware, same conditions as `EffectPool::getEffectByIndex()`).
@@ -120,10 +125,12 @@ The ETS script gets one row per HW-ID: `var NEOHW_table_EffectsOff = { <HW-ID>: 
 effect number; `any` = bitwise OR over the envs of the board (some firmware leaves the effect out), `all` = bitwise AND
 (every firmware leaves it out).
 
-`NEO_EffectAvailability` (`src/NeoPixel.script.src.js`) reads the row of the selected board: per effect selector of the
-segment, of each scene and of each effect-manager cue it sets a flag without device memory (1 = `all`, error "Effekt nicht
-verfügbar"; 2 = only `any`, hint; 0 = built in, no board selected or unknown board). On boards with the capability No2D
-it reads the reduced selector without the 2D effects. The header comes from `scripts/Build-EffectParameters.ps1` (groups in
+`<ValueNotices>` turns the table into XML (`src/NeoPixel.hw.notices.gen.xml`, no script): per effect selector a block
+`ValueNotice_SegmentFx` (segment template), `ValueNotice_SceneFx` (part Scene), `ValueNotice_CueFx` (part Cue) with a
+choose on the hardware selection, one when per group of boards with the same values, inside a choose on the effect value:
+error "Effekt nicht verfügbar" for the numbers in `all`, hint for the numbers only in `any`; no board selected or an effect
+the board has: no notice. It reads the effect selector only: on boards with the capability No2D the visible list without
+the 2D effects (`<Filters>`, below) copies its value into it. The header comes from `scripts/Build-EffectParameters.ps1` (groups in
 `src/NeoPixel.EffectGroups.xml`, see `doc/Effect-Flags.md`), so that script runs before the hardware generator
 (`Build-Release.ps1` keeps this order).
 
@@ -131,6 +138,6 @@ it reads the reduced selector without the 2D effects. The header comes from `scr
 
 1. Header block in OGM-HardwareConfig with `DEVICE_HW_ID`, `DEVICE_NAME` and the `HW_PORT_*` lines (no gaps).
 2. A `release_<board>` env in `platformio.custom.ini` (board, board define, product flags) and its `debug_` twin in
-   `platformio.custom.dev.ini`; relays offered in ETS: a `<Set>` line in `HardwareProfile.xml` if the default 0 does not fit.
-3. Run the generator: the board gets the next free number in `HardwareProfile.slots` (commit it).
+   `platformio.custom.dev.ini`; relays offered in ETS: a `<Set>` line in `HardwareManifest.xml` if the default 0 does not fit.
+3. Run the generator: the board gets the next free number in `HardwareManifest.slots` (commit it).
 4. Raise the ApplicationVersion (the ETS content changed).

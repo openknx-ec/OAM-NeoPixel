@@ -42,15 +42,15 @@ class InputTestIntegration(unittest.TestCase):
         cls.app = ET.parse(ROOT / "src/NeoPixel-Dev.debug.xml").getroot()
 
     def test_existing_parameter_locations_preserved(self):
-        # Digest of all 69,772 stored parameter locations of Dev 2.5, captured before
-        # promotion. Exclude only newly appended BI/BTN parameters and their enable bits.
+        # Dev 3.4 from origin/v1dev (157ee88), generated with the same dependencies.
+        # Exclude only the appended BI/BTN parameters and their enable bits.
         current = stored_parameters(self.app)
         old = {key: value for key, value in current.items()
                if not key.split("-")[1].startswith(("24", "50"))
                and key not in {"UP-0099824", "UP-0099850"}}
-        self.assertEqual(len(old), 69772)
+        self.assertEqual(len(old), 69436)
         digest = hashlib.sha256(json.dumps(sorted(old.items()), separators=(",", ":")).encode()).hexdigest()
-        self.assertEqual(digest, "853d6865d3a05f4682fe2d8a5cfcef35544687f32bcd69ef32726442cdbd5b17")
+        self.assertEqual(digest, "7f2b249f5e6c9fb6f6e0d4999d27c3247c02dd51ed421b10ad44502e10c33882")
 
     def test_no_ko_collisions_and_prototype_ranges(self):
         objects = self.app.findall(".//k:ComObjectTable/k:ComObject", NS)
@@ -72,19 +72,29 @@ class InputTestIntegration(unittest.TestCase):
         self.assertIsNotNone(group)
         enabled = group.find("k:choose/k:when/k:ParameterBlock[@Name='FCB_FunctionBlockSettings']", NS)
         self.assertIsNotNone(enabled)
+        with (ROOT / "test/hardware-input-audit.csv").open() as audit:
+            visible_boards = {0} | {int(row["hardware_id"], 16) for row in csv.DictReader(audit) if row["gpio"]}
+        hardware_gate = next(node for node in group.findall("k:choose", NS)
+                             if node.get("ParamRefId").endswith("450000101"))
+        hardware_when = hardware_gate.find("k:when", NS)
+        self.assertEqual(set(map(int, hardware_when.get("test").split())), visible_boards)
+        module_page = dynamic.find(".//k:ParameterBlock[@Name='BASE_OpenKNXproducerGeneratedModules']", NS)
+        switch_gate = next(node for node in module_page.findall("k:choose", NS)
+                           if node.get("ParamRefId") == hardware_gate.get("ParamRefId"))
+        switch_when = switch_gate.find("k:when", NS)
+        self.assertEqual(switch_when.get("test"), hardware_when.get("test"))
         for prefix, page, ref in [("BI", "BinaryInputs", "009982401"), ("BTN", "VirtualButtons", "009985001")]:
             self.assertIsNone(dynamic.find(f".//k:Channel[@Number='{prefix}']", NS))
-            choose = next(node for node in group.findall("k:choose", NS) if node.get("ParamRefId").endswith(ref))
+            choose = next(node for node in hardware_when.findall("k:choose", NS) if node.get("ParamRefId").endswith(ref))
             block = choose.find(f"k:when[@test='1']/k:ParameterBlock[@Name='{page}']", NS)
             self.assertIsNotNone(block)
             self.assertEqual(block.get("ShowInComObjectTree"), "true")
             self.assertIsNotNone(block.find(f"k:ParameterBlock[@Name='{prefix}_Basic']", NS))
-            module_page = dynamic.find(".//k:ParameterBlock[@Name='BASE_OpenKNXproducerGeneratedModules']", NS)
-            self.assertIsNotNone(module_page.find(f"k:ParameterRefRef[@RefId='{choose.get('ParamRefId')}']", NS))
+            self.assertIsNotNone(switch_when.find(f"k:ParameterRefRef[@RefId='{choose.get('ParamRefId')}']", NS))
 
     def test_packaged_product_identity_and_regex(self):
         products = [(ROOT / f"NeoPixel-{variant}-xknx.knxprod", number, version)
-                    for variant, number, version in [("Dev", "AD01", "42"), ("Release", "AD00", "19")]]
+                    for variant, number, version in [("Dev", "AD01", "53"), ("Release", "AD00", "20")]]
         available = [(path, number, version) for path, number, version in products if path.exists()]
         self.assertTrue(available, "Generate a normal Dev or Release XKNX product first")
         for path, number, version in available:

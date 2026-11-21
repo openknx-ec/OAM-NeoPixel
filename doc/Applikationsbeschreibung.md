@@ -17,7 +17,7 @@ Je nach eingesetzter Hardware stehen zusätzlich Netzwerkfunktionen, OTA-Update,
 * Steuerung von bis zu 8 physischen LED-Streifen
 * Bildung eines virtuellen LED-Streifens zur freien Anordnung der physischen Streifen
 * Bis zu 16 unabhängige Segmente
-* 33 Effekte (Nummern 0–32) für statische und dynamische Lichtbilder, davon 13 **2D-Matrix-Effekte** (Nummern 20–32, z. B. Uhr 2D, Matrix 2D, Tetris 2D, Plasma Nebula, Starfield Warp); welche davon eine Firmware enthält, hängt von der Hardware ab (siehe „Effekte je Hardware“)
+* 33 Effekte (Nummern 0–32) für statische und dynamische Lichtbilder, davon 14 reine **2D-Matrix-Effekte** (Laufschrift 19 und 20–32, z. B. Uhr, Matrix, Tetris, Plasma Nebula, Starfield Warp; in der Auswahl „2D ·“) und 3, die auf Streifen und Matrix laufen (Cylon, Fire, Noise; „1D/2D ·“); welche davon eine Firmware enthält, hängt von der Hardware ab (siehe „Effekte je Hardware“)
 * Konfiguration von Segmenten als 2D-Matrix (Breite × Höhe, Topologie) für matrixfähige Effekte
 * **Effektmanager**: Cue-basierte Lichtsequenzen mit Überblendung, Loop und Verkettung mehrerer Effektmanager
 * **Effektkette**: ein Effekt nahtlos über mehrere KNX-Geräte (ein Master, mehrere Slaves)
@@ -59,10 +59,10 @@ Nach dem Laden der physikalischen Adresse und der Applikation sollten zuerst die
 * Festlegung der Anzahl LEDs je physischem Streifen
 * Prüfung der Spannungsversorgung und der Leistungsgrenzen
 
-Die Hardware wird auf der Seite **OpenKNX → Hardware** gewählt:
+Die Hardware wird auf der Seite **OpenKNX → Gerät** gewählt:
 
-* **Nicht gewählt:** Unter „Abgleich mit dem Gerät“ fragt der Knopf „Hardware vom Gerät abfragen“ die Hardware vom Gerät ab (vorher physikalische Adresse und Applikation programmieren). Alternativ die Hardware direkt in der Liste wählen. Hardwareabhängige Einstellungen sind bis dahin ausgeblendet. Nach einem Update von einer Applikation ohne diese Seite steht die Auswahl einmalig auf „Nicht gewählt“.
-* **Hardware gewählt:** Die Seite zeigt eine Gerätekarte: OpenKNX-Logo bzw. bei Drittanbieter-Hardware das Badge „Drittanbieter / Hardware“, den Gerätenamen und eine kurze Beschreibung. Hat das Gerät eine Infoseite, steht rechts daneben ein QR-Code mit dem Link (OpenKNXiao KNeoPiX: go.openknx.de/kneopix, UP1 UART Gateway: go.openknx.de/up1-gw-uart). Bei Drittanbieter-Hardware folgt ein Hinweis zu Gewährleistung und Support. Der Abfrage-Knopf ist dann ausgeblendet; zum erneuten Abfragen die Auswahl auf „Nicht gewählt“ stellen.
+* **Nicht gewählt:** Unter „Oder automatisch erkennen“ liest der Knopf „Vom Gerät lesen“ den Gerätetyp vom Gerät (vorher die physikalische Adresse programmieren). Alternativ die Hardware direkt in der Liste wählen. Hardwareabhängige Einstellungen sind bis dahin ausgeblendet.
+* **Hardware gewählt:** Die Seite zeigt eine Gerätekarte: den Gerätenamen, links das Logo des Herstellers (bei OpenKNX-Geräten das OpenKNX-Logo) und bei Drittanbieter-Hardware darunter den Stempel „Drittanbieter / Hardware“, in der Mitte eine kurze Beschreibung. Hat das Gerät eine Infoseite, steht rechts ein QR-Code mit „Geräteinfo“ darunter; die Adresse steht im QR-Code (OpenKNXiao KNeoPiX: go.openknx.de/kneopix, UP1 UART Gateway: go.openknx.de/up1-gw-uart). Bei Drittanbieter-Hardware folgt ein Hinweis zu Gewährleistung und Support. Der Abfrage-Knopf ist dann ausgeblendet; zum erneuten Abfragen die Auswahl auf „Nicht gewählt“ stellen.
 
 Wenn Firmware und ETS-Hardwareauswahl nicht zusammenpassen, wird die Hardwarekonfiguration aus Sicherheitsgründen nicht wie vorgesehen übernommen. In diesem Fall muss entweder die passende Firmware geflasht oder die ETS-Parametrierung korrigiert werden.
 

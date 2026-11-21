@@ -283,6 +283,15 @@ function Set-WipeNames([string]$Dir, [string[]]$Names) {
   $new = ''
   for ($i = 0; $i -lt $Names.Count; $i++) { $new += "            case ${i}: return `"$($Names[$i])`";`n" }
   Edit-File $path $old $new
+  # every parameter needs its ETS label (getParameterLabel, PARAM_LABEL_DE_EN): the labels of the header for its names, the name otherwise
+  $oldLabels = "            case 0: return PARAM_LABEL_DE_EN(`"Geschwindigkeit`", `"Speed`");`n            case 1: return PARAM_LABEL_DE_EN(`"Richtung`", `"Direction`");`n            case 2: return PARAM_LABEL_DE_EN(`"Wiederholen`", `"Repeat`");`n"
+  $known = @{ Speed = @('Geschwindigkeit', 'Speed'); Direction = @('Richtung', 'Direction'); Loop = @('Wiederholen', 'Repeat') }
+  $newLabels = ''
+  for ($i = 0; $i -lt $Names.Count; $i++) {
+    $pair = if ($known.ContainsKey($Names[$i])) { $known[$Names[$i]] } else { @($Names[$i], $Names[$i]) }
+    $newLabels += "            case ${i}: return PARAM_LABEL_DE_EN(`"$($pair[0])`", `"$($pair[1])`");`n"
+  }
+  Edit-File $path $oldLabels $newLabels
   Edit-File $path 'uint8_t getParameterCount() const override { return 3; }' "uint8_t getParameterCount() const override { return $($Names.Count); }"
 }
 
@@ -291,6 +300,10 @@ function Add-Effect([string]$Dir, [string]$Base, [string]$DisplayName, [int]$Par
   $text = [System.IO.File]::ReadAllText((Fx $Dir 'BPMEffect.h')).Replace('BPMEffect', "${Base}Effect")
   $text = $text.Replace('const char* getName(const char* lang = nullptr) override { return "BPM"; }', "const char* getName(const char* lang = nullptr) override { return `"$DisplayName`"; }")
   $text = $text.Replace('uint8_t getParameterCount() const override { return 2; }', "uint8_t getParameterCount() const override { return $ParamCount; }")
+  # a 2D effect is one whose getCapabilities() has no DIM_1D (Build-EffectParameters.ps1 Get-EffectDimension)
+  if ($TwoD) {
+    $text = $text.Replace("uint8_t getParameterCount() const override { return $ParamCount; }", "uint8_t getParameterCount() const override { return $ParamCount; }`n    uint8_t getCapabilities() const override { return DIM_2D; }")
+  }
   [System.IO.File]::WriteAllText((Fx $Dir "${Base}Effect.h"), $text, $utf8)
   $flag = "NEOPIXEL_DISABLE_" + $Base.ToUpperInvariant()
   Edit-File (Fx $Dir 'EffectPool.cpp') "    s_effectNumbers = n;" "#ifndef $flag`n    if (index == n) return get${Base}();`n#endif`n    n++;`n`n    s_effectNumbers = n;"
@@ -326,7 +339,7 @@ $help = 'src/Baggages/Help_de'
 $xmlAll = @('src/NeoPixel.Segment.templ.xml', 'src/NeoPixel.Cue.part.xml', 'src/NeoPixel.Scene.part.xml', 'src/NeoPixel.share.xml',
   'src/NeoPixel.EM.share.xml', 'src/NeoPixel.script.src.js', 'src/EffectParameterMapping.h', 'src/EffectTypeMapping.h',
   'src/WebUi/NeoPixelEffectCatalog.generated.h', 'web/assets/effects.json', 'src/NeoPixelEffectGroups.h', 'src/EffectIds.lock',
-  "$help/NEO-Effekt-Typ.md", "$help/NEO-Effekt-ID-Referenz.md", 'doc/Effect-Flags.md')
+  "$help/NEO-Effekt-Typ.md", "$help/NEO-Effekt-Typ-Szene.md", "$help/NEO-Cue-Effekt.md", "$help/NEO-Effekt-ID-Referenz.md", 'doc/Effect-Flags.md')
 
 # 1 description
 Test-Allowed 'ParamDescription' {
@@ -360,6 +373,11 @@ Test-Allowed 'ParamAppend' {
 
 # 4 parameter inserted in the middle / reordered
 Test-Stop 'ParamInsert' { param($d) Set-WipeNames $d @('Speed', 'Fade', 'Direction', 'Loop') } -Message "moved from index"
+
+# 4b a parameter without its ETS label (getParameterLabel / PARAM_LABEL_DE_EN in the effect header)
+Test-Stop 'ParamLabelMissing' {
+  param($d) Edit-File (Fx $d 'EffectWipe.h') "            case 2: return PARAM_LABEL_DE_EN(`"Wiederholen`", `"Repeat`");`n" ''
+} -Message "parameter 2 \(Loop\) has no label"
 Test-Stop 'ParamReorder' { param($d) Set-WipeNames $d @('Speed', 'Loop', 'Direction') } -Message "moved from index"
 
 # 5 parameter removed: the last one (allowed) / one in the middle (stops)
@@ -398,16 +416,15 @@ Test-Allowed 'EffectAppend' { param($d) Add-Effect $d 'Blink' 'Blink' } `
   -Expect @('src/NeoPixel.Segment.templ.xml', 'src/NeoPixel.Cue.part.xml', 'src/NeoPixel.Scene.part.xml', 'src/NeoPixel.share.xml',
   'src/NeoPixel.EM.share.xml', 'src/NeoPixel.script.src.js', 'src/EffectParameterMapping.h', 'src/EffectTypeMapping.h',
   'web/assets/effects.json', 'src/WebUi/NeoPixelEffectCatalog.generated.h', 'src/NeoPixelEffectGroups.h', 'src/EffectIds.lock',
-  'src/EffectParameters.lock', "$help/NEO-Effekt-Typ.md", "$help/NEO-Effekt-ID-Referenz.md", 'doc/Effect-Flags.md',
+  'src/EffectParameters.lock', "$help/NEO-Effekt-Typ.md", "$help/NEO-Effekt-Typ-Szene.md", "$help/NEO-Cue-Effekt.md", "$help/NEO-Effekt-ID-Referenz.md", 'doc/Effect-Flags.md',
   "+$help/NEO-BPM-Blink.md", "+$help/NEO-Hue-Blink.md") -Added $effectAdded `
   -Extra {
     param($d)
     $h = [System.IO.File]::ReadAllText((Join-Path $d 'src/NeoPixelEffectGroups.h'))
     if ($h -notmatch '#if defined\(NEOPIXEL_DISABLE_BLINK\)\s+#define NEO_FXOFF_33 1') { 'NEO_FXOFF_33 not guarded by NEOPIXEL_DISABLE_BLINK only' }
     if ([System.IO.File]::ReadAllText((Join-Path $d 'src/EffectIds.lock')) -notmatch "33`tBlinkEffect") { 'EffectIds.lock has no number 33' }
-    $s = [System.IO.File]::ReadAllText((Join-Path $d 'src/NeoPixel.share.xml'))
-    $no2d = [regex]::Match($s, '(?s)GENERATED_EFFECT_ENUMERATIONS_NO2D_START(.*?)GENERATED_EFFECT_ENUMERATIONS_NO2D_END').Groups[1].Value
-    if ($no2d -notmatch 'Value="33"') { 'Blink (1D) missing in the No2D list' }
+    $two = [System.IO.File]::ReadAllText((Join-Path $d 'src/NeoPixel.Effects2D.values'))
+    if ($two -match '(?m)^33$') { 'Blink (1D) listed in NeoPixel.Effects2D.values' }
   }
 
 # 10 new 2D effect
@@ -415,16 +432,16 @@ Test-Allowed 'Effect2DAppend' { param($d) Add-Effect $d 'Blink2D' 'Blink 2D' -Tw
   -Expect @('src/NeoPixel.Segment.templ.xml', 'src/NeoPixel.Cue.part.xml', 'src/NeoPixel.Scene.part.xml', 'src/NeoPixel.share.xml',
   'src/NeoPixel.EM.share.xml', 'src/NeoPixel.script.src.js', 'src/EffectParameterMapping.h', 'src/EffectTypeMapping.h',
   'web/assets/effects.json', 'src/WebUi/NeoPixelEffectCatalog.generated.h', 'src/NeoPixelEffectGroups.h', 'src/EffectIds.lock',
-  'src/EffectParameters.lock', "$help/NEO-Effekt-Typ.md", "$help/NEO-Effekt-ID-Referenz.md", 'doc/Effect-Flags.md',
+  'src/EffectParameters.lock', "$help/NEO-Effekt-Typ.md", "$help/NEO-Effekt-Typ-Szene.md", "$help/NEO-Cue-Effekt.md", "$help/NEO-Effekt-ID-Referenz.md", 'doc/Effect-Flags.md', 'src/NeoPixel.Effects2D.values',
   "+$help/NEO-BPM-Blink-2D.md", "+$help/NEO-Hue-Blink-2D.md") -Added $effectAdded `
   -Extra {
     param($d)
     $h = [System.IO.File]::ReadAllText((Join-Path $d 'src/NeoPixelEffectGroups.h'))
     if ($h -notmatch '#if defined\(NEOPIXEL_DISABLE_BLINK2D\) \|\| defined\(NEOPIXEL_DISABLE_2D\)\s+#define NEO_FXOFF_33 1') { 'NEO_FXOFF_33 not guarded by NEOPIXEL_DISABLE_2D' }
     $s = [System.IO.File]::ReadAllText((Join-Path $d 'src/NeoPixel.share.xml'))
-    $no2d = [regex]::Match($s, '(?s)GENERATED_EFFECT_ENUMERATIONS_NO2D_START(.*?)GENERATED_EFFECT_ENUMERATIONS_NO2D_END').Groups[1].Value
+    $two = [System.IO.File]::ReadAllText((Join-Path $d 'src/NeoPixel.Effects2D.values'))
     $all = [regex]::Match($s, '(?s)GENERATED_EFFECT_ENUMERATIONS_START(.*?)GENERATED_EFFECT_ENUMERATIONS_END').Groups[1].Value
-    if ($no2d -match 'Value="33"') { 'Blink 2D in the No2D list' }
+    if ($two -notmatch '(?m)^33$') { 'Blink 2D missing in NeoPixel.Effects2D.values' }
     if ($all -notmatch 'Value="33"') { 'Blink 2D missing in the full list' }
   }
 Test-Stop 'Effect2DNoEntry' { param($d) Add-Effect $d 'Blink2D' 'Blink 2D' -TwoD -NoTwoDEntry } -Message "member of NEOPIXEL_DISABLE_2D"
@@ -482,7 +499,7 @@ Test-Allowed 'ParamEnumAppend' {
   param($d)
   Edit-File (Fx $d 'EffectWipe.h') $wipeEnum ($wipeEnum + "            case 6: return `"Zufall`";`n")
   Edit-File (Fx $d 'EffectWipe.h') 'return (paramIndex == 1) ? 6 : 0;' 'return (paramIndex == 1) ? 7 : 0;'
-} -Expect @('src/NeoPixel.share.xml', 'web/assets/effects.json', 'src/WebUi/NeoPixelEffectCatalog.generated.h', 'src/EffectParameters.lock') `
+} -Expect @('src/NeoPixel.share.xml', 'web/assets/effects.json', 'src/WebUi/NeoPixelEffectCatalog.generated.h', 'src/EffectParameters.lock', "$help/NEO-Direction-Wipe.md") `
   -Extra { param($d) if ((Get-LockLine $d 1 1) -notmatch ';5=Aussen nach Mitte;6=Zufall$') { "lock line of Wipe index 1 lacks the appended value: $(Get-LockLine $d 1 1)" } }
 Test-Allowed 'ParamRangeWiden' {
   param($d)
@@ -506,18 +523,18 @@ Test-Allowed 'LockMissing' {
 }
 Test-Custom 'LockAfterStop' 'allowed' {
   param($d)
-  $page = Join-Path $d "$help/NEO-Effekt-Typ.md"
-  $marker = '<!-- BEGIN AUTO-GENERATED: Effect Table - DO NOT EDIT MANUALLY -->'
+  $page = Join-Path $d 'doc/Effect-Flags.md'
+  $marker = '<!-- BEGIN AUTO-GENERATED: Effect Flags - DO NOT EDIT MANUALLY -->'
   # 1. parameter appended, but the run stops at the missing block marker: the lock keeps the base state
   Set-WipeNames $d @('Speed', 'Direction', 'Loop', 'Fade')
-  Edit-File $page $marker '<!-- BEGIN GENERATED: Effect Table -->'
+  Edit-File $page $marker '<!-- BEGIN GENERATED: Effect Flags -->'
   $g = Invoke-Generator $d @('-SkipOpenKNXproducer')
   if ($g.Code -eq 0 -or $g.Out -notmatch 'not written by this run, kept') { "step 1: run did not stop at the missing marker (exit $($g.Code))" }
   foreach ($l in $script:LockFiles) {
     if ([System.IO.File]::ReadAllText((Join-Path $d $l)) -cne [System.IO.File]::ReadAllText((Join-Path $script:Base $l))) { "step 1: $l changed by the stopped run" }
   }
   # 2. both reverted: a full run back to the base state
-  Edit-File $page '<!-- BEGIN GENERATED: Effect Table -->' $marker
+  Edit-File $page '<!-- BEGIN GENERATED: Effect Flags -->' $marker
   Copy-Item -LiteralPath (Fx $script:Base 'EffectWipe.h') -Destination (Fx $d 'EffectWipe.h') -Force
   $g = Invoke-Generator $d @('-SkipOpenKNXproducer')
   if ($g.Code -ne 0) { "step 2: revert run exit $($g.Code)" }
@@ -541,11 +558,19 @@ Test-Custom 'WebCatalogNoLock' 'allowed' {
   }
 }
 
-# generated page without its block marker: kept, the run fails, -Check stays outdated
+# generated page without its block marker (doc/Effect-Flags.md): kept, the run fails, -Check stays outdated
 Test-Stop 'PageMarkerMissing' {
-  param($d) Edit-File (Join-Path $d "$help/NEO-Effekt-Typ.md") '<!-- BEGIN AUTO-GENERATED: Effect Table - DO NOT EDIT MANUALLY -->' '<!-- BEGIN GENERATED: Effect Table -->'
+  param($d) Edit-File (Join-Path $d 'doc/Effect-Flags.md') '<!-- BEGIN AUTO-GENERATED: Effect Flags - DO NOT EDIT MANUALLY -->' '<!-- BEGIN GENERATED: Effect Flags -->'
 } -Message "not written by this run, kept" -AllowWrites -Extra {
-  param($d) if (-not (Test-Path -LiteralPath (Join-Path $d "$help/NEO-Effekt-Typ.md"))) { 'NEO-Effekt-Typ.md was deleted' }
+  # the help pages written whole (no block marker) must exist and must not look like a per-parameter help file, which
+  # Remove-OrphanedEffectOutputs (Build-EffectParameters.ps1) deletes once a run no longer writes it
+  param($d)
+  foreach ($p in @('NEO-Effekt-Typ.md', 'NEO-Effekt-Typ-Szene.md', 'NEO-Cue-Effekt.md')) {
+    $f = Join-Path $d "$help/$p"
+    if (-not (Test-Path -LiteralPath $f)) { "$p was deleted"; continue }
+    $text = [System.IO.File]::ReadAllText($f).Replace("`r`n", "`n").TrimStart([char]0xFEFF)
+    if ($text -match '\A# [^\n]+\n\n\*\*Effekt:\*\* [^\n]+\n') { "$p matches the orphan pattern of a per-parameter help file" }
+  }
 }
 
 # ------------------------------------------------------------------------------------------------

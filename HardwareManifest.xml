@@ -8,7 +8,7 @@
 -->
 <!-- portManualValue / portNoneValue: values of the data, clock and relay port parameters (0..9 = port 1..10, 10 = manual GPIO,
      15 = not selected), read by the GPIO conflict check (<Conflicts>) and the firmware (HardwareProfile::signalGpio) -->
-<HardwareManifest prefix="NEOHW" moduleType="45" text="Hardware" unselected="hide" order="hwid" ids="slot" portManualValue="10" portNoneValue="15">
+<HardwareManifest prefix="NEOHW" moduleType="45" text="Gerät" unselected="hide" order="hwid" ids="slot" portManualValue="10" portNoneValue="15">
 
   <!-- op:config feature flags, e.g. %NEOHW_CAP_No2D% / %NEOHW_SelectRef% (referenced by NeoPixel-Dev.xml / NeoPixel-Release.xml);
        share + script: the hardware module (op:define prefix NEOHW, ModuleType 45): selection, device query, capability page -->
@@ -19,7 +19,7 @@
   <!-- capability ThirdParty (DEVICE_THIRD_PARTY) is built into the generator -->
 
   <!-- Network module: the firmware has it (src/main.cpp adds it with KNX_IP_LAN or KNX_IP_WIFI) in some env of the board;
-       on/off is the OpenKNX module checkbox "Netzwerk" (BASE_ModuleEnabled_NET, set from the selection by NEO_SetNetworkModuleVisibility,
+       on/off is the OpenKNX module checkbox "Netzwerk" (BASE_ModuleEnabled_NET, off by <Fix name="NetOff"> on boards without it,
        read by src/main.cpp in TP builds only). feature* = rows of the developer view (<Page features>); featureNote on boards
        whose every env runs KNX over IP (the network is their KNX link). No2D: env build flag of platformio.custom.ini -->
   <Capability name="Network" text="Netzwerk-Modul" expr="defined(KNX_IP_LAN) || defined(KNX_IP_WIFI)" feature="Netzwerk" featureNote="immer ein, KNX über IP" featureNoteWhen="KnxIp" />
@@ -34,13 +34,8 @@
        017WL (relay 1 fixed, relay 2 on a port, as many relays as before); relays="true": developer view row (fest verdrahtet / Port wählbar) -->
   <Value name="Relays" text="Relais" expr="HW_RELAY_COUNT" default="0" max="4" query="false" relays="true">
     <Set board="OKNXHW_OPENKNXIAO_KNEOPIX_*" value="4" />
+    <Set board="DEVICE_QUINLED_DIG_*" value="1" />
     <Set board="DEVICE_UP1_GW_UART" value="1" />
-    <Set board="DEVICE_QUINLED_DIG_UNO_V3_*" value="1" />
-    <Set board="DEVICE_QUINLED_DIG_QUAD_V3_*" value="1" />
-    <Set board="DEVICE_QUINLED_DIG_UNO_V4_*" value="1" />
-    <Set board="DEVICE_QUINLED_DIG_QUAD_V4_*" value="1" />
-    <Set board="DEVICE_QUINLED_DIG_OCTA_32_8L_*" value="1" />
-    <Set board="DEVICE_QUINLED_DIG_NEXT_2" value="1" />
     <Set board="DEVICE_GL_C_309WL" value="1" />
     <Set board="DEVICE_GL_C_017WL" value="2" />
   </Value>
@@ -51,21 +46,36 @@
 
   <!-- the hardware page as a page of the OpenKNX channel (NeoPixel-Dev.xml / NeoPixel-Release.xml compose it after "Allgemein"):
        texts of the page (each <= 255 characters; absent = generator default: intro, queryTitle, query, infoDefault); no board
-       selected: "Abgleich mit dem Gerät" with the query button and unselectedInfo; board selected: device card (<InfoImage>),
-       switches, third-party notice. help = context help (src/Baggages/Help_de/NEO-Hardware.md). features = rows "Module und Funktionen" of the developer view; dev = developer view module,
+       selected: "Oder automatisch erkennen" with the query button, its help box and steps picture; board selected: device card (<InfoImage>),
+       switches, third-party notice. help = context help (src/Baggages/Help_de/NEO-Hardware.md). features = rows "Module und Funktionen"
+       of the developer view only (no cardFeatures); dev = developer view module,
        defined only in NeoPixel-Dev.xml -->
-  <Page text="Hardware" icon="memory" help="NEO-Hardware" dev="src/NeoPixel.hw.dev.gen.xml" features="KnxIp Network Wifi No2D Relays InputPorts"
-        unselectedInfo="Hardwareabhängige Einstellungen sind ausgeblendet, bis eine Hardware gewählt ist. Nach einem Update von einer Applikation ohne diese Seite ist die Auswahl einmalig zurückgesetzt." />
-  <Notice when="ThirdParty" title="Produkt eines Drittanbieters: OpenKNX stellt nur eine kompatible Firmware bereit und steht in keiner geschäftlichen Verbindung zum Hersteller. Gewährleistung, Support und Produktsicherheit liegen beim Hersteller. Nutzung auf eigene Verantwortung." />
+  <Page text="Gerät" icon="memory" help="NEO-Hardware" dev="src/NeoPixel.hw.dev.gen.xml" features="KnxIp Network Wifi No2D Relays InputPorts"
+        intro="Diese Applikation gilt für mehrere Geräte. Wählen Sie das Gerät aus, das verbaut ist. Erst dann sind seine Anschlüsse und Einstellungen sichtbar. Ohne Auswahl bleiben alle Anschlüsse des Geräts aus." />
+  <Notice when="ThirdParty" title="Hardware eines Drittanbieters. OpenKNX ist ein Open-Source-Projekt ohne geschäftliche Verbindung zum Hersteller und liefert nur die Firmware. Gewährleistung, Support und Produktsicherheit liegen beim Hersteller. Nutzung auf eigene Verantwortung." />
 
-  <!-- device card on the hardware page: OpenKNX logo or third-party badge, DEVICE_NAME as headline, board text (HW_INFO_TEXT, else
-       the generator default); with HW_INFO_URL in the board header the QR code + link (one line) right of the board text.
+  <!-- device card on the hardware page: DEVICE_NAME as headline, left the logo (HW_INFO_LOGO, else OpenKNX) and on third-party boards
+       the badge below it, board text (HW_INFO_TEXT, else the generator default); with HW_INFO_URL the QR code + caption on the right.
        Pictures: src/Baggages/NEOHWInfo (generated) -->
   <InfoImage style="card" />
 
   <!-- effects per target: NEO_FXOFF_<n> of the generated src/NeoPixelEffectGroups.h with the flags of each env (1 = effect n left out);
-       NEOHW_table_EffectsOff in the ETS script, read by NEO_EffectAvailability (message under the effect selectors) -->
+       read by <ValueNotices> below (notice under the effect selectors) -->
   <BoardTable name="EffectsOff" header="src/NeoPixelEffectGroups.h" scan="^NEO_FXOFF_(\d+)$" />
+  <!-- notice under an effect selector whose effect the firmware of the selected board leaves out (value = effect number = index of
+       EffectsOff): all = every env of the board leaves it out (it runs "Solid"), any = only some envs. Blocks ValueNotice_<name> in
+       NeoPixel.Segment.templ.xml (segment), NeoPixel.Scene.part.xml (scenes) and NeoPixel.Cue.part.xml (cues); refs keep the tokens -->
+  <ValueNotices output="src/NeoPixel.hw.notices.gen.xml">
+    <ValueNotice name="SegmentFx" ref="%AID%_UP-%TT%%CC%057_R-%TT%%CC%05701" table="EffectsOff"
+                 all="Effekt nicht verfügbar: Die Firmware dieser Hardware enthält diesen Effekt nicht, es läuft „Solid“."
+                 any="Hinweis: Dieser Effekt fehlt in einer Firmware-Variante dieser Hardware." />
+    <ValueNotice name="SceneFx" ref="%AID%_UP-%TT%%CC%%PPP+0%_R-%TT%%CC%%PPP+0%01" table="EffectsOff"
+                 all="Effekt nicht verfügbar: Die Firmware dieser Hardware enthält diesen Effekt nicht, es läuft „Solid“."
+                 any="Hinweis: Dieser Effekt fehlt in einer Firmware-Variante dieser Hardware." />
+    <ValueNotice name="CueFx" ref="%AID%_UP-%TT%%CC%%CUE_PPP+0%_R-%TT%%CC%%CUE_PPP+0%01" table="EffectsOff"
+                 all="Effekt nicht verfügbar: Die Firmware dieser Hardware enthält diesen Effekt nicht, es läuft „Solid“."
+                 any="Hinweis: Dieser Effekt fehlt in einer Firmware-Variante dieser Hardware." />
+  </ValueNotices>
 
   <Boards platformio="release_*" />
 
@@ -75,7 +85,6 @@
 
   <!-- ParameterTypes, included by NeoPixel.share.xml (xpath //ApplicationProgram/Static/ParameterTypes/ParameterType) -->
   <Generate template="src/hw/NeoPixel.hw.types.xml" output="src/NeoPixel.hw.types.gen.xml" />
-  <Generate template="src/hw/NeoPixel.hw.relaytypes.xml" output="src/NeoPixel.hw.relaytypes.gen.xml" />
 
   <!-- board-dependent elements, included per <Block> by NeoPixel.share.xml / NeoPixel.Strip.templ.xml -->
   <Generate template="src/hw/NeoPixel.hw.share.xml" output="src/NeoPixel.hw.share.gen.xml" />
@@ -216,4 +225,83 @@
   <Inputs board="*" max="64" />
   <Value name="InputPorts" text="Eingangsanschlüsse" expr="HW_INPUT_COUNT" default="0" max="64" query="false" />
   <Generate template="src/hw/NeoPixel.hw.inputs.xml" output="src/NeoPixel.inputs.gen.xml" />
+  <!-- Settings of other modules fixed per capability (OGM-HardwareConfig <Fixes>): on hardware with WiFi "WiFi-Schnittstelle"
+       (NETW_HasWifi, no memory, shows the WiFi page) is Ja and read-only; the product XMLs take the row out of the NETW include
+       and include block Fix_HasWifi in its place -->
+  <Fixes output="src/NeoPixel.hw.fixes.gen.xml">
+    <Fix name="HasWifi" capability="Wifi" ref="%AID%_P-1401001_R-140100100" value="1" show="readonly" indent="1" help="NETW-WiFi" />
+    <!-- Info LED function (OGM-Common Info1LedFunc..Info3LedFunc, BASE = ModuleType 10): on boards whose header defines
+         OPENKNX_INFOLED<n>_DEFAULT (the function the firmware uses with "Geräteabhängige Vorbelegung") ETS sets this function when
+         the board is selected; show="assign": the row stays on the page "Info LEDs" and can be changed. Blocks Fix_InfoLed<n> are
+         included in the hardware page of NeoPixel-Dev.xml / NeoPixel-Release.xml (an Assign must sit in a ParameterBlock);
+         no board of this product defines the macro yet (empty blocks) -->
+    <Fix name="InfoLed1" ref="%AID%_UP-1000020_R-100002001" valueMacro="OPENKNX_INFOLED1_DEFAULT" show="assign" />
+    <Fix name="InfoLed2" ref="%AID%_UP-1000021_R-100002101" valueMacro="OPENKNX_INFOLED2_DEFAULT" show="assign" />
+    <Fix name="InfoLed3" ref="%AID%_UP-1000022_R-100002201" valueMacro="OPENKNX_INFOLED3_DEFAULT" show="assign" />
+    <!-- OpenKNX module checkbox "Netzwerk" (BASE_ModuleEnabled_NET, ModuleType 11): off on boards without the network module; on the
+         others and while not selected no Assign (own value, default on). Block Fix_NetOff in the
+         hardware page of the product XMLs -->
+    <Fix name="NetOff" capability="!Network" ref="%AID%_UP-0099811_R-009981101" value="0" show="assign" />
+  </Fixes>
+
+  <!-- page "Info LEDs" of OGM-Common per device (OGM-HardwareConfig <PartRows>): copy of InfoLed.part.xml in which row "Info <n>"
+       appears only on boards whose header defines the LED (INFO<n>_LED_PIN; INFO_LED_PIN is the old name of INFO1, OGM-Common
+       defines.h), with the board label INFO<n>_LED_LABEL in the row text ("Info 1 (grün)"); not selected: all three rows.
+       NeoPixel-Dev.xml / NeoPixel-Release.xml point %BASE_InfoLedPart% to the output -->
+  <PartRows source="lib/OGM-Common/src/InfoLed.part.xml" output="src/NeoPixel.hw.infoled.gen.xml">
+    <Row ref="%AID%_UP-%TT%00020_R-%TT%0002001" expr="defined(INFO1_LED_PIN) || defined(INFO_LED_PIN)" label="INFO1_LED_LABEL" />
+    <Row ref="%AID%_UP-%TT%00021_R-%TT%0002101" expr="defined(INFO2_LED_PIN)" label="INFO2_LED_LABEL" />
+    <Row ref="%AID%_UP-%TT%00022_R-%TT%0002201" expr="defined(INFO3_LED_PIN)" label="INFO3_LED_LABEL" />
+  </PartRows>
+  <!-- relay count per board: "Externe Relais" offers 0..Relays of the selected board (carrier NEOExternalRelayCount, read by the
+       firmware; KNeoPix with 4 relays shows the carrier itself, every other list is a parameter without memory that copies its
+       value into the carrier) -->
+  <Filters output="src/NeoPixel.hw.filters.gen.xml">
+    <Filter name="RelayCount" ref="%AID%_UP-%TT%00130_R-%TT%0013001" source="src/NeoPixel.share.xml" value="Relays" number="950" />
+    <!-- effect lists without the 2D effects on hardware built with NEOPIXEL_DISABLE_2D (src/NeoPixel.Effects2D.values, written by
+         scripts/Build-EffectParameters.ps1): segment selector (template, rows Ov<n> / Ov<n>Ro = segment overview, editable and
+         read-only while an effect manager is assigned), scene selector (part Scene) and cue selector (part Cue, row Table = cue table) -->
+    <Filter name="SegmentFx" ref="%AID%_UP-%TT%%CC%057_R-%TT%%CC%05701" source="src/NeoPixel.Segment.templ.xml src/NeoPixel.share.xml" number="058" help="NEO-Effekt-Typ">
+      <Allow capability="No2D" except="@src/NeoPixel.Effects2D.values" />
+      <Row name="Ov1" ref="%AID%_UP-%TT%01057_R-%TT%0105701" cell="2,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov1Ro" ref="%AID%_UP-%TT%01057_R-%TT%0105702" cell="2,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov2" ref="%AID%_UP-%TT%02057_R-%TT%0205701" cell="3,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov2Ro" ref="%AID%_UP-%TT%02057_R-%TT%0205702" cell="3,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov3" ref="%AID%_UP-%TT%03057_R-%TT%0305701" cell="4,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov3Ro" ref="%AID%_UP-%TT%03057_R-%TT%0305702" cell="4,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov4" ref="%AID%_UP-%TT%04057_R-%TT%0405701" cell="5,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov4Ro" ref="%AID%_UP-%TT%04057_R-%TT%0405702" cell="5,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov5" ref="%AID%_UP-%TT%05057_R-%TT%0505701" cell="6,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov5Ro" ref="%AID%_UP-%TT%05057_R-%TT%0505702" cell="6,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov6" ref="%AID%_UP-%TT%06057_R-%TT%0605701" cell="7,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov6Ro" ref="%AID%_UP-%TT%06057_R-%TT%0605702" cell="7,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov7" ref="%AID%_UP-%TT%07057_R-%TT%0705701" cell="8,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov7Ro" ref="%AID%_UP-%TT%07057_R-%TT%0705702" cell="8,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov8" ref="%AID%_UP-%TT%08057_R-%TT%0805701" cell="9,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov8Ro" ref="%AID%_UP-%TT%08057_R-%TT%0805702" cell="9,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov9" ref="%AID%_UP-%TT%09057_R-%TT%0905701" cell="10,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov9Ro" ref="%AID%_UP-%TT%09057_R-%TT%0905702" cell="10,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov10" ref="%AID%_UP-%TT%10057_R-%TT%1005701" cell="11,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov10Ro" ref="%AID%_UP-%TT%10057_R-%TT%1005702" cell="11,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov11" ref="%AID%_UP-%TT%11057_R-%TT%1105701" cell="12,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov11Ro" ref="%AID%_UP-%TT%11057_R-%TT%1105702" cell="12,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov12" ref="%AID%_UP-%TT%12057_R-%TT%1205701" cell="13,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov12Ro" ref="%AID%_UP-%TT%12057_R-%TT%1205702" cell="13,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov13" ref="%AID%_UP-%TT%13057_R-%TT%1305701" cell="14,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov13Ro" ref="%AID%_UP-%TT%13057_R-%TT%1305702" cell="14,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov14" ref="%AID%_UP-%TT%14057_R-%TT%1405701" cell="15,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov14Ro" ref="%AID%_UP-%TT%14057_R-%TT%1405702" cell="15,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov15" ref="%AID%_UP-%TT%15057_R-%TT%1505701" cell="16,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov15Ro" ref="%AID%_UP-%TT%15057_R-%TT%1505702" cell="16,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov16" ref="%AID%_UP-%TT%16057_R-%TT%1605701" cell="17,4" help="NEO-Effekt-Typ" />
+      <Row name="Ov16Ro" ref="%AID%_UP-%TT%16057_R-%TT%1605702" cell="17,4" help="NEO-Effekt-Typ" />
+    </Filter>
+    <Filter name="SceneFx" ref="%AID%_UP-%TT%%CC%%PPP+0%_R-%TT%%CC%%PPP+0%01" source="src/NeoPixel.Scene.part.xml src/NeoPixel.share.xml" number="%PPP+19%" indent="2" help="NEO-Effekt-Typ-Szene">
+      <Allow capability="No2D" except="@src/NeoPixel.Effects2D.values" />
+    </Filter>
+    <Filter name="CueFx" ref="%AID%_UP-%TT%%CC%%CUE_PPP+0%_R-%TT%%CC%%CUE_PPP+0%01" source="src/NeoPixel.Cue.part.xml src/NeoPixel.EM.share.xml" number="%CUE_NO2D%" help="NEO-Cue-Effekt">
+      <Allow capability="No2D" except="@src/NeoPixel.Effects2D.values" />
+      <Row name="Table" ref="%AID%_UP-%TT%%CC%%CUE_PPP+0%_R-%TT%%CC%%CUE_PPP+0%01" cell="%CUE_NR%,3" help="NEO-Cue-Effekt" />
+    </Filter>
+  </Filters>
 </HardwareManifest>

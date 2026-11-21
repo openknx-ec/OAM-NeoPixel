@@ -209,7 +209,7 @@ of the last run and stops when that header belongs to the other variant. `pwsh s
 - **Segments**: Define segment start/end positions for granular control
 - **Effects**: Assign effects to segments with speed and intensity parameters
 - **Scenes**: Configure up to 10 scenes per segment with colors, brightness, and effects
-- **WiFi** (WiFi variants): set "WiFi-Schnittstelle" to "Ja" in Netzwerk > Allgemein; the page "WiFi" sets the operating mode ("Mit vorhandenem WiFi verbinden" or "Eigenes WiFi (Access Point)") and the setup WiFi. Network name and password go to the device online with "Zugangsdaten übertragen" on that page, or are entered on `/wifi`; they are not part of the device parameters, and the ETS fields are cleared after a successful transfer
+- **WiFi** (WiFi variants): "WiFi-Schnittstelle" in Netzwerk > Allgemein is "Ja" and read-only once a device type with WiFi is selected (set it yourself while none is selected); the page "WiFi" sets the operating mode ("Mit vorhandenem WiFi verbinden" or "Eigenes WiFi (Access Point)") and the setup WiFi. Network name and password go to the device online with "Zugangsdaten übertragen" on that page, or are entered on `/wifi`; they are not part of the device parameters, and the ETS fields are cleared after a successful transfer
 
 ## Configuration Parameters
 
@@ -447,12 +447,12 @@ OpenKNX NeoPixel runs on a wide range of OpenKNX-compatible controllers. The **O
 
 ## Hardware-profile inputs and virtual buttons
 
-On branch `v1dev-inputtest`, both normal products (Dev 2.10 and Release 1.3) include
+On branch `v1dev-inputtest`, both normal products (Dev 3.5 and Release 1.4) include
 two configurable binary-input channels and four virtual buttons on every regular
-hardware environment. Both ETS pages are under **Funktionsblöcke**. Inputs
-default to inactive/unassigned. Each channel selects a board-defined connection in ETS, using the same generator and shared-byte
-selector pattern as LED outputs. Existing production parameter locations and
-output port numbers are preserved.
+hardware environment. Both ETS pages are under **Funktionsblöcke**. ETS hides
+the pages and module switches when the selected board has no defined inputs.
+Inputs default to inactive/unassigned and use the same shared-byte selector
+pattern as LED outputs.
 
 Run `pwsh -NoProfile -File scripts/Build-Release.ps1` (Dev), or add `-Release`,
 to generate the product and build with the checked-out dependencies.
