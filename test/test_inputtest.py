@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 NS = {"k": "http://knx.org/xml/project/20"}
 
 
-def stored_parameters(root):
+def stored_parameters(root, exclude_name=""):
     result = {}
     params = root.find(".//k:Static/k:Parameters", NS)
     for node in params:
@@ -28,9 +28,13 @@ def stored_parameters(root):
             continue
         if node.tag.endswith("}Union"):
             for p in node.findall("k:Parameter", NS):
+                if exclude_name and exclude_name in p.get("Name", ""):
+                    continue
                 key = p.get("Id").split("_", 2)[2]
                 result[key] = (int(memory.get("Offset")) + int(p.get("Offset", "0")), p.get("BitOffset", "0"))
         elif node.tag.endswith("}Parameter"):
+            if exclude_name and exclude_name in node.get("Name", ""):
+                continue
             key = node.get("Id").split("_", 2)[2]
             result[key] = (int(memory.get("Offset")), memory.get("BitOffset", "0"))
     return result
@@ -43,8 +47,8 @@ class InputTestIntegration(unittest.TestCase):
 
     def test_existing_parameter_locations_preserved(self):
         # Dev 3.4 from origin/v1dev (157ee88), generated with the same dependencies.
-        # Exclude only the appended BI/BTN parameters and their enable bits.
-        current = stored_parameters(self.app)
+        # Exclude the appended Twinklefox aliases, BI/BTN parameters and their enable bits.
+        current = stored_parameters(self.app, exclude_name="Twinklefox")
         old = {key: value for key, value in current.items()
                if not key.split("-")[1].startswith(("24", "50"))
                and key not in {"UP-0099824", "UP-0099850"}}
@@ -93,11 +97,17 @@ class InputTestIntegration(unittest.TestCase):
             self.assertIsNotNone(switch_when.find(f"k:ParameterRefRef[@RefId='{choose.get('ParamRefId')}']", NS))
 
     def test_packaged_product_identity_and_regex(self):
-        products = [(ROOT / f"NeoPixel-{variant}-xknx.knxprod", number, version)
-                    for variant, number, version in [("Dev", "AD01", "53"), ("Release", "AD00", "20")]]
-        available = [(path, number, version) for path, number, version in products if path.exists()]
-        self.assertTrue(available, "Generate a normal Dev or Release XKNX product first")
-        for path, number, version in available:
+        products = []
+        for variant, number in [("Dev", "AD01"), ("Release", "AD00")]:
+            path = ROOT / f"NeoPixel-{variant}-xknx.knxprod"
+            if not path.exists():
+                continue
+            source = ET.parse(ROOT / f"src/NeoPixel-{variant}.xml")
+            application = next(node for node in source.iter() if node.tag.endswith("}ETS"))
+            major, minor = map(int, application.get("ApplicationVersion").split("."))
+            products.append((path, number, str(major * 16 + minor)))
+        self.assertTrue(products, "Generate a normal Dev or Release XKNX product first")
+        for path, number, version in products:
             with ZipFile(path) as archive:
                 name = next(n for n in archive.namelist() if f"_A-{number}-" in n and n.endswith(".xml"))
                 app = ET.fromstring(archive.read(name))
