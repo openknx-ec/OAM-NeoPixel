@@ -41,6 +41,8 @@ include/knxprod.h
 /src/NeoPixel.inputs.gen.xml
 
 /src/Baggages/Help_de/BI-*.md
+/test/hardware-input-audit.csv
+/test/inputtest-size-results.json
 
 __pycache__/
 

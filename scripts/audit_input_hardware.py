@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Compile each release environment's board input metadata and write a connector audit."""
+import argparse
 import csv
 import json
 from pathlib import Path
@@ -58,7 +59,7 @@ def notes(board):
     raise ValueError('Unaudited board: ' + board)
 
 
-def audit():
+def audit(target):
     pio = shutil.which('pio') or str(Path.home() / '.platformio/penv/bin/pio')
     config = json.loads(subprocess.check_output([pio, 'project', 'config', '--json-output'], cwd=ROOT, text=True))
     rows = []
@@ -87,13 +88,15 @@ def audit():
                 gpio, label, bias, on = line.split('|')
                 rows.append(dict(environment=section[4:], board=board, hardware_id=f'0x{int(hardware_id):04X}', input_port=index if gpio else '', gpio=gpio, label=label,
                                  bias=bias, active_high=on, access=connector, restrictions=restrictions, evidence=evidence))
-    target = ROOT / 'test/hardware-input-audit.csv'
     with target.open('w', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
-    print(f'Audited {len(cache)} boards / {len(set(r["environment"] for r in rows))} environments; {target}')
+    print(f'Audited {len({r["board"] for r in rows})} boards / {len({r["environment"] for r in rows})} environments; {target}')
 
 
 if __name__ == '__main__':
-    audit()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, default=ROOT / 'test/hardware-input-audit.csv',
+                        help='CSV path (default: test/hardware-input-audit.csv)')
+    audit(parser.parse_args().output)

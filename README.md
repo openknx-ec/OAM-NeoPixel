@@ -480,9 +480,10 @@ conflicting output. Changing the pin mapping requires a restart. VirtualButton
 handles short/long presses and dimming: select BI KO 2000/2001 as its input and
 link its command/status KOs to the appropriate segment group addresses.
 
-See `test/hardware-input-audit.csv` for all 40 boards / 44 regular environments,
-connector labels, electrical requirements and evidence. Mini terminals are direct
-3.3 V GPIOs. KNeoPiX V1 TXS0108E terminals support dry contacts to GND with the LED
+Run `python3 scripts/audit_input_hardware.py` to generate `test/hardware-input-audit.csv`
+with connector labels, electrical requirements and evidence for all 40 boards and
+44 regular environments. Mini terminals are direct 3.3 V GPIOs. KNeoPiX V1
+TXS0108E terminals support dry contacts to GND with the LED
 disconnected; V1.5 terminals are output-only. Input-capable terminals take priority:
 module solder pads are offered only on boards without input-capable terminals.
 GPIOs connected to output-only LED terminals are excluded even at their raw pads.

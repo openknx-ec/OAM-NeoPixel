@@ -9,6 +9,7 @@ import importlib.util
 import io
 import shutil
 import subprocess
+import sys
 import unittest
 from unittest.mock import patch
 import tempfile
@@ -44,6 +45,12 @@ class InputTestIntegration(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.app = ET.parse(ROOT / "src/NeoPixel-Dev.debug.xml").getroot()
+        with tempfile.TemporaryDirectory() as directory:
+            report = Path(directory) / "hardware-input-audit.csv"
+            subprocess.run([sys.executable, "scripts/audit_input_hardware.py", "--output", str(report)],
+                           cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
+            with report.open(newline="") as file:
+                cls.audit_rows = list(csv.DictReader(file))
 
     def test_existing_parameter_locations_preserved(self):
         # Dev 3.4 from origin/v1dev (157ee88), generated with the same dependencies.
@@ -76,8 +83,7 @@ class InputTestIntegration(unittest.TestCase):
         self.assertIsNotNone(group)
         enabled = group.find("k:choose/k:when/k:ParameterBlock[@Name='FCB_FunctionBlockSettings']", NS)
         self.assertIsNotNone(enabled)
-        with (ROOT / "test/hardware-input-audit.csv").open() as audit:
-            visible_boards = {0} | {int(row["hardware_id"], 16) for row in csv.DictReader(audit) if row["gpio"]}
+        visible_boards = {0} | {int(row["hardware_id"], 16) for row in self.audit_rows if row["gpio"]}
         hardware_gate = next(node for node in group.findall("k:choose", NS)
                              if node.get("ParamRefId").endswith("450000101"))
         hardware_when = hardware_gate.find("k:when", NS)
@@ -155,11 +161,9 @@ static_assert(hwPortGpio(0) == 2 && hwPortGpio(7) == 9, "output numbering unchan
     def test_all_audited_connections_match_the_generated_ets_table(self):
         script = "const fs=require('fs'),vm=require('vm');const c=vm.createContext({});vm.runInContext(fs.readFileSync('src/NeoPixel.hw.module.gen.js','utf8'),c);process.stdout.write(JSON.stringify(c.NEOHW_conflictBoards));"
         boards = json.loads(subprocess.check_output(["node", "-e", script], cwd=ROOT, text=True))
-        with (ROOT / "test/hardware-input-audit.csv").open() as file:
-            rows = list(csv.DictReader(file))
-        self.assertEqual(len({row["board"] for row in rows}), 40)
-        self.assertEqual(len({row["environment"] for row in rows}), 44)
-        for row in rows:
+        self.assertEqual(len({row["board"] for row in self.audit_rows}), 40)
+        self.assertEqual(len({row["environment"] for row in self.audit_rows}), 44)
+        for row in self.audit_rows:
             ports = boards[str(int(row["hardware_id"], 16))]["inputs"]
             if row["gpio"]:
                 self.assertEqual(ports[int(row["input_port"]) - 1], int(row["gpio"]), row)
