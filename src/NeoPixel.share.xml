@@ -1355,7 +1355,12 @@
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="255"/>
               </ParameterType>
               <ParameterType Id="%AID%_PT-TwinklefoxColorMode" Name="ColorMode (Twinklefox)">
-                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="3"/>
+                <TypeRestriction Base="Value" SizeInBit="8">
+                  <Enumeration Text="Primärfarbe (RGB)" Value="0" Id="%ENID%"/>
+                  <Enumeration Text="Lichterkette" Value="1" Id="%ENID%"/>
+                  <Enumeration Text="Festlich" Value="2" Id="%ENID%"/>
+                  <Enumeration Text="Warmweiß" Value="3" Id="%ENID%"/>
+                </TypeRestriction>
               </ParameterType>
               <ParameterType Id="%AID%_PT-TwinklefoxBackgroundLevel" Name="BackgroundLevel (Twinklefox)">
                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="255"/>

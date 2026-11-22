@@ -4,6 +4,11 @@
 
 Primärfarbe, Lichterkette, Festlich oder Warmweiß. Warmweiß verwendet den Weißkanal, falls vorhanden.
 
-**Wertebereich:** 0 - 3
+**Auswahl:**
 
-**Standardwert:** 1
+* 0 = Primärfarbe (RGB)
+* 1 = Lichterkette
+* 2 = Festlich
+* 3 = Warmweiß
+
+**Standardwert:** 1 = Lichterkette
