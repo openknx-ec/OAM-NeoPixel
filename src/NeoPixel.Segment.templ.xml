@@ -83,7 +83,7 @@
                 <!-- BEGIN AUTO-GENERATED: Effect Parameters Union -->
                 <!-- DO NOT REMOVE THIS MARKER - Used by Build-EffectParameters.ps1 -->
                 <!-- IDs: UP-21%CC%EEPP (EE = effect number, PP = parameter index), Start Offset: 30 (FIXED - do not change!) -->
-                <!-- Generated: Offset 30-549 -->
+                <!-- Generated: Offset 30-553 -->
 
                 <!-- Wipe Effect (ID 1) Parameters -->
                 <Parameter Id="%AID%_UP-21%CC%0100" Offset="30" BitOffset="0" Name="NEO%C%WipeSpeed" ParameterType="%AID%_PT-WipeSpeed" Text="Geschwindigkeit (Wipe)" Value="25"/>
@@ -291,6 +291,12 @@
                 <Parameter Id="%AID%_UP-21%CC%3201" Offset="547" BitOffset="0" Name="NEO%C%Metaballs2DHue" ParameterType="%AID%_PT-Metaballs2DHue" Text="Farbton (Metaballs 2D)" Value="0"/>
                 <Parameter Id="%AID%_UP-21%CC%3202" Offset="548" BitOffset="0" Name="NEO%C%Metaballs2DBlobCount" ParameterType="%AID%_PT-Metaballs2DBlobCount" Text="Anzahl Blobs (Metaballs 2D)" Value="4"/>
                 <Parameter Id="%AID%_UP-21%CC%3203" Offset="549" BitOffset="0" Name="NEO%C%Metaballs2DContrast" ParameterType="%AID%_PT-Metaballs2DContrast" Text="Kontrast (Metaballs 2D)" Value="128"/>
+
+                <!-- Twinklefox Effect (ID 33) Parameters -->
+                <Parameter Id="%AID%_UP-21%CC%3300" Offset="550" BitOffset="0" Name="NEO%C%TwinklefoxSpeed" ParameterType="%AID%_PT-TwinklefoxSpeed" Text="Geschwindigkeit (Twinklefox)" Value="96"/>
+                <Parameter Id="%AID%_UP-21%CC%3301" Offset="551" BitOffset="0" Name="NEO%C%TwinklefoxDensity" ParameterType="%AID%_PT-TwinklefoxDensity" Text="Dichte (Twinklefox)" Value="96"/>
+                <Parameter Id="%AID%_UP-21%CC%3302" Offset="552" BitOffset="0" Name="NEO%C%TwinklefoxColorMode" ParameterType="%AID%_PT-TwinklefoxColorMode" Text="Farbpalette (Twinklefox)" Value="1"/>
+                <Parameter Id="%AID%_UP-21%CC%3303" Offset="553" BitOffset="0" Name="NEO%C%TwinklefoxBackgroundLevel" ParameterType="%AID%_PT-TwinklefoxBackgroundLevel" Text="Hintergrundhelligkeit (Twinklefox)" Value="0"/>
                 <!-- END AUTO-GENERATED: Effect Parameters Union -->
 
                  <!-- ═══════════════════════════════════════════════════════════════════════════════════
@@ -532,6 +538,11 @@
               <ParameterRef Id="%AID%_UP-21%CC%3201_R-21%CC%320101" RefId="%AID%_UP-21%CC%3201" Value="0" />
               <ParameterRef Id="%AID%_UP-21%CC%3202_R-21%CC%320201" RefId="%AID%_UP-21%CC%3202" Value="4" />
               <ParameterRef Id="%AID%_UP-21%CC%3203_R-21%CC%320301" RefId="%AID%_UP-21%CC%3203" Value="128" />
+              <!-- Twinklefox Effect ParameterRefs -->
+              <ParameterRef Id="%AID%_UP-21%CC%3300_R-21%CC%330001" RefId="%AID%_UP-21%CC%3300" Value="96" />
+              <ParameterRef Id="%AID%_UP-21%CC%3301_R-21%CC%330101" RefId="%AID%_UP-21%CC%3301" Value="96" />
+              <ParameterRef Id="%AID%_UP-21%CC%3302_R-21%CC%330201" RefId="%AID%_UP-21%CC%3302" Value="1" />
+              <ParameterRef Id="%AID%_UP-21%CC%3303_R-21%CC%330301" RefId="%AID%_UP-21%CC%3303" Value="0" />
               <!-- END AUTO-GENERATED: Effect ParameterRefs -->
 
               <!-- Scene Count ParameterRef -->
@@ -1172,6 +1183,14 @@
                         <ParameterRefRef RefId="%AID%_UP-21%CC%3201_R-21%CC%320101" IndentLevel="2" HelpContext="NEO-Hue-Metaballs-2D"/>
                         <ParameterRefRef RefId="%AID%_UP-21%CC%3202_R-21%CC%320201" IndentLevel="2" HelpContext="NEO-BlobCount-Metaballs-2D"/>
                         <ParameterRefRef RefId="%AID%_UP-21%CC%3203_R-21%CC%320301" IndentLevel="2" HelpContext="NEO-Contrast-Metaballs-2D"/>
+                      </when>
+                      <when test="33">
+                        <!-- Twinklefox Effect Parameters -->
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Effekt-spezifische Parameter" UIHint="Headline"/>
+                        <ParameterRefRef RefId="%AID%_UP-21%CC%3300_R-21%CC%330001" IndentLevel="2" HelpContext="NEO-Speed-Twinklefox"/>
+                        <ParameterRefRef RefId="%AID%_UP-21%CC%3301_R-21%CC%330101" IndentLevel="2" HelpContext="NEO-Density-Twinklefox"/>
+                        <ParameterRefRef RefId="%AID%_UP-21%CC%3302_R-21%CC%330201" IndentLevel="2" HelpContext="NEO-ColorMode-Twinklefox"/>
+                        <ParameterRefRef RefId="%AID%_UP-21%CC%3303_R-21%CC%330301" IndentLevel="2" HelpContext="NEO-BackgroundLevel-Twinklefox"/>
                       </when>
                     </choose>
                     <!-- END AUTO-GENERATED: Effect Dynamic UI -->

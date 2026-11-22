@@ -6,14 +6,14 @@ Gesetzt werden die Flags als `build_flags` im jeweiligen Env in `platformio.cust
 Diese Liste wird von `scripts/Build-EffectParameters.ps1` aus den Effekt-Headern erzeugt.
 
 <!-- BEGIN AUTO-GENERATED: Effect Flags - DO NOT EDIT MANUALLY -->
-Alle 33 Effekte sind im Build, solange kein Flag sie herausnimmt.
+Alle 34 Effekte sind im Build, solange kein Flag sie herausnimmt.
 Solid ist der Rueckfall fuer eine unbekannte Auswahl und laesst sich nicht abschalten.
 
 ## Sammelschalter
 
 ```
   -D NEOPIXEL_DISABLE_2D          alle 14 2D-Effekte
-  -D NEOPIXEL_MINIMAL_EFFECTS     die 11 erweiterten Effekte
+  -D NEOPIXEL_MINIMAL_EFFECTS     die 12 erweiterten Effekte
 ```
 
 ## Einzeln
@@ -30,7 +30,7 @@ Solid ist der Rueckfall fuer eine unbekannte Auswahl und laesst sich nicht absch
   -D NEOPIXEL_DISABLE_RGBWTEST        Test
 ```
 
-### Erweitert (11) - alle von NEOPIXEL_MINIMAL_EFFECTS abgedeckt
+### Erweitert (12) - alle von NEOPIXEL_MINIMAL_EFFECTS abgedeckt
 
 ```
   -D NEOPIXEL_DISABLE_FIRE            Fire
@@ -44,6 +44,7 @@ Solid ist der Rueckfall fuer eine unbekannte Auswahl und laesst sich nicht absch
   -D NEOPIXEL_DISABLE_LIGHTNING       Blitz
   -D NEOPIXEL_DISABLE_GRADIENT        Gradient
   -D NEOPIXEL_DISABLE_CANDLE          Kerze
+  -D NEOPIXEL_DISABLE_TWINKLEFOX      Twinklefox
 ```
 
 ### 2D (14) - alle von NEOPIXEL_DISABLE_2D abgedeckt

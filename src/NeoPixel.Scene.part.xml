@@ -262,6 +262,11 @@
                             <ParameterRef Id="%AID%_UP-%TT%%CC%%PPP+9%_R-%TT%%CC%%PPP+9%34" RefId="%AID%_UP-%TT%%CC%%PPP+9%" Text="Farbton" Value="0" />
                             <ParameterRef Id="%AID%_UP-%TT%%CC%%PPP+10%_R-%TT%%CC%%PPP+10%34" RefId="%AID%_UP-%TT%%CC%%PPP+10%" Text="Anzahl Blobs" Value="4" />
                             <ParameterRef Id="%AID%_UP-%TT%%CC%%PPP+11%_R-%TT%%CC%%PPP+11%34" RefId="%AID%_UP-%TT%%CC%%PPP+11%" Text="Kontrast" Value="128" />
+                            <!-- Twinklefox (ID 33) -->
+                            <ParameterRef Id="%AID%_UP-%TT%%CC%%PPP+8%_R-%TT%%CC%%PPP+8%35" RefId="%AID%_UP-%TT%%CC%%PPP+8%" Text="Geschwindigkeit" Value="96" />
+                            <ParameterRef Id="%AID%_UP-%TT%%CC%%PPP+9%_R-%TT%%CC%%PPP+9%35" RefId="%AID%_UP-%TT%%CC%%PPP+9%" Text="Dichte" Value="96" />
+                            <ParameterRef Id="%AID%_UP-%TT%%CC%%PPP+10%_R-%TT%%CC%%PPP+10%35" RefId="%AID%_UP-%TT%%CC%%PPP+10%" Text="Farbpalette" Value="1" />
+                            <ParameterRef Id="%AID%_UP-%TT%%CC%%PPP+11%_R-%TT%%CC%%PPP+11%35" RefId="%AID%_UP-%TT%%CC%%PPP+11%" Text="Hintergrundhelligkeit" Value="0" />
                             <!-- END AUTO-GENERATED: Scene Effect ParameterRefs -->
                         </ParameterRefs>
                         <ParameterCalculations>
@@ -446,6 +451,11 @@
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+9%_R-%TT%%CC%%PPP+9%34" AliasName="E32S1" />
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+10%_R-%TT%%CC%%PPP+10%34" AliasName="E32S2" />
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+11%_R-%TT%%CC%%PPP+11%34" AliasName="E32S3" />
+                                    <!-- Twinklefox (ID 33) -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+8%_R-%TT%%CC%%PPP+8%35" AliasName="E33S0" />
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+9%_R-%TT%%CC%%PPP+9%35" AliasName="E33S1" />
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+10%_R-%TT%%CC%%PPP+10%35" AliasName="E33S2" />
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+11%_R-%TT%%CC%%PPP+11%35" AliasName="E33S3" />
                                     <!-- Generic Slot refs -->
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+8%_R-%TT%%CC%%PPP+8%01" AliasName="Slot0" />
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+9%_R-%TT%%CC%%PPP+9%01" AliasName="Slot1" />
@@ -746,6 +756,13 @@
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+9%_R-%TT%%CC%%PPP+9%34" IndentLevel="3" HelpContext="NEO-Hue-Metaballs-2D"/>
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+10%_R-%TT%%CC%%PPP+10%34" IndentLevel="3" HelpContext="NEO-BlobCount-Metaballs-2D"/>
                                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+11%_R-%TT%%CC%%PPP+11%34" IndentLevel="3" HelpContext="NEO-Contrast-Metaballs-2D"/>
+                                  </when>
+                                  <when test="33">
+                                    <!-- Twinklefox Effect -->
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+8%_R-%TT%%CC%%PPP+8%35" IndentLevel="3" HelpContext="NEO-Speed-Twinklefox"/>
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+9%_R-%TT%%CC%%PPP+9%35" IndentLevel="3" HelpContext="NEO-Density-Twinklefox"/>
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+10%_R-%TT%%CC%%PPP+10%35" IndentLevel="3" HelpContext="NEO-ColorMode-Twinklefox"/>
+                                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%PPP+11%_R-%TT%%CC%%PPP+11%35" IndentLevel="3" HelpContext="NEO-BackgroundLevel-Twinklefox"/>
                                   </when>
                                 </choose>
 

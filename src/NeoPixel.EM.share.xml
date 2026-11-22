@@ -92,6 +92,7 @@
                 <Enumeration Text="Blitz" Value="16" Id="%AID%_PT-CueEffect_EN-16"/>
                 <Enumeration Text="Gradient" Value="17" Id="%AID%_PT-CueEffect_EN-17"/>
                 <Enumeration Text="Kerze" Value="18" Id="%AID%_PT-CueEffect_EN-18"/>
+                <Enumeration Text="Twinklefox" Value="33" Id="%AID%_PT-CueEffect_EN-33"/>
                 <Enumeration Text="1D/2D · Cylon" Value="6" Id="%AID%_PT-CueEffect_EN-06"/>
                 <Enumeration Text="1D/2D · Fire" Value="8" Id="%AID%_PT-CueEffect_EN-08"/>
                 <Enumeration Text="1D/2D · Noise" Value="14" Id="%AID%_PT-CueEffect_EN-14"/>

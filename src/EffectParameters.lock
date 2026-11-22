@@ -146,3 +146,7 @@
 32	Metaballs2DEffect	1	Hue	number:0..255
 32	Metaballs2DEffect	2	BlobCount	number:2..6
 32	Metaballs2DEffect	3	Contrast	number:1..255
+33	TwinkleFoxEffect	0	Speed	number:0..255
+33	TwinkleFoxEffect	1	Density	number:0..255
+33	TwinkleFoxEffect	2	ColorMode	number:0..3
+33	TwinkleFoxEffect	3	BackgroundLevel	number:0..255
