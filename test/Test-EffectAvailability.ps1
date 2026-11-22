@@ -14,8 +14,8 @@
     Compiles the production EffectPool.cpp, src/EffectTypeMapping.h and
     src/WebUi/NeoPixelEffectCatalog.generated.h with one stub class per effect (the class carries its
     number from src/EffectIds.lock) for these flag sets: none, NEOPIXEL_DISABLE_2D (19..32 out),
-    NEOPIXEL_MINIMAL_EFFECTS (8..18 out), both (8..32 out), NEOPIXEL_DISABLE_FIRE (8 out),
-    NEOPIXEL_DISABLE_SCROLLTEXT (19 out). For every number 0..255 it checks:
+    NEOPIXEL_MINIMAL_EFFECTS (8..18 and 33 out), both (8..33 out), NEOPIXEL_DISABLE_FIRE (8 out),
+    NEOPIXEL_DISABLE_SCROLLTEXT (19 out), NEOPIXEL_DISABLE_TWINKLEFOX (33 out). For every number 0..255 it checks:
 
       EffectPool::getEffectByIndex   the effect with that lock number, nullptr when compiled out or past the end;
       EffectPool::getEffectOrSolid   Solid for a compiled-out number, nullptr past the end;
@@ -314,12 +314,13 @@ int main()
 '@
 
 $cases = @(
-    @{ Name = 'full';                   Defines = @();                                                  Out = @();      Steps = '{32,0x09,32},{0,0x01,0},{18,0x09,19}' },
-    @{ Name = 'NEOPIXEL_DISABLE_2D';    Defines = @('NEOPIXEL_DISABLE_2D');                             Out = @(19..32); Steps = '{18,0x09,18},{0,0x01,0},{17,0x09,18},{18,0x0f,18}' },
-    @{ Name = 'NEOPIXEL_MINIMAL';       Defines = @('NEOPIXEL_MINIMAL_EFFECTS');                        Out = @(8..18);  Steps = '{7,0x09,19},{19,0x01,7}' },
-    @{ Name = 'NEOPIXEL_MINIMAL+2D';    Defines = @('NEOPIXEL_MINIMAL_EFFECTS', 'NEOPIXEL_DISABLE_2D'); Out = @(8..32);  Steps = '{7,0x09,7},{0,0x01,0}' },
+    @{ Name = 'full';                   Defines = @();                                                  Out = @();      Steps = '{33,0x09,33},{0,0x01,0},{18,0x09,19},{32,0x09,33}' },
+    @{ Name = 'NEOPIXEL_DISABLE_2D';    Defines = @('NEOPIXEL_DISABLE_2D');                             Out = @(19..32); Steps = '{18,0x09,33},{0,0x01,0},{17,0x09,18},{18,0x0f,33}' },
+    @{ Name = 'NEOPIXEL_MINIMAL';       Defines = @('NEOPIXEL_MINIMAL_EFFECTS');                        Out = @((8..18) + 33);  Steps = '{7,0x09,19},{19,0x01,7}' },
+    @{ Name = 'NEOPIXEL_MINIMAL+2D';    Defines = @('NEOPIXEL_MINIMAL_EFFECTS', 'NEOPIXEL_DISABLE_2D'); Out = @(8..33);  Steps = '{7,0x09,7},{0,0x01,0}' },
     @{ Name = 'NEOPIXEL_DISABLE_FIRE';  Defines = @('NEOPIXEL_DISABLE_FIRE');                           Out = @(8);      Steps = '{7,0x09,9},{9,0x01,7}' },
-    @{ Name = 'NEOPIXEL_DISABLE_SCROLLTEXT'; Defines = @('NEOPIXEL_DISABLE_SCROLLTEXT');                Out = @(19);     Steps = '{18,0x09,20},{20,0x01,18}' }
+    @{ Name = 'NEOPIXEL_DISABLE_SCROLLTEXT'; Defines = @('NEOPIXEL_DISABLE_SCROLLTEXT');                Out = @(19);     Steps = '{18,0x09,20},{20,0x01,18}' },
+    @{ Name = 'NEOPIXEL_DISABLE_TWINKLEFOX'; Defines = @('NEOPIXEL_DISABLE_TWINKLEFOX');               Out = @(33);     Steps = '{32,0x09,32},{32,0x01,31}' }
 )
 
 $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("neopixel-availability-test-" + [Guid]::NewGuid().ToString('N').Substring(0, 8))
