@@ -1,5 +1,5 @@
 # Input fingerprint of scripts/Build-EffectParameters.ps1 - do not edit (written by every full run)
-sha256 c333682556aedcc13c61585304657a941b0cf7a9f8494bfd2cfa8c779c7e14b4
+sha256 5cd0186ca521ec1a8b391b7602c104f97915dd8e105f925db25fdbcd4996314b
 e7fb69114996db522ee7ccf3e8e7b26948a991c61f77088015e5ec85b2c59414 doc/Effect-Flags.md
 - src/Baggages/Help_de/NEO-Anzahl-Szenen.md
 decf81f61e44676f62f12bcc2caa58b7cd08f48e87c01b056da0066020388dfe src/Baggages/Help_de/NEO-AutoPlay-Tetris-2D.md

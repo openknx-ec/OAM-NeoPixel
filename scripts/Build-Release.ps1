@@ -461,6 +461,8 @@ if (-not $isSkipOknx) {
 # The generators write the XML that OpenKNXproducer turns into knxprod.h; with -SkipKnxprod both stay
 # from the last run, so header and ETS data keep matching.
 if (-not $isSkipKnxprod) {
+    & python3 scripts/inputtest.py prepare-shared
+    if ($LASTEXITCODE -ne 0) { throw 'Input wrapper preparation failed' }
     # Effect parameters first: they fill the effect blocks of src/NeoPixel.script.src.js, which the
     # hardware generator (run by the shared preprocess below) then assembles into src/NeoPixel.script.js
     Write-Host "Generating effect parameters..." -ForegroundColor Cyan
@@ -502,7 +504,11 @@ if (-not $isSkipKnxprod) {
         Copy-Item -LiteralPath $knxprodSource -Destination "$releaseName.knxprod" -Force
         Write-Host "ETS product for import: $releaseName.knxprod" -ForegroundColor Green
     } else {
-        Write-Host "OpenKNXproducer left no $knxprodSource - no ETS product to import" -ForegroundColor Yellow
+        # OpenKNXproducer on hosts without ETS still supplies validated debug XML.
+        & python3 scripts/inputtest.py package --application $releaseName
+        if ($LASTEXITCODE -ne 0) { throw 'Unsigned XKNX product packaging failed' }
+        Copy-Item -LiteralPath "release/$releaseName-xknx.knxprod" -Destination "$releaseName-xknx.knxprod" -Force
+        Write-Host "Unsigned product for XKNX: $releaseName-xknx.knxprod" -ForegroundColor Green
     }
 }
 

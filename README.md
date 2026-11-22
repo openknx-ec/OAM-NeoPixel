@@ -444,3 +444,62 @@ OpenKNX NeoPixel runs on a wide range of OpenKNX-compatible controllers. The **O
 ### 0.1.0
 
 - first public development release of the OpenKNX NeoPixel application
+
+## Hardware-profile inputs and virtual buttons
+
+Both standard products (Dev 3.9 and Release 1.8) include
+two configurable binary-input channels and four virtual buttons on every regular
+hardware environment. Both ETS pages are under **Funktionsblöcke**. ETS hides
+the pages and module switches when the selected board has no defined inputs.
+Inputs default to inactive/unassigned and use the same shared-byte selector
+pattern as LED outputs.
+
+Run `pwsh -NoProfile -File scripts/Build-Release.ps1` (Dev), or add `-Release`,
+to generate the product and build with the checked-out dependencies.
+`-SkipFirmware -SkipOknx` generates only the application/release package. On hosts
+without ETS, the build also supplies an unsigned `NeoPixel-Dev-xknx.knxprod` or
+`NeoPixel-Release-xknx.knxprod`. Generate the matching application before invoking
+PlatformIO directly for any `release_*` or debug environment. Scripts never upload.
+
+The dependency manifests record the exact build revisions. OGM-HardwareConfig
+uses the input changes on top of `07dd617`. The HardwareConfig and BinaryInput
+commits are local, with their patches in `patches/` for use with the pinned
+upstream bases. VirtualButton is pinned at `f822931`.
+
+The board schema is `HW_INPUT_COUNT`, `HW_INPUT_n_GPIO`, `HW_INPUT_n_LABEL`, with
+optional MODE (0 external bias, 1 pullup, 2 pulldown) and ONLEVEL (0 low, 1 high).
+ETS stores the stable input connection number minus one; only 255 means unused.
+Output selection values 10/15 retain their old meanings for outputs and are normal
+connection indexes for inputs. Per-board input selectors share one byte per channel.
+
+Firmware resolves inputs before module setup. It refuses absent connections,
+reserved pins, wrong hardware and duplicate input pins. Active input claims prevent
+strips and relays from driving the same GPIO, including Studio rebuilds. ETS flags
+both sides of a conflict; firmware gives an active input priority and refuses the
+conflicting output. Changing the pin mapping requires a restart. VirtualButton
+handles short/long presses and dimming: select BI KO 2000/2001 as its input and
+link its command/status KOs to the appropriate segment group addresses.
+
+See `test/hardware-input-audit.csv` for all 40 boards / 44 regular environments,
+connector labels, electrical requirements and evidence. Mini terminals are direct
+3.3 V GPIOs. KNeoPiX V1 TXS0108E terminals support dry contacts to GND with the LED
+disconnected; V1.5 terminals are output-only. Input-capable terminals take priority:
+module solder pads are offered only on boards without input-capable terminals.
+GPIOs connected to output-only LED terminals are excluded even at their raw pads.
+S3 V1.5 offers only GPIO41/42/40/39. RP2350 back pads and ESP32 JTAG pads need solder
+access and no connected debugger/camera/add-on. The retained input connection numbers and all LED output numbers stay unchanged. UP1 Rx is an externally
+supplied isolated logic input. QuinLED uses raw GPIO headers and button inputs,
+never buffered LED/Q1R terminals. GL-C-017WL and GL-C-620WL offer DIY IO13.
+GL-C-309WL offers IO33 and IO12. IO12 shares the external relay port and must
+stay low during ESP32 reset. Source-based mappings require a physical test on
+each board; the S3 V1.5 IP board remains the first test target.
+
+`Build-InputTest.ps1` and `inputtest_*` remain optional aliases of the common
+integration. `inputsize_*` retain a runtime interlock and must not be deployed.
+`inputbaseline_*` exclude BI/BTN for flash comparisons only; all regular builds
+include them. Run `python3 scripts/check_input_sizes.py` for paired measurements.
+The report uses the actual firmware slot / RP KNX storage boundary.
+
+Verification: `python3 -m unittest discover -s test -p 'test_input*.py'`,
+`node test/test_input_conflicts.cjs`, `python3 scripts/audit_input_hardware.py`,
+and `pwsh test/Test-ParameterLayout.ps1 -ProductXml src/NeoPixel-Dev.debug.xml`.

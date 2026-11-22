@@ -1,0 +1,159 @@
+From 2eb3a785baac3297d0f51f0abd65dbecc60dfd1f Mon Sep 17 00:00:00 2001
+From: Franz Reisenhofer <franz.reisenhofer@me.com>
+Date: Tue, 17 Nov 2026 13:59:08 +0100
+Subject: [PATCH] Support runtime input GPIO configuration and canonical source
+ builds
+
+---
+ README.md                     |  9 +++++++++
+ library.json                  | 10 +++++++---
+ src/GpioBinaryInputModule.cpp | 33 ++++++++++++++++++++++++++++++---
+ src/GpioBinaryInputModule.h   | 13 +++++++++++--
+ 4 files changed, 57 insertions(+), 8 deletions(-)
+
+diff --git a/README.md b/README.md
+index fc18810..1f8b5a0 100644
+--- a/README.md
++++ b/README.md
+@@ -7,3 +7,12 @@ Features
+ - Sperre
+ - Entprellung
+ - Zyklisches senden 
++
++## Laufzeit-Pinzuordnung
++
++Mit `OPENKNX_BI_DYNAMIC_PINS` kann die Applikation vor `setup()` über
++`configureChannel(channel, gpio, mode, activeHigh)` jeden Kanal zuordnen.
++GPIO 255 deaktiviert den Kanal. `mode` ist INPUT, INPUT_PULLUP oder INPUT_PULLDOWN.
++Nach setup wird eine Änderung abgelehnt. Die Applikation prüft zuvor Hardwareauswahl,
++elektrische Eignung, reservierte GPIOs und Überschneidungen mit anderen Nutzern.
++Ohne das Define bleiben die statische Pinliste und OPENKNX_BI_ONLEVEL erhalten.
+diff --git a/library.json b/library.json
+index 10f5fb8..a731c09 100644
+--- a/library.json
++++ b/library.json
+@@ -1,7 +1,11 @@
+ {
+   "name": "OFM-BinaryInput",
+   "version": "0.4.0",
+-  "dependencies":
+-  {
++  "dependencies": {},
++  "build": {
++    "srcFilter": [
++      "+<BinaryInputChannel.cpp>",
++      "+<GpioBinaryInputModule.cpp>"
++    ]
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/src/GpioBinaryInputModule.cpp b/src/GpioBinaryInputModule.cpp
+index b8d5cc9..6d56e3b 100644
+--- a/src/GpioBinaryInputModule.cpp
++++ b/src/GpioBinaryInputModule.cpp
+@@ -12,6 +12,19 @@ const std::string GpioBinaryInputModule::version()
+     return MODULE_BinaryInput_Version;
+ }
+ 
++#ifdef OPENKNX_BI_DYNAMIC_PINS
++bool GpioBinaryInputModule::configureChannel(uint8_t channel, uint16_t gpio, uint8_t mode, bool activeHigh)
++{
++    if (_started || channel >= OPENKNX_BI_GPIO_COUNT || gpio > 255 ||
++        (mode != INPUT && mode != INPUT_PULLUP && mode != INPUT_PULLDOWN))
++        return false;
++    _gpioPins[channel] = gpio;
++    _inputModes[channel] = mode;
++    _activeHigh[channel] = activeHigh;
++    return true;
++}
++#endif
++
+ void GpioBinaryInputModule::setup()
+ {
+     if (_gpioPins == nullptr)
+@@ -20,16 +33,23 @@ void GpioBinaryInputModule::setup()
+         return;
+     }
+ 
++#ifdef OPENKNX_BI_DYNAMIC_PINS
++    _started = true;
++#endif
+     uint8_t active = 0;
+     for (uint8_t i = 0; i < MIN(BI_ChannelCount, OPENKNX_BI_GPIO_COUNT); i++)
+     {
+ 
++        if (_gpioPins[i] == 255)
++            continue;
+         _channels[i] = new BinaryInputChannel(i);
+         _channels[i]->setup();
+         if (_channels[i]->isActive())
+         {
+             active++;
+-        #if OPENKNX_BI_ONLEVEL == LOW
++        #ifdef OPENKNX_BI_DYNAMIC_PINS
++            openknx.gpio.pinMode(_gpioPins[i], _inputModes[i]);
++        #elif OPENKNX_BI_ONLEVEL == LOW
+             openknx.gpio.pinMode(_gpioPins[i], INPUT_PULLUP);
+         #else // OPENKNX_BI_ONLEVEL == HIGH
+             openknx.gpio.pinMode(_gpioPins[i], INPUT_PULLDOWN);
+@@ -50,7 +70,8 @@ void GpioBinaryInputModule::loop()
+     processHardwareInputs();
+ 
+     for (uint8_t i = 0; i < MIN(BI_ChannelCount, OPENKNX_BI_GPIO_COUNT); i++)
+-        _channels[i]->loop();
++        if (_channels[i] != nullptr)
++            _channels[i]->loop();
+ }
+ 
+ void GpioBinaryInputModule::processHardwareInputs()
+@@ -68,8 +89,14 @@ void GpioBinaryInputModule::processHardwareInputs()
+ 
+     for (uint8_t i = 0; i < MIN(BI_ChannelCount, OPENKNX_BI_GPIO_COUNT); i++)
+     {
+-        if (_channels[i]->isActive())
++        if (_channels[i] != nullptr && _channels[i]->isActive())
++        {
++#ifdef OPENKNX_BI_DYNAMIC_PINS
++            _channels[i]->setHardwareState(openknx.gpio.digitalRead(_gpioPins[i]) == _activeHigh[i]);
++#else
+             _channels[i]->setHardwareState(openknx.gpio.digitalRead(_gpioPins[i]) == OPENKNX_BI_ONLEVEL);
++#endif
++        }
+     }
+ 
+ #if defined(OPENKNX_BI_PULSE) && OPENKNX_BI_PULSE != -1
+diff --git a/src/GpioBinaryInputModule.h b/src/GpioBinaryInputModule.h
+index 83f9467..b260f46 100644
+--- a/src/GpioBinaryInputModule.h
++++ b/src/GpioBinaryInputModule.h
+@@ -23,15 +23,24 @@ class GpioBinaryInputModule : public OpenKNX::Module
+     const std::string version() override;
+     void loop() override;
+     void setup() override;
++#ifdef OPENKNX_BI_DYNAMIC_PINS
++    // Call before setup. GPIO 255 disables the channel; settings are supplied by the OAM.
++    bool configureChannel(uint8_t channel, uint16_t gpio, uint8_t mode, bool activeHigh);
++#endif
+ 
+   private:
+     void processHardwareInputs();
+ 
+     uint32_t _lastHardwareQuery = 0;
+ 
+-    const uint16_t _gpioPins[OPENKNX_BI_GPIO_COUNT] = {OPENKNX_BI_GPIO_PINS};
++    uint16_t _gpioPins[OPENKNX_BI_GPIO_COUNT] = {OPENKNX_BI_GPIO_PINS};
+ 
+-    BinaryInputChannel* _channels[OPENKNX_BI_GPIO_COUNT];
++    BinaryInputChannel* _channels[OPENKNX_BI_GPIO_COUNT] = {};
++#ifdef OPENKNX_BI_DYNAMIC_PINS
++    uint8_t _inputModes[OPENKNX_BI_GPIO_COUNT] = {};
++    bool _activeHigh[OPENKNX_BI_GPIO_COUNT] = {};
++    bool _started = false;
++#endif
+ };
+ 
+ extern GpioBinaryInputModule openknxGpioBinaryInputModule;
+-- 
+2.54.0 (Apple Git-157)
+

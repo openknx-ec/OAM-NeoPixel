@@ -1,7 +1,15 @@
 #include "HardwareConfig.h"
 #include "Logic.h"
 #include "OpenKNX.h"
-// #include "VirtualButtonModule.h"
+#if defined(NEOPIXEL_LOCAL_INPUTS) || defined(NEOPIXEL_LOCAL_INPUT_TEST) || defined(NEOPIXEL_INPUT_SIZE_TEST)
+    #ifndef ParamBI_ChannelPort
+        #error "Generate the matching Dev/Release application with scripts/Build-Release.ps1"
+    #endif
+    #include "GpioBinaryInputModule.h"
+    #include "VirtualButtonModule.h"
+    #include "HardwareProfileData.h"
+    #include "NeoPixelInputs.h"
+#endif
 #include "FunctionBlocksModule.h"
 #include "LightManagerModule.h"
 #include "NeoPixelModule.h"
@@ -27,6 +35,13 @@
 
 uint32_t _debugCore0 = 0;
 uint32_t _debugCore1 = 0;
+
+#ifdef NEOPIXEL_INPUT_SIZE_TEST
+// A volatile read retains the complete module implementations for an honest flash
+// measurement. Read-only and true: size-check images cannot start physical inputs,
+// even if someone accidentally flashes one and enables BI/BTN in ETS.
+static const volatile bool inputSizeCheckOnly = true;
+#endif
 
 bool func1test = false;
 bool func2test = false;
@@ -74,6 +89,26 @@ void setup()
 #endif
 
     openknx.addModule(9, openknxFileTransferModule);
+#if defined(NEOPIXEL_LOCAL_INPUTS) || defined(NEOPIXEL_LOCAL_INPUT_TEST) || defined(NEOPIXEL_INPUT_SIZE_TEST)
+    bool startInputModules = knx.configured();
+    #ifdef NEOPIXEL_INPUT_SIZE_TEST
+    startInputModules = startInputModules && !inputSizeCheckOnly;
+    logInfo("LocalInputs", "size-check firmware: BI/BTN runtime disabled; GPIOs are not qualified");
+    #endif
+    if (startInputModules)
+        NeoPixelInputs::prepare();
+    if (startInputModules && ParamBASE_ModuleEnabled_BTN)
+        openknx.addModule(4, openknxVirtualButtonModule);
+    // Never configure GPIOs from an application intended for different hardware.
+    if (startInputModules && ParamBASE_ModuleEnabled_BI &&
+        HardwareProfile::selectionIsOwn(ParamNEOHW_HardwareSelect))
+        openknx.addModule(5, openknxGpioBinaryInputModule);
+    else
+        logInfo("LocalInputs", "physical inputs inactive: select this hardware and enable BI in ETS");
+#else
+    openknx.unsupportedEtsModule(ETS_ModuleId_BI);
+    openknx.unsupportedEtsModule(ETS_ModuleId_BTN);
+#endif
 #ifdef NEOPIXEL_MODULE_TEST_ENV
     //    openknx.addModule(99, neoPixelModule);
 

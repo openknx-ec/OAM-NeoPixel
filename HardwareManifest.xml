@@ -50,7 +50,7 @@
        switches, third-party notice. help = context help (src/Baggages/Help_de/NEO-Hardware.md). features = rows "Module und Funktionen"
        of the developer view only (no cardFeatures); dev = developer view module,
        defined only in NeoPixel-Dev.xml -->
-  <Page text="Gerät" icon="memory" help="NEO-Hardware" dev="src/NeoPixel.hw.dev.gen.xml" features="KnxIp Network Wifi No2D Relays"
+  <Page text="Gerät" icon="memory" help="NEO-Hardware" dev="src/NeoPixel.hw.dev.gen.xml" features="KnxIp Network Wifi No2D Relays InputPorts"
         intro="Diese Applikation gilt für mehrere Geräte. Wählen Sie das Gerät aus, das verbaut ist. Erst dann sind seine Anschlüsse und Einstellungen sichtbar. Ohne Auswahl bleiben alle Anschlüsse des Geräts aus." />
   <Notice when="ThirdParty" title="Hardware eines Drittanbieters. OpenKNX ist ein Open-Source-Projekt ohne geschäftliche Verbindung zum Hersteller und liefert nur die Firmware. Gewährleistung, Support und Produktsicherheit liegen beim Hersteller. Nutzung auf eigene Verantwortung." />
 
@@ -110,7 +110,7 @@
   <ReservedPins macros="QUINLED_ETHERNET_POWER_GPIO QUINLED_ETHERNET_CLK_MODE QUINLED_ETHERNET_CLK_OUT_GPIO QUINLED_ETHERNET_CLK_IN_GPIO QUINLED_ETHERNET_TX_EN_GPIO QUINLED_ETHERNET_TXEN_GPIO QUINLED_ETHERNET_MDC_GPIO QUINLED_ETHERNET_MDIO_GPIO QUINLED_ETHERNET_TXD0_GPIO QUINLED_ETHERNET_TXD1_GPIO QUINLED_ETHERNET_RXD0_GPIO QUINLED_ETHERNET_RXD1_GPIO QUINLED_ETHERNET_CRS_DV_GPIO" />
   <ReservedPins macros="GLEDOPTO_ETHERNET_CLK_IN_GPIO GLEDOPTO_ETHERNET_POWER_GPIO GLEDOPTO_ETHERNET_MDC_GPIO GLEDOPTO_ETHERNET_MDIO_GPIO GLEDOPTO_ETHERNET_TXEN_GPIO GLEDOPTO_ETHERNET_TXD0_GPIO GLEDOPTO_ETHERNET_TXD1_GPIO GLEDOPTO_ETHERNET_RXD0_GPIO GLEDOPTO_ETHERNET_RXD1_GPIO GLEDOPTO_ETHERNET_CRS_DV_GPIO" />
   <Conflicts output="src/NeoPixel.hw.conflicts.gen.xml" number="900" reserved="true"
-             error="GPIO-Konflikt: {text} nutzt denselben GPIO wie ein anderer Streifen, ein Relais oder ein manueller GPIO. Bitte einen freien Port oder GPIO wählen."
+             error="GPIO-Konflikt: {text} teilt einen GPIO mit einem Eingang, Streifen oder Relais. Einen freien Anschluss wählen."
              reservedError="GPIO reserviert: {text} nutzt einen GPIO, den die gewählte Hardware selbst belegt (KNX, Taster, LED, Flash-Speicher oder Ethernet). Die Firmware schaltet den Anschluss nicht ein."
              tpError="Hinweis: {text} nutzt den GPIO der KNX-TP-Schnittstelle dieser Hardware. Eine TP-Firmware schaltet den Anschluss nicht ein, mit einer IP-Firmware ist der GPIO frei.">
     <Param name="Strips" ref="%AID%_UP-%TT%00020_R-%TT%0002001" />
@@ -214,7 +214,17 @@
     <!-- one block per strip page (NeoPixel.Strip.templ.xml, %C% = strip) -->
     <ChannelBlock name="StripData" text="Streifen %C% Daten" uses="Strip1Data Strip2Data Strip3Data Strip4Data Strip5Data Strip6Data Strip7Data Strip8Data" />
     <ChannelBlock name="StripClock" text="Streifen %C% Takt" uses="Strip1Clock Strip2Clock Strip3Clock Strip4Clock Strip5Clock Strip6Clock Strip7Clock Strip8Clock" />
+    <Param name="BIEnabled" ref="%AID%_UP-0099824_R-009982401" />
+    <Param name="Input1Active" ref="%AID%_UP-2401001_R-240100101" />
+    <Use name="Input1" text="Eingang 1" value="input" when="BIEnabled == 1 and Input1Active == 1" port="%AID%_UP-24011{{D3 (100 + $b.Slot)}}_R-24011{{D3 (100 + $b.Slot)}}01" />
+    <Param name="Input2Active" ref="%AID%_UP-2402001_R-240200101" />
+    <Use name="Input2" text="Eingang 2" value="input" when="BIEnabled == 1 and Input2Active == 1" port="%AID%_UP-24021{{D3 (100 + $b.Slot)}}_R-24021{{D3 (100 + $b.Slot)}}01" />
+    <ChannelBlock flagModuleType="40" name="Input" text="Eingang %C%" uses="Input1 Input2" />
   </Conflicts>
+
+  <Inputs board="*" max="64" />
+  <Value name="InputPorts" text="Eingangsanschlüsse" expr="HW_INPUT_COUNT" default="0" max="64" query="false" />
+  <Generate template="src/hw/NeoPixel.hw.inputs.xml" output="src/NeoPixel.inputs.gen.xml" />
   <!-- Settings of other modules fixed per capability (OGM-HardwareConfig <Fixes>): on hardware with WiFi "WiFi-Schnittstelle"
        (NETW_HasWifi, no memory, shows the WiFi page) is Ja and read-only; the product XMLs take the row out of the NETW include
        and include block Fix_HasWifi in its place -->

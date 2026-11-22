@@ -6,6 +6,9 @@
 #include "EffectConfiguration.h"
 #include "HardwareMappingLogic.h"
 #include "HardwareProfileData.h"
+#if defined(NEOPIXEL_LOCAL_INPUTS) || defined(NEOPIXEL_LOCAL_INPUT_TEST) || defined(NEOPIXEL_INPUT_SIZE_TEST)
+    #include "NeoPixelInputs.h"
+#endif
 #include "NeoPixelTimingSelection.h"
 #include "SceneManager.h"
 #include "SegmentController.h"
@@ -3532,6 +3535,9 @@ void NeoPixelBusModule::configureFromETS(bool physicalOnly)
 
     // Helper lambda to check if a pin is already used
     auto isPinUsed = [&usedPins](uint8_t pin) {
+#if defined(NEOPIXEL_LOCAL_INPUTS) || defined(NEOPIXEL_LOCAL_INPUT_TEST) || defined(NEOPIXEL_INPUT_SIZE_TEST)
+        if (NeoPixelInputs::claims(pin)) return true;
+#endif
         return std::find(usedPins.begin(), usedPins.end(), pin) != usedPins.end();
     };
 
@@ -3628,7 +3634,7 @@ void NeoPixelBusModule::configureFromETS(bool physicalOnly)
 
                     if (isPinUsed(gpio))
                     {
-                        logErrorP("Relay %d: REFUSED - GPIO %d is already used by an earlier relay", i + 1, gpio);
+                        logErrorP("Relay %d: REFUSED - GPIO %d is already used by an input or earlier relay", i + 1, gpio);
                         _relayPins[i] = 255;
                         continue;
                     }
@@ -3776,7 +3782,7 @@ void NeoPixelBusModule::configureFromETS(bool physicalOnly)
             if (isPinUsed(gpios[s]) || sameAsSck)
             {
                 logErrorP("Strip %d: REFUSED - %s GPIO %d is already used by %s. Strip disabled.", i, signals[s], gpios[s],
-                          sameAsSck ? "its own SCK" : "a relay or another strip");
+                          sameAsSck ? "its own SCK" : "an input, relay or another strip");
                 stripGpioTaken[i] = true;
                 break;
             }

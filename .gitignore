@@ -29,3 +29,20 @@ src/Baggages/NEOHWInfo/
 src/Baggages/Icons/memory.png
 # OpenKNXproducer output, compiled into the firmware
 include/knxprod.h
+# Temporary input-prototype generator inputs (normal release generators restore the standard product).
+/HardwareManifest.inputtest.generated.xml
+/HardwareManifest.inputtest.generated.slots
+/HardwareProfile.inputtest.generated.xml
+/HardwareProfile.inputtest.generated.slots
+/src/NeoPixel-InputTest.xml
+/src/NeoPixel-InputTest.h
+
+/src/NeoPixel.BinaryInput.*.generated.xml
+/src/NeoPixel.inputs.gen.xml
+
+/src/Baggages/Help_de/BI-*.md
+
+__pycache__/
+
+# Workspace-local pinned dependencies.
+/local-dependencies/
