@@ -1511,15 +1511,20 @@ function Extract-EnumOptions {
   }
 
   $functionBody = $Content.Substring($openIndex + 1, $closeIndex - $openIndex - 1)
-    
+  $signature = $Content.Substring($sigIndex, $openIndex - $sigIndex)
+  if ($signature -notmatch '^getEnumValueName\s*\(\s*uint8_t\s+(\w+)') {
+    return @()
+  }
+  $indexArgument = [regex]::Escape($Matches[1])
+
   # Check if this specific parameter index is handled
   # Look for patterns like: "if (paramIndex != 1)" or "if (paramIndex == 1)"
   $isHandled = $false
-  if ($functionBody -match "paramIndex\s*!=\s*$ParamIndex.*?return\s+nullptr") {
+  if ($functionBody -match "\b$indexArgument\s*!=\s*$ParamIndex\b.*?return\s+nullptr") {
     # if (paramIndex != X) return nullptr; -> X IS handled
     $isHandled = $true
   }
-  elseif ($functionBody -match "paramIndex\s*==\s*$ParamIndex") {
+  elseif ($functionBody -match "\b$indexArgument\s*==\s*$ParamIndex\b") {
     # if (paramIndex == X) { ... } -> X IS handled  
     $isHandled = $true
   }
@@ -1533,7 +1538,7 @@ function Extract-EnumOptions {
   # case extraction to the block of the requested parameter only.
   # The block runs from "paramIndex == X" to the next "paramIndex ==" (or end).
   $paramBlock = $functionBody
-  $eqMatches = [regex]::Matches($functionBody, 'paramIndex\s*==\s*(\d+)')
+  $eqMatches = [regex]::Matches($functionBody, "\b$indexArgument\s*==\s*(\d+)")
   if ($eqMatches.Count -gt 0) {
     for ($em = 0; $em -lt $eqMatches.Count; $em++) {
       if ([int]$eqMatches[$em].Groups[1].Value -eq $ParamIndex) {

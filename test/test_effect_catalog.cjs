@@ -102,10 +102,11 @@ try {
     assert.deepEqual(JSON.parse(require('node:zlib').gunzipSync(compressed)), catalog);
     fs.writeFileSync(source, '#include <iostream>\n#include "NeoPixelEffectCatalog.generated.h"\nint main() { std::cout << NeoPixelEffectCatalog::availableJson; for(unsigned id=0;id<255;++id) { bool expected=id<sizeof(NeoPixelEffectCatalog::available)-1 && NeoPixelEffectCatalog::available[id]==\'1\'; if(NeoPixelEffectCatalog::isAvailable(id)!=expected) return 1; } }\n');
     for (const [defines, expected] of [
-        [[], '1'.repeat(33)],
-        [['NEOPIXEL_DISABLE_2D'], '1'.repeat(19) + '0'.repeat(14)],
-        [['NEOPIXEL_MINIMAL_EFFECTS'], '1'.repeat(8) + '0'.repeat(11) + '1'.repeat(14)],
-        [['NEOPIXEL_DISABLE_WIPE', 'NEOPIXEL_DISABLE_2D'], '10' + '1'.repeat(17) + '0'.repeat(14)]
+        [[], '1'.repeat(34)],
+        [['NEOPIXEL_DISABLE_2D'], '1'.repeat(19) + '0'.repeat(14) + '1'],
+        [['NEOPIXEL_MINIMAL_EFFECTS'], '1'.repeat(8) + '0'.repeat(11) + '1'.repeat(14) + '0'],
+        [['NEOPIXEL_DISABLE_WIPE', 'NEOPIXEL_DISABLE_2D'], '10' + '1'.repeat(17) + '0'.repeat(14) + '1'],
+        [['NEOPIXEL_DISABLE_TWINKLEFOX'], '1'.repeat(33) + '0']
     ]) {
         cp.execFileSync('clang++', ['-std=c++17', '-I', path.dirname(headerPath), ...defines.map(name => '-D' + name), source, '-o', exe], { stdio: 'inherit' });
         assert.equal(JSON.parse(cp.execFileSync(exe, { encoding: 'utf8' })), expected);
