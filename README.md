@@ -462,9 +462,8 @@ without ETS, the build also supplies an unsigned `NeoPixel-Dev-xknx.knxprod` or
 PlatformIO directly for any `release_*` or debug environment. Scripts never upload.
 
 The dependency manifests record the exact build revisions. OGM-HardwareConfig
-uses the input changes on top of `07dd617`. The HardwareConfig and BinaryInput
-commits are local, with their patches in `patches/` for use with the pinned
-upstream bases. VirtualButton is pinned at `f822931`.
+uses the input integration on `ec/feat-hw-profiler`. The `patches/` directory
+contains the original input patches. VirtualButton is pinned at `f822931`.
 
 The board schema is `HW_INPUT_COUNT`, `HW_INPUT_n_GPIO`, `HW_INPUT_n_LABEL`, with
 optional MODE (0 external bias, 1 pullup, 2 pulldown) and ONLEVEL (0 low, 1 high).
