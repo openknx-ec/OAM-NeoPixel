@@ -4635,43 +4635,7 @@ void NeoPixelBusModule::createVirtualStripWithOrder()
         return;
     }
 
-    // Determine if any physical strip requires RGBW (4 bytes) or RGBCCT (5 bytes per LED)
-    bool needsRGBW = false;
-    bool needsRGBCCT = false;
-    for (const auto* phys : _physicalStrips)
-    {
-        if (phys)
-        {
-            ColorOrder order = phys->getColorOrder();
-            // Check for 5-channel first (RGBCCT, GRBCCT, RGBCTW, GRBCTW)
-            if (order == ColorOrder::RGBCCT || order == ColorOrder::GRBCCT ||
-                order == ColorOrder::RGBCTW || order == ColorOrder::GRBCTW)
-            {
-                needsRGBCCT = true;
-                break; // 5-channel is the maximum, no need to check further
-            }
-            // Check for 4-channel (RGBW, GRBW)
-            else if (order == ColorOrder::RGBW || order == ColorOrder::GRBW)
-            {
-                needsRGBW = true;
-            }
-        }
-    }
-
-    // Create virtual strip: RGBCCT if any 5-channel, RGBW if any 4-channel, otherwise RGB
-    ColorOrder virtualOrder;
-    if (needsRGBCCT)
-    {
-        virtualOrder = ColorOrder::GRBCCT; // Standard 5-channel order
-    }
-    else if (needsRGBW)
-    {
-        virtualOrder = ColorOrder::RGBW;
-    }
-    else
-    {
-        virtualOrder = ColorOrder::RGB;
-    }
+    const ColorOrder virtualOrder = StripConfiguration::virtualColorOrder(_physicalStrips);
 
     _virtualStrip = _neoPixel.addVirtualStrip(_totalLeds, virtualOrder);
     if (!_virtualStrip)
@@ -4680,14 +4644,8 @@ void NeoPixelBusModule::createVirtualStripWithOrder()
         return;
     }
 
-    if (needsRGBCCT)
-    {
-        logInfoP("VirtualStrip created with RGBCCT support (5 bytes/LED) for 5-channel physical strips");
-    }
-    else if (needsRGBW)
-    {
-        logInfoP("VirtualStrip created with RGBW support (4 bytes/LED) for RGBW physical strips");
-    }
+    logDebugP("Virtual strip format: %s (%u bytes/LED)", getColorOrderName(virtualOrder),
+              (unsigned)ProtocolHelper::getBytesPerLed(virtualOrder));
 
     auto mgr = _neoPixel.getManager();
     if (!mgr)
@@ -4798,6 +4756,7 @@ const char* NeoPixelBusModule::getColorOrderName(ColorOrder order)
         case ColorOrder::BRG: return "BRG";
         case ColorOrder::RGBW: return "RGBW";
         case ColorOrder::GRBW: return "GRBW";
+        case ColorOrder::WRGB: return "WRGB";
         // 5-Channel Color Orders
         case ColorOrder::RGBCCT: return "RGBCCT";
         case ColorOrder::GRBCCT: return "GRBCCT";
@@ -4850,28 +4809,9 @@ LedCurrentProfile NeoPixelBusModule::powerMeasureProfile(uint8_t currentPerLed, 
 {
     LedCurrentProfile profile;
 
-    // Check if we have any RGBW (4-channel) or RGBCCT (5-channel) strips
-    bool hasRgbwStrip = false;
-    bool hasRgbcctStrip = false;
-    for (const auto& strip : _physicalStrips)
-    {
-        if (strip)
-        {
-            ColorOrder order = strip->getColorOrder();
-            // 5-channel: RGBCCT, GRBCCT, RGBCTW, GRBCTW
-            if (order == ColorOrder::RGBCCT || order == ColorOrder::GRBCCT ||
-                order == ColorOrder::RGBCTW || order == ColorOrder::GRBCTW)
-            {
-                hasRgbcctStrip = true;
-                break; // 5-channel is the maximum
-            }
-            // 4-channel: RGBW, GRBW
-            else if (order == ColorOrder::RGBW || order == ColorOrder::GRBW)
-            {
-                hasRgbwStrip = true;
-            }
-        }
-    }
+    const ColorOrder order = StripConfiguration::virtualColorOrder(_physicalStrips);
+    const bool hasRgbcctStrip = ProtocolHelper::hasDualWhiteChannel(order);
+    const bool hasRgbwStrip = ProtocolHelper::hasWhiteChannel(order);
 
     if (currentPerLed > 0 && !perLedMode)
     {
