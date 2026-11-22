@@ -171,3 +171,8 @@
 #else
     #define NEO_FXOFF_32 0
 #endif
+#if defined(NEOPIXEL_DISABLE_TWINKLEFOX) || defined(NEOPIXEL_MINIMAL_EFFECTS)
+    #define NEO_FXOFF_33 1
+#else
+    #define NEO_FXOFF_33 0
+#endif

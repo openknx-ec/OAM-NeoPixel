@@ -215,6 +215,11 @@
               <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+321%" Offset="%CUE_OFF+2%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Metaballs2DHue" ParameterType="%AID%_PT-Metaballs2DHue" Text="Farbton" Value="0" op:nowarn="true"/>
               <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+322%" Offset="%CUE_OFF+3%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Metaballs2DBlobCount" ParameterType="%AID%_PT-Metaballs2DBlobCount" Text="Anzahl Blobs" Value="0" op:nowarn="true"/>
               <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+323%" Offset="%CUE_OFF+4%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Metaballs2DContrast" ParameterType="%AID%_PT-Metaballs2DContrast" Text="Kontrast" Value="0" op:nowarn="true"/>
+              <!-- Twinklefox (ID 33) -->
+              <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+330%" Offset="%CUE_OFF+1%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%TwinklefoxSpeed" ParameterType="%AID%_PT-TwinklefoxSpeed" Text="Geschwindigkeit" Value="0" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+331%" Offset="%CUE_OFF+2%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%TwinklefoxDensity" ParameterType="%AID%_PT-TwinklefoxDensity" Text="Dichte" Value="0" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+332%" Offset="%CUE_OFF+3%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%TwinklefoxColorMode" ParameterType="%AID%_PT-TwinklefoxColorMode" Text="Farbpalette" Value="0" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+333%" Offset="%CUE_OFF+4%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%TwinklefoxBackgroundLevel" ParameterType="%AID%_PT-TwinklefoxBackgroundLevel" Text="Hintergrundhelligkeit" Value="0" op:nowarn="true"/>
               <!-- END AUTO-GENERATED: Cue Effect Typed Parameters -->
             </Parameters>
             <!-- effect list of hardware without the 2D effects, no memory (HardwareManifest.xml <Filter name="CueFx">); the EM template
@@ -415,6 +420,11 @@
               <ParameterRef Id="%AID%_UP-22%CC%%CUE_TPP+321%_R-22%CC%%CUE_TPP+321%01" RefId="%AID%_UP-22%CC%%CUE_TPP+321%" Value="0" />
               <ParameterRef Id="%AID%_UP-22%CC%%CUE_TPP+322%_R-22%CC%%CUE_TPP+322%01" RefId="%AID%_UP-22%CC%%CUE_TPP+322%" Value="4" />
               <ParameterRef Id="%AID%_UP-22%CC%%CUE_TPP+323%_R-22%CC%%CUE_TPP+323%01" RefId="%AID%_UP-22%CC%%CUE_TPP+323%" Value="128" />
+              <!-- Twinklefox (ID 33) -->
+              <ParameterRef Id="%AID%_UP-22%CC%%CUE_TPP+330%_R-22%CC%%CUE_TPP+330%01" RefId="%AID%_UP-22%CC%%CUE_TPP+330%" Value="96" />
+              <ParameterRef Id="%AID%_UP-22%CC%%CUE_TPP+331%_R-22%CC%%CUE_TPP+331%01" RefId="%AID%_UP-22%CC%%CUE_TPP+331%" Value="96" />
+              <ParameterRef Id="%AID%_UP-22%CC%%CUE_TPP+332%_R-22%CC%%CUE_TPP+332%01" RefId="%AID%_UP-22%CC%%CUE_TPP+332%" Value="1" />
+              <ParameterRef Id="%AID%_UP-22%CC%%CUE_TPP+333%_R-22%CC%%CUE_TPP+333%01" RefId="%AID%_UP-22%CC%%CUE_TPP+333%" Value="0" />
               <!-- END AUTO-GENERATED: Cue Effect ParameterRefs -->
               <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+11%_R-%TT%%CC%%CUE_PPP+11%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+11%" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+12%_R-%TT%%CC%%CUE_PPP+12%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+12%" />
@@ -726,6 +736,14 @@
                         <ParameterRefRef RefId="%AID%_UP-22%CC%%CUE_TPP+321%_R-22%CC%%CUE_TPP+321%01" IndentLevel="2" HelpContext="NEO-Hue-Metaballs-2D"/>
                         <ParameterRefRef RefId="%AID%_UP-22%CC%%CUE_TPP+322%_R-22%CC%%CUE_TPP+322%01" IndentLevel="2" HelpContext="NEO-BlobCount-Metaballs-2D"/>
                         <ParameterRefRef RefId="%AID%_UP-22%CC%%CUE_TPP+323%_R-22%CC%%CUE_TPP+323%01" IndentLevel="2" HelpContext="NEO-Contrast-Metaballs-2D"/>
+                      </when>
+                      <when test="33">
+                        <!-- Twinklefox Effect -->
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Effekt-spezifische Parameter" UIHint="Headline"/>
+                        <ParameterRefRef RefId="%AID%_UP-22%CC%%CUE_TPP+330%_R-22%CC%%CUE_TPP+330%01" IndentLevel="2" HelpContext="NEO-Speed-Twinklefox"/>
+                        <ParameterRefRef RefId="%AID%_UP-22%CC%%CUE_TPP+331%_R-22%CC%%CUE_TPP+331%01" IndentLevel="2" HelpContext="NEO-Density-Twinklefox"/>
+                        <ParameterRefRef RefId="%AID%_UP-22%CC%%CUE_TPP+332%_R-22%CC%%CUE_TPP+332%01" IndentLevel="2" HelpContext="NEO-ColorMode-Twinklefox"/>
+                        <ParameterRefRef RefId="%AID%_UP-22%CC%%CUE_TPP+333%_R-22%CC%%CUE_TPP+333%01" IndentLevel="2" HelpContext="NEO-BackgroundLevel-Twinklefox"/>
                       </when>
                     </choose>
 

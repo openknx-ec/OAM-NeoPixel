@@ -23,7 +23,7 @@
  * This function is synchronized with the Effect Type enumeration in
  * NeoPixel.share.xml and the registration order in EffectPool.cpp
  * 
- * @param effectType Effect type ID from ETS (0-32)
+ * @param effectType Effect type ID from ETS (0-33)
  * @return Pointer to Effect instance, or Solid effect for unknown types
  */
 inline Effect* getEffectFromType(uint8_t effectType)
@@ -127,6 +127,9 @@ inline Effect* getEffectFromType(uint8_t effectType)
 #ifndef NEOPIXEL_DISABLE_METABALLS2D
         case PT_NEOEffectType::Metaballs2D: return EffectPool::getMetaballs2D(); // Metaballs 2D
 #endif
+#if !defined(NEOPIXEL_DISABLE_TWINKLEFOX) && !defined(NEOPIXEL_MINIMAL_EFFECTS)
+        case PT_NEOEffectType::TwinkleFox: return EffectPool::getTwinkleFox(); // Twinklefox
+#endif
         default: return EffectPool::getSolid(); // Fallback to Solid
     }
 }
@@ -138,7 +141,7 @@ inline Effect* getEffectFromType(uint8_t effectType)
  * Used for power-off snapshots to save the currently active effect type ID.
  * 
  * @param effect Pointer to Effect instance
- * @return Effect type ID (0-32), or 0 (Solid) if effect is nullptr or unknown
+ * @return Effect type ID (0-33), or 0 (Solid) if effect is nullptr or unknown
  */
 inline uint8_t getTypeFromEffect(Effect* effect)
 {
@@ -240,6 +243,9 @@ inline uint8_t getTypeFromEffect(Effect* effect)
 #endif
 #ifndef NEOPIXEL_DISABLE_METABALLS2D
     if (effect == EffectPool::getMetaballs2D()) return static_cast<uint8_t>(PT_NEOEffectType::Metaballs2D); // Metaballs 2D
+#endif
+#if !defined(NEOPIXEL_DISABLE_TWINKLEFOX) && !defined(NEOPIXEL_MINIMAL_EFFECTS)
+    if (effect == EffectPool::getTwinkleFox()) return static_cast<uint8_t>(PT_NEOEffectType::TwinkleFox); // Twinklefox
 #endif
 
     return 0; // Unknown effect -> fallback to Solid

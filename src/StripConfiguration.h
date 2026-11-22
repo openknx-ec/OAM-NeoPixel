@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NeoPixel.h" // For LedProtocol, ColorOrder
+#include "IHardwareDriver.h"
 #include <cstdint>
 
 /**
@@ -22,6 +22,21 @@ class StripConfiguration
      * @return ColorOrder enum value
      */
     static ColorOrder mapColorOrder(uint8_t c);
+
+    /** Select a logical buffer format wide enough for the attached strips. */
+    template <typename Strips>
+    static ColorOrder virtualColorOrder(const Strips& strips)
+    {
+        ColorOrder format = ColorOrder::RGB;
+        for (const auto* strip : strips)
+        {
+            if (!strip) continue;
+            const ColorOrder order = strip->getColorOrder();
+            if (ProtocolHelper::hasDualWhiteChannel(order)) return ColorOrder::GRBCCT;
+            if (ProtocolHelper::hasWhiteChannel(order)) format = ColorOrder::RGBW;
+        }
+        return format;
+    }
 
     /**
      * @brief Check if protocol requires SPI

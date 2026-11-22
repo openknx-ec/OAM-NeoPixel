@@ -28,10 +28,11 @@ Auf einem Segment mit Matrix-Geometrie laufen sie entlang der LED-Reihenfolge.
 * **Blitz** (Nr. 16) - Zufällige Blitzeinschläge mit kurzen Lichtblitzen und Abklingeffekt. Simuliert realistische Gewitterblitze mit einstellbarer Häufigkeit, Breite und Helligkeit
 * **Gradient** (Nr. 17) - Linearer HSV-Farbverlauf über den Streifen
 * **Kerze** (Nr. 18) - Realistischer Kerzenflacker-Effekt. Bei Zonen=1 flackern alle LEDs gemeinsam, höhere Werte erzeugen mehrere unabhängige Flammen
+* **Twinklefox** (Nr. 33) - Unabhängige Lichtpunkte glimmen langsam auf und ab. Für 1D-Streifen mit wählbarer Palette und Hintergrundhelligkeit
 
 ### 1D/2D: für Streifen und Matrix
 
-* **Cylon** (Nr. 6) - Klassischer KITT/Cylon-Effekt mit hin- und herspringendem Lichtauge und verblassendem Schweif. Unterstützt 1D-Streifen und 2D-Matrizen. Mode 1 erzeugt zwei gespiegelte Augen aus der Mitte (Tor)
+* **Cylon** (Nr. 6) - Klassischer KITT/Cylon-Effekt mit hin- und herspringendem Lichtauge und verblassendem Schweif. Unterstützt 1D-Streifen und 2D-Matrizen. Modus 1 öffnet zwei Augen aus der Mitte. Scanner Dual spiegelt zwei Augen, die sich kreuzen und an den Enden umkehren
 * **Fire** (Nr. 8) - Realistische Feuersimulation mit Flackern
 * **Noise** (Nr. 14) - Sanftes Rauschen entlang Streifen oder als 2D-Feld (inoise8-inspiriert)
 

@@ -23,7 +23,7 @@
 6	CylonEffect	2	EyeSize	number:1..20
 6	CylonEffect	3	FadeAmount	number:1..255
 6	CylonEffect	4	Direction	enum:0=Horizontal;1=Vertikal
-6	CylonEffect	5	Mode	enum:0=Larson;1=Mitte nach aussen
+6	CylonEffect	5	Mode	enum:0=Larson;1=Mitte nach aussen;2=Scanner Dual
 7	RGBWTestEffect	0	PhaseDuration	number:1..60
 7	RGBWTestEffect	1	Mode	enum:0=RGBW;1=RGB+CCT
 8	FireEffect	0	Speed	number:1..255
@@ -146,3 +146,7 @@
 32	Metaballs2DEffect	1	Hue	number:0..255
 32	Metaballs2DEffect	2	BlobCount	number:2..6
 32	Metaballs2DEffect	3	Contrast	number:1..255
+33	TwinkleFoxEffect	0	Speed	number:0..255
+33	TwinkleFoxEffect	1	Density	number:0..255
+33	TwinkleFoxEffect	2	ColorMode	number:0..3
+33	TwinkleFoxEffect	3	BackgroundLevel	number:0..255

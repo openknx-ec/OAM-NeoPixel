@@ -55,7 +55,7 @@ inline void loadEffectParameters(Effect* effect, Segment* segment, uint8_t effec
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOWipeDirection);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOWipeLoop);
             break;
-            
+
         case PT_NEOEffectType::Rainbow:  // Rainbow Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEORainbowSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEORainbowDelta);
@@ -63,23 +63,23 @@ inline void loadEffectParameters(Effect* effect, Segment* segment, uint8_t effec
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEORainbowDensity);
             if (paramCount >= 5) effect->setParameter(segment, 4, ParamNEO_NEORainbowMode);
             break;
-            
+
         case PT_NEOEffectType::Pride:  // Pride2015 Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOPride2015Speed);
             break;
-            
+
         case PT_NEOEffectType::Juggle:  // Juggle Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOJuggleSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOJuggleNumDots);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOJuggleFadeSpeed);
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOJuggleHueOffset);
             break;
-            
+
         case PT_NEOEffectType::BPM:  // BPM Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOBPMBPM);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOBPMHue);
             break;
-            
+
         case PT_NEOEffectType::Cylon:  // Cylon Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOCylonSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOCylonHue);
@@ -88,12 +88,12 @@ inline void loadEffectParameters(Effect* effect, Segment* segment, uint8_t effec
             if (paramCount >= 5) effect->setParameter(segment, 4, ParamNEO_NEOCylonDirection);
             if (paramCount >= 6) effect->setParameter(segment, 5, ParamNEO_NEOCylonMode);
             break;
-            
+
         case PT_NEOEffectType::RGBWTest:  // Test Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOTestPhaseDuration);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOTestMode);
             break;
-            
+
         case PT_NEOEffectType::Fire:  // Fire Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOFireSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOFireCooling);
@@ -101,7 +101,7 @@ inline void loadEffectParameters(Effect* effect, Segment* segment, uint8_t effec
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOFireReverseDirection);
             if (paramCount >= 5) effect->setParameter(segment, 4, ParamNEO_NEOFireBlueFireMode);
             break;
-            
+
         case PT_NEOEffectType::TheaterChase:  // Theater Chase Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOTheaterChaseSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOTheaterChaseSpacing);
@@ -110,7 +110,7 @@ inline void loadEffectParameters(Effect* effect, Segment* segment, uint8_t effec
             if (paramCount >= 5) effect->setParameter(segment, 4, ParamNEO_NEOTheaterChaseColorSpeed);
             if (paramCount >= 6) effect->setParameter(segment, 5, ParamNEO_NEOTheaterChaseBounce);
             break;
-            
+
         case PT_NEOEffectType::Sparkle:  // Sparkle Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOSparkleSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOSparkleFadeRate);
@@ -120,7 +120,7 @@ inline void loadEffectParameters(Effect* effect, Segment* segment, uint8_t effec
             if (paramCount >= 6) effect->setParameter(segment, 5, ParamNEO_NEOSparkleBurstMode);
             if (paramCount >= 7) effect->setParameter(segment, 6, ParamNEO_NEOSparkleMode);
             break;
-            
+
         case PT_NEOEffectType::Breathing:  // Breathing Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOBreathingSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOBreathingMinBrightness);
@@ -128,7 +128,7 @@ inline void loadEffectParameters(Effect* effect, Segment* segment, uint8_t effec
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOBreathingRainbowMode);
             if (paramCount >= 5) effect->setParameter(segment, 4, ParamNEO_NEOBreathingWaveform);
             break;
-            
+
         case PT_NEOEffectType::Strobe:  // Strobe Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOStrobeSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOStrobeOnRatio);
@@ -136,7 +136,7 @@ inline void loadEffectParameters(Effect* effect, Segment* segment, uint8_t effec
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOStrobeRandomTiming);
             if (paramCount >= 5) effect->setParameter(segment, 4, ParamNEO_NEOStrobeRainbowStrobe);
             break;
-            
+
         case PT_NEOEffectType::Comet:  // Comet Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOCometSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOCometFadeRate);
@@ -145,7 +145,7 @@ inline void loadEffectParameters(Effect* effect, Segment* segment, uint8_t effec
             if (paramCount >= 5) effect->setParameter(segment, 4, ParamNEO_NEOCometRainbowMode);
             if (paramCount >= 6) effect->setParameter(segment, 5, ParamNEO_NEOCometMode);
             break;
-            
+
         case PT_NEOEffectType::Noise:  // Noise Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEONoiseSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEONoiseScale);
@@ -153,14 +153,14 @@ inline void loadEffectParameters(Effect* effect, Segment* segment, uint8_t effec
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEONoiseHueOffset);
             if (paramCount >= 5) effect->setParameter(segment, 4, ParamNEO_NEONoisePalette);
             break;
-            
+
         case PT_NEOEffectType::Palette:  // Palette Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOPaletteSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOPalettePalette);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOPaletteBlend);
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOPaletteSpacing);
             break;
-            
+
         case PT_NEOEffectType::Lightning:  // Blitz Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOBlitzSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOBlitzWidth);
@@ -168,20 +168,20 @@ inline void loadEffectParameters(Effect* effect, Segment* segment, uint8_t effec
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOBlitzHue);
             if (paramCount >= 5) effect->setParameter(segment, 4, ParamNEO_NEOBlitzIntensity);
             break;
-            
+
         case PT_NEOEffectType::Gradient:  // Gradient Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOGradientSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOGradientStartHue);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOGradientEndHue);
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOGradientSaturation);
             break;
-            
+
         case PT_NEOEffectType::Candle:  // Kerze Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOKerzeSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOKerzeIntensity);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOKerzeZones);
             break;
-            
+
         case PT_NEOEffectType::ScrollText:  // Laufschrift Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOLaufschriftSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOLaufschriftGap);
@@ -189,7 +189,7 @@ inline void loadEffectParameters(Effect* effect, Segment* segment, uint8_t effec
             if (paramCount >= 4) effect->setParameter(segment, 3, (uint32_t)(uintptr_t)ParamNEO_NEOLaufschriftText);
             if (paramCount >= 5) effect->setParameter(segment, 4, ParamNEO_NEOLaufschriftFont);
             break;
-            
+
         case PT_NEOEffectType::Clock2D:  // Uhr 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOUhr2DViewMode);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOUhr2DShowSeconds);
@@ -202,21 +202,21 @@ inline void loadEffectParameters(Effect* effect, Segment* segment, uint8_t effec
             if (paramCount >= 9) effect->setParameter(segment, 8, ParamNEO_NEOUhr2DScrollSpeed);
             if (paramCount >= 10) effect->setParameter(segment, 9, ParamNEO_NEOUhr2DFont);
             break;
-            
+
         case PT_NEOEffectType::Snake2D:  // Snake 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOSnake2DSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOSnake2DHeadHue);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOSnake2DBodyMode);
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOSnake2DBodyHue);
             break;
-            
+
         case PT_NEOEffectType::Matrix2D:  // Matrix 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOMatrix2DSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOMatrix2DDensity);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOMatrix2DPalette);
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOMatrix2DGlitch);
             break;
-            
+
         case PT_NEOEffectType::Tetris2D:  // Tetris 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOTetris2DSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOTetris2DBgBrightness);
@@ -225,70 +225,77 @@ inline void loadEffectParameters(Effect* effect, Segment* segment, uint8_t effec
             if (paramCount >= 5) effect->setParameter(segment, 4, ParamNEO_NEOTetris2DFlashLines);
             if (paramCount >= 6) effect->setParameter(segment, 5, ParamNEO_NEOTetris2DAutoPlay);
             break;
-            
+
         case PT_NEOEffectType::Tron2D:  // TRON Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOTRONSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOTRONHue);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOTRONGridSpacing);
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOTRONGlow);
             break;
-            
+
         case PT_NEOEffectType::StarfieldWarp2D:  // Starfield Warp Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOStarfieldWarpSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOStarfieldWarpDensity);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOStarfieldWarpColorMode);
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOStarfieldWarpWarpPulse);
             break;
-            
+
         case PT_NEOEffectType::PlasmaNebula2D:  // Plasma Nebula Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOPlasmaNebulaSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOPlasmaNebulaSaturation);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOPlasmaNebulaContrast);
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOPlasmaNebulaPaletteShift);
             break;
-            
+
         case PT_NEOEffectType::UfoSwarm2D:  // UFO Swarm Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOUFOSwarmSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOUFOSwarmCount);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOUFOSwarmHue);
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOUFOSwarmBeam);
             break;
-            
+
         case PT_NEOEffectType::GameOfLife2D:  // Game of Life 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOGameofLife2DSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOGameofLife2DHue);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOGameofLife2DColorMode);
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOGameofLife2DSpawnDensity);
             break;
-            
+
         case PT_NEOEffectType::DNA2D:  // DNA 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEODNA2DSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEODNA2DHue);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEODNA2DTwist);
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEODNA2DRungSpacing);
             break;
-            
+
         case PT_NEOEffectType::Aurora2D:  // Aurora 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOAurora2DSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOAurora2DHue);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOAurora2DScale);
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOAurora2DIntensity);
             break;
-            
+
         case PT_NEOEffectType::Lissajous2D:  // Lissajous 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOLissajous2DSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOLissajous2DHue);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOLissajous2DFreqA);
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOLissajous2DFreqB);
             break;
-            
+
         case PT_NEOEffectType::Metaballs2D:  // Metaballs 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOMetaballs2DSpeed);
             if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOMetaballs2DHue);
             if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOMetaballs2DBlobCount);
             if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOMetaballs2DContrast);
             break;
-            
+
+        case PT_NEOEffectType::TwinkleFox:  // Twinklefox Effect
+            if (paramCount >= 1) effect->setParameter(segment, 0, ParamNEO_NEOTwinklefoxSpeed);
+            if (paramCount >= 2) effect->setParameter(segment, 1, ParamNEO_NEOTwinklefoxDensity);
+            if (paramCount >= 3) effect->setParameter(segment, 2, ParamNEO_NEOTwinklefoxColorMode);
+            if (paramCount >= 4) effect->setParameter(segment, 3, ParamNEO_NEOTwinklefoxBackgroundLevel);
+            break;
+
         default:
             // No effect-specific parameters to load
             break;
@@ -603,6 +610,15 @@ inline const char* effectParameterEtsName(uint8_t effectID, uint8_t index)
                 case 3: return "Metaballs2DContrast";
                 default: return nullptr;
             }
+        case PT_NEOEffectType::TwinkleFox:
+            switch (index)
+            {
+                case 0: return "TwinklefoxSpeed";
+                case 1: return "TwinklefoxDensity";
+                case 2: return "TwinklefoxColorMode";
+                case 3: return "TwinklefoxBackgroundLevel";
+                default: return nullptr;
+            }
         default: return nullptr;
     }
 }
@@ -658,7 +674,7 @@ inline void loadSceneEffectParameters(Effect* effect, Segment* segment, uint8_t 
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             break;
-            
+
         case PT_NEOEffectType::Rainbow:  // Rainbow Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
@@ -666,23 +682,23 @@ inline void loadSceneEffectParameters(Effect* effect, Segment* segment, uint8_t 
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             if (paramCount >= 5) effect->setParameter(segment, 4, knx.paramByte(sceneEffectParamBase + 4));
             break;
-            
+
         case PT_NEOEffectType::Pride:  // Pride2015 Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             break;
-            
+
         case PT_NEOEffectType::Juggle:  // Juggle Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             break;
-            
+
         case PT_NEOEffectType::BPM:  // BPM Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             break;
-            
+
         case PT_NEOEffectType::Cylon:  // Cylon Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
@@ -691,12 +707,12 @@ inline void loadSceneEffectParameters(Effect* effect, Segment* segment, uint8_t 
             if (paramCount >= 5) effect->setParameter(segment, 4, knx.paramByte(sceneEffectParamBase + 4));
             if (paramCount >= 6) effect->setParameter(segment, 5, knx.paramByte(sceneEffectParamBase + 5));
             break;
-            
+
         case PT_NEOEffectType::RGBWTest:  // Test Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             break;
-            
+
         case PT_NEOEffectType::Fire:  // Fire Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
@@ -704,7 +720,7 @@ inline void loadSceneEffectParameters(Effect* effect, Segment* segment, uint8_t 
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             if (paramCount >= 5) effect->setParameter(segment, 4, knx.paramByte(sceneEffectParamBase + 4));
             break;
-            
+
         case PT_NEOEffectType::TheaterChase:  // Theater Chase Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
@@ -713,7 +729,7 @@ inline void loadSceneEffectParameters(Effect* effect, Segment* segment, uint8_t 
             if (paramCount >= 5) effect->setParameter(segment, 4, knx.paramByte(sceneEffectParamBase + 4));
             if (paramCount >= 6) effect->setParameter(segment, 5, knx.paramByte(sceneEffectParamBase + 5));
             break;
-            
+
         case PT_NEOEffectType::Sparkle:  // Sparkle Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
@@ -723,7 +739,7 @@ inline void loadSceneEffectParameters(Effect* effect, Segment* segment, uint8_t 
             if (paramCount >= 6) effect->setParameter(segment, 5, knx.paramByte(sceneEffectParamBase + 5));
             if (paramCount >= 7) effect->setParameter(segment, 6, knx.paramByte(sceneEffectParamBase + 6));
             break;
-            
+
         case PT_NEOEffectType::Breathing:  // Breathing Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
@@ -731,7 +747,7 @@ inline void loadSceneEffectParameters(Effect* effect, Segment* segment, uint8_t 
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             if (paramCount >= 5) effect->setParameter(segment, 4, knx.paramByte(sceneEffectParamBase + 4));
             break;
-            
+
         case PT_NEOEffectType::Strobe:  // Strobe Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
@@ -739,7 +755,7 @@ inline void loadSceneEffectParameters(Effect* effect, Segment* segment, uint8_t 
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             if (paramCount >= 5) effect->setParameter(segment, 4, knx.paramByte(sceneEffectParamBase + 4));
             break;
-            
+
         case PT_NEOEffectType::Comet:  // Comet Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
@@ -748,7 +764,7 @@ inline void loadSceneEffectParameters(Effect* effect, Segment* segment, uint8_t 
             if (paramCount >= 5) effect->setParameter(segment, 4, knx.paramByte(sceneEffectParamBase + 4));
             if (paramCount >= 6) effect->setParameter(segment, 5, knx.paramByte(sceneEffectParamBase + 5));
             break;
-            
+
         case PT_NEOEffectType::Noise:  // Noise Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
@@ -756,14 +772,14 @@ inline void loadSceneEffectParameters(Effect* effect, Segment* segment, uint8_t 
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             if (paramCount >= 5) effect->setParameter(segment, 4, knx.paramByte(sceneEffectParamBase + 4));
             break;
-            
+
         case PT_NEOEffectType::Palette:  // Palette Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             break;
-            
+
         case PT_NEOEffectType::Lightning:  // Blitz Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
@@ -771,20 +787,20 @@ inline void loadSceneEffectParameters(Effect* effect, Segment* segment, uint8_t 
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             if (paramCount >= 5) effect->setParameter(segment, 4, knx.paramByte(sceneEffectParamBase + 4));
             break;
-            
+
         case PT_NEOEffectType::Gradient:  // Gradient Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             break;
-            
+
         case PT_NEOEffectType::Candle:  // Kerze Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             break;
-            
+
         case PT_NEOEffectType::ScrollText:  // Laufschrift Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
@@ -792,7 +808,7 @@ inline void loadSceneEffectParameters(Effect* effect, Segment* segment, uint8_t 
             if (paramCount >= 4) effect->setParameter(segment, 3, (uint32_t)(uintptr_t)sceneEffectText);
             if (paramCount >= 5) effect->setParameter(segment, 4, knx.paramByte(sceneEffectParamBase + 4));
             break;
-            
+
         case PT_NEOEffectType::Clock2D:  // Uhr 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
@@ -805,21 +821,21 @@ inline void loadSceneEffectParameters(Effect* effect, Segment* segment, uint8_t 
             if (paramCount >= 9) effect->setParameter(segment, 8, knx.paramByte(sceneEffectParamBase + 8));
             if (paramCount >= 10) effect->setParameter(segment, 9, knx.paramByte(sceneEffectParamBase + 9));
             break;
-            
+
         case PT_NEOEffectType::Snake2D:  // Snake 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             break;
-            
+
         case PT_NEOEffectType::Matrix2D:  // Matrix 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             break;
-            
+
         case PT_NEOEffectType::Tetris2D:  // Tetris 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
@@ -828,70 +844,77 @@ inline void loadSceneEffectParameters(Effect* effect, Segment* segment, uint8_t 
             if (paramCount >= 5) effect->setParameter(segment, 4, knx.paramByte(sceneEffectParamBase + 4));
             if (paramCount >= 6) effect->setParameter(segment, 5, knx.paramByte(sceneEffectParamBase + 5));
             break;
-            
+
         case PT_NEOEffectType::Tron2D:  // TRON Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             break;
-            
+
         case PT_NEOEffectType::StarfieldWarp2D:  // Starfield Warp Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             break;
-            
+
         case PT_NEOEffectType::PlasmaNebula2D:  // Plasma Nebula Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             break;
-            
+
         case PT_NEOEffectType::UfoSwarm2D:  // UFO Swarm Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             break;
-            
+
         case PT_NEOEffectType::GameOfLife2D:  // Game of Life 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             break;
-            
+
         case PT_NEOEffectType::DNA2D:  // DNA 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             break;
-            
+
         case PT_NEOEffectType::Aurora2D:  // Aurora 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             break;
-            
+
         case PT_NEOEffectType::Lissajous2D:  // Lissajous 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             break;
-            
+
         case PT_NEOEffectType::Metaballs2D:  // Metaballs 2D Effect
             if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
             if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
             if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
             if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
             break;
-            
+
+        case PT_NEOEffectType::TwinkleFox:  // Twinklefox Effect
+            if (paramCount >= 1) effect->setParameter(segment, 0, knx.paramByte(sceneEffectParamBase + 0));
+            if (paramCount >= 2) effect->setParameter(segment, 1, knx.paramByte(sceneEffectParamBase + 1));
+            if (paramCount >= 3) effect->setParameter(segment, 2, knx.paramByte(sceneEffectParamBase + 2));
+            if (paramCount >= 4) effect->setParameter(segment, 3, knx.paramByte(sceneEffectParamBase + 3));
+            break;
+
         default:
             break;
     }

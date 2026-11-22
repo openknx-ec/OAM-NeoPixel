@@ -38,3 +38,4 @@ Format pro Zeile: ID - DE - EN
 - 30 - Aurora 2D - Aurora 2D
 - 31 - Lissajous 2D - Lissajous 2D
 - 32 - Metaballs 2D - Metaballs 2D
+- 33 - Twinklefox - Twinklefox

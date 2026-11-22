@@ -4111,7 +4111,7 @@ function Generate-CppMapping {
     }
 
     $cpp += '            break;'
-    $cpp += '            '
+    $cpp += ''
   }
 
   $cpp += '        default:'
@@ -4846,7 +4846,7 @@ function Generate-SceneCppMapping {
     }
 
     $cpp += '            break;'
-    $cpp += '            '
+    $cpp += ''
   }
 
   $cpp += '        default:'
