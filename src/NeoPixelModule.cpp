@@ -5669,30 +5669,10 @@ void NeoPixelBusModule::debugShowConfiguration()
         logInfoP("  │  📋 ETS Configuration:");
         logInfoP("  │    LED Count:        %d", configuredStripLength(_channelIndex));
 
-        uint8_t ledTypeParam = (uint8_t)ParamNEOSTRIP_NEOLEDType;
-        const char* ledTypeNames[] = {
-            "WS2811/WS2812/WS2812B (GRB)",
-            "WS2813 (GRB)",
-            "WS2815 (GRB)",
-            "SK6812 (GRB)",
-            "TM1804 (RGB)",
-            "TM1829 (RGB/WRGB)",
-            "APA106 (RGB)",
-            "UCS1904 (RGB)",
-            "SK6812/WS2814 (RGBW)",
-            "LPD6803 (RGB SPI)",
-            "LPD8806 (GRB SPI)",
-            "WS2801 (RGB SPI)",
-            "P9813 (RGB SPI)",
-            "APA102 (RGB SPI)",
-            "SK9822 (RGB SPI)"};
-        const char* ledTypeName = (ledTypeParam < 15) ? ledTypeNames[ledTypeParam] : "Unknown";
-        logInfoP("  │    LED Type:         %d (%s)", ledTypeParam, ledTypeName);
-
-        uint8_t colorOrderParam = (uint8_t)ParamNEOSTRIP_NEOColourOrder;
-        const char* colorOrderNames[] = {"RGB", "RBG", "GRB", "GBR", "BRG", "BGR", "WRGB", "WRBG", "WGRB", "WGBR", "WBRG", "WBGR", "RGBW", "RBGW", "GRBW", "GBRW", "BRGW", "BGRW", "RWGB", "RWBG", "GWRB", "GWBR", "BWRG", "BWGR", "RGBW", "RBWG", "GRBW", "GBWR", "BRWG", "BGWR"};
-        const char* colorOrderName = (colorOrderParam < 30) ? colorOrderNames[colorOrderParam] : "Unknown";
-        logInfoP("  │    Color Order:      %d (%s)", colorOrderParam, colorOrderName);
+        logInfoP("  │    LED Type:         %u (%s)", (unsigned)ParamNEOSTRIP_NEOLEDType,
+                 getProtocolName(strip->getProtocol()));
+        logInfoP("  │    Color Order:      %u (%s)", (unsigned)ParamNEOSTRIP_NEOColourOrder,
+                 getColorOrderName(strip->getColorOrder()));
 
         // GPIO selection per signal: ETS port value = hardware port n + 1, PORT_MANUAL = manual GPIO, PORT_NONE or above
         // the ports = not selected (HardwareProfileData.h)

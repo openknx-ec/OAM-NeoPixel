@@ -267,6 +267,7 @@
                 <Enumeration Text="LPD6803"              Value="23" Id="%ENID%" op:headerName="LPD6803"/>
                 <Enumeration Text="P9813"                Value="24" Id="%ENID%" op:headerName="P9813"/>
                 <Enumeration Text="APA102-Clone"         Value="25" Id="%ENID%" op:headerName="APA102_Clone"/>
+                <Enumeration Text="WS2814 (RGBW, 4ch)" Value="26" Id="%ENID%" op:headerName="WS2814_RGBW_4ch"/>
                 <!-- 5-Channel RGBCCT (RGB + Warm White + Cool White) -->
                 <Enumeration Text="SK6812 RGBCCT (5ch)"  Value="30" Id="%ENID%" op:headerName="SK6812_RGBCCT_5ch"/>
                 <Enumeration Text="WS2814 RGBCCT (5ch)"  Value="31" Id="%ENID%" op:headerName="WS2814_RGBCCT_5ch"/>

@@ -8,6 +8,7 @@ Wählen Sie den passenden LED-Typ für Ihren LED-Streifen aus. Verschiedene LED-
 - **WS2815**: 12V RGB LEDs mit Backup-Datenleitung
 - **SK6812**: RGB/RGBW LEDs mit verbesserter Farbqualität
 - **APA102/SK9822**: SPI-basierte LEDs mit separater Clock-Leitung
+- **WS2814 (RGBW, 4ch)**: Vier Kanäle mit eigenem WS2814-Timing. Die Voreinstellung RGBW kann passend zum Streifen geändert werden, bei BTF-FCOB gegebenenfalls auf WRGB. Der Eintrag SK6812/WS2814 (RGBW) verwendet das bisherige SK6812-Timing.
 - **WS2805**: RGBCCT (5-Kanal) LEDs
 - **SM16825**: 16-Bit High-End LEDs
 

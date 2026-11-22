@@ -30,6 +30,7 @@ LedProtocol StripConfiguration::mapProtocol(uint8_t p)
         case 23: return LedProtocol::LPD6803;
         case 24: return LedProtocol::P9813;
         case 25: return LedProtocol::APA102_CLONE;
+        case 26: return LedProtocol::WS2814;
         case 30: return LedProtocol::SK6812_RGBCCT;
         case 31: return LedProtocol::WS2814_RGBCCT;
         case 99: return LedProtocol::WS2812B;

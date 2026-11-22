@@ -66,6 +66,7 @@ function NEO_LedTypeToRGB_Impl(input, output, context, stripKey) {
   map[14] = CO_GRBW;   // TM1914 - GRBW
   map[15] = CO_GRBW;   // FW1906 - GRBW
   map[16] = CO_RGBW;   // UCS8904 - RGBW
+  map[26] = CO_RGBW;   // WS2814 (4ch), Worldsemi WS2814 frame order
 
   // ---- 5-Channel RGBCCT Protocols ----
   map[1]  = CO_GRBCCT; // WS2805 RGBCCT - GRBCCT standard
