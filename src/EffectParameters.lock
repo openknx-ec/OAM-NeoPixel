@@ -23,7 +23,7 @@
 6	CylonEffect	2	EyeSize	number:1..20
 6	CylonEffect	3	FadeAmount	number:1..255
 6	CylonEffect	4	Direction	enum:0=Horizontal;1=Vertikal
-6	CylonEffect	5	Mode	enum:0=Larson;1=Mitte nach aussen
+6	CylonEffect	5	Mode	enum:0=Larson;1=Mitte nach aussen;2=Scanner Dual
 7	RGBWTestEffect	0	PhaseDuration	number:1..60
 7	RGBWTestEffect	1	Mode	enum:0=RGBW;1=RGB+CCT
 8	FireEffect	0	Speed	number:1..255

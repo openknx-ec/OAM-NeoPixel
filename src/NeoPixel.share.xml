@@ -885,6 +885,7 @@
                 <TypeRestriction Base="Value" SizeInBit="8">
                   <Enumeration Text="Larson" Value="0" Id="%ENID%"/>
                   <Enumeration Text="Mitte nach aussen" Value="1" Id="%ENID%"/>
+                  <Enumeration Text="Scanner Dual" Value="2" Id="%ENID%"/>
                 </TypeRestriction>
               </ParameterType>
 
