@@ -1,9 +1,13 @@
 #include "../src/StripConfiguration.h"
 #include "SerialTimingProfile.h"
+#include "PowerManager.h"
+#include "dptconvert.h"
 
 #include <array>
 #include <cassert>
 #include <initializer_list>
+
+void println(const char*) {} // KNX platform console is unused by these tests.
 
 namespace
 {
@@ -56,13 +60,38 @@ int main()
         assert(wire == expected[swap]);
     }
 
-    for (size_t channel = 0; channel < 4; ++channel)
+    PowerManager manager(1000);
+    for (const uint16_t customCurrent : {0, 100})
     {
-        std::array<uint8_t, 4> logical{}, expected{}, wire{};
-        logical[channel] = 255;
-        expected[(channel + 1) % 4] = 255;
-        assert(ProtocolHelper::orderChannels(ColorOrder::WRGB, logical[0], logical[1],
-                                            logical[2], logical[3], 0, wire.data()) == 4);
+        manager.setCurrentPerLedMa(customCurrent);
+        for (const auto protocol : {LedProtocol::SK6812, LedProtocol::WS2814})
+        {
+            const auto profile = manager.profileForProtocol(protocol);
+            assert(profile.warmWhiteMA > 0 && profile.coolWhiteMA == 0);
+            const uint8_t whiteOnly[] = {255, 0, 0, 0, 0, 0, 0, 0};
+            assert(manager.calculateStripCurrent(whiteOnly, 2, protocol, ColorOrder::WRGB) == profile.warmWhiteMA);
+        }
+        assert(manager.profileForProtocol(LedProtocol::WS2812B).warmWhiteMA == 0);
+        assert(manager.profileForProtocol(LedProtocol::WS2805_RGBCCT).coolWhiteMA > 0);
+    }
+
+    const std::array<uint8_t, 4> colors[] = {
+        {255, 0, 0, 0}, {0, 255, 0, 0}, {0, 0, 255, 0}, {0, 0, 0, 255},
+        {8, 64, 192, 240}, {0, 0, 0, 0},
+    };
+    for (const auto& logical : colors)
+    {
+        uint8_t incoming[] = {logical[0], logical[1], logical[2], logical[3], 0, 0x0f};
+        KNXValue color(uint32_t{0});
+        assert(KNX_Decode_Value(incoming, sizeof(incoming), DPT_Colour_RGBW, color));
+        const uint32_t rgbw = color;
+        std::array<uint8_t, 4> wire{};
+        const std::array<uint8_t, 4> expected{logical[3], logical[0], logical[1], logical[2]};
+        assert(ProtocolHelper::orderChannels(ColorOrder::WRGB, rgbw >> 24, rgbw >> 16,
+                                            rgbw >> 8, rgbw, 0, wire.data()) == 4);
         assert(wire == expected);
+        uint8_t status[6]{};
+        assert(KNX_Encode_Value(color, status, sizeof(status), DPT_Colour_RGBW));
+        for (size_t j = 0; j < sizeof(status); ++j) assert(status[j] == incoming[j]);
     }
 }
