@@ -211,7 +211,7 @@
                           <ParameterRefRef RefId="%AID%_UP-%TT%9%C%073_R-%TT%9%C%07301" IndentLevel="1" HelpContext="%DOC%"/>
                         </when>
                       </choose>
-                      <!-- Weiss-Berechnung: nur Typen mit Weisskanal (4, 5 oder 6 Kanaele laut mapProtocol) -->
+                      <!-- Weiss-Berechnung: nur fuer LED-Typen mit Weisskanal -->
                       <choose ParamRefId="%AID%_UP-%TT%9%C%030_R-%TT%9%C%03001">
                         <when test="1 4 8 9 15 16 17 18 30 31">
                           <ParameterRefRef RefId="%AID%_UP-%TT%9%C%074_R-%TT%9%C%07401" IndentLevel="1" HelpContext="%DOC%"/>

@@ -54,5 +54,5 @@ filter RelayCount value:2 = 2
 filter SceneFx capability:No2D = 0
 filter SegmentFx capability:No2D = 0
 # ETS content per product XML: ets "<file>" <ApplicationVersion> <fingerprint>; kept until the version changes
-ets "NeoPixel-Dev.xml" 3.9 C0E3F5443E432334
+ets "NeoPixel-Dev.xml" 3.11 7C44567D648BD5B2
 ets "NeoPixel-Release.xml" 1.8 48E28CA178857F89

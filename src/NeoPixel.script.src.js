@@ -64,12 +64,12 @@ function NEO_LedTypeToRGB_Impl(input, output, context, stripKey) {
   map[8]  = CO_GRBW;   // SK6812/WS2814 (RGBW) - GRBW standard
   map[9]  = CO_WRGB;   // TM1814 - Datenblatt-Rahmenformat ist W R G B, nicht GRBW
   map[14] = CO_GRBW;   // TM1914 - GRBW
-  map[15] = CO_GRBW;   // FW1906 - GRBW
   map[16] = CO_RGBW;   // UCS8904 - RGBW
   map[26] = CO_RGBW;   // WS2814 (4ch), Worldsemi WS2814 frame order
 
   // ---- 5-Channel RGBCCT Protocols ----
   map[1]  = CO_GRBCCT; // WS2805 RGBCCT - GRBCCT standard
+  map[15] = CO_GRBCTW; // FW1906 RGB+CCT - G, R, B, CW, WW, padding
   map[17] = CO_GRBCCT; // WS2805_RGBCW - GRBCCT
   map[18] = CO_RGBCTW; // SM16825 - RGB + cool white + warm white
   map[30] = CO_GRBCCT; // SK6812 RGBCCT (5ch) - GRBCCT

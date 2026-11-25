@@ -258,7 +258,7 @@
                 <Enumeration Text="UCS8903"              Value="12" Id="%ENID%" op:headerName="UCS8903"/>
                 <Enumeration Text="APA106/PL9823"        Value="13" Id="%ENID%" op:headerName="APA106_PL9823"/>
                 <Enumeration Text="TM1914"               Value="14" Id="%ENID%" op:headerName="TM1914"/>
-                <Enumeration Text="FW1906"               Value="15" Id="%ENID%" op:headerName="FW1906"/>
+                <Enumeration Text="FW1906 (RGBCCT, 48 Bit)" Value="15" Id="%ENID%" op:headerName="FW1906"/>
                 <Enumeration Text="UCS8904"              Value="16" Id="%ENID%" op:headerName="UCS8904"/>
                 <Enumeration Text="WS2805_RGBCW"         Value="17" Id="%ENID%" op:headerName="WS2805_RGBCW"/>
                 <Enumeration Text="SM16825"              Value="18" Id="%ENID%" op:headerName="SM16825"/>

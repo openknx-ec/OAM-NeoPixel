@@ -1,8 +1,10 @@
 #include "../src/StripConfiguration.h"
 #include "SerialTimingProfile.h"
 #include "PowerManager.h"
+#include "ProtocolTableAsserts.h"
 #include "dptconvert.h"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <initializer_list>
@@ -21,10 +23,89 @@ namespace
     {
         return ProtocolHelper::getBytesPerLed(StripConfiguration::virtualColorOrder(strips));
     }
+
+    void testFW1906()
+    {
+        const auto protocol = StripConfiguration::mapProtocol(15);
+        assert(protocol == LedProtocol::FW1906);
+        const auto explicitOrder = StripConfiguration::mapColorOrder(11);
+        assert(explicitOrder == ColorOrder::GRBCTW);
+        assert(StripConfiguration::mapColorOrder(13) == ColorOrder::NONE);
+        const auto chipOrder = ProtocolHelper::getColorOrder(protocol);
+        assert(chipOrder == explicitOrder);
+        const Strip rgb{ColorOrder::RGB}, rgbw{ColorOrder::GRBW}, fw1906{chipOrder};
+        assert(logicalWidth({&rgb, &rgbw, &fw1906}) == 5);
+
+        const auto timing = SerialTiming::profileFor(protocol);
+        assert(timing.resetUs == 300 && !timing.inverted);
+        const auto rmt = SerialTiming::toTicks(timing, 25);
+        assert(rmt.t0h == 16 && rmt.t0l == 34 && rmt.t1h == 32 && rmt.t1l == 18);
+        const auto pio = SerialTiming::solvePio(timing, 133000000);
+        assert(pio.valid && pio.realizedBit >= 1235 && pio.realizedBit <= 1265);
+
+        constexpr size_t stride = ProtocolHelper::getBytesPerLed(LedProtocol::FW1906);
+        using Pixel = std::array<uint8_t, stride>;
+        const Pixel expected{0x22, 0x11, 0x33, 0x55, 0x44, 0};
+        const Pixel full{255, 255, 255, 255, 255, 0};
+        for (const size_t count : {2, 140})
+        {
+            // Guard bytes on both sides detect overruns at the first and last IC.
+            std::array<uint8_t, 840 + 2> storage;
+            storage.fill(0xA5);
+            uint8_t* const payload = storage.data() + 1;
+            assert(stride * count == (count == 2 ? 12 : 840));
+            for (size_t i = 0; i < count; ++i)
+                ProtocolHelper::encodeSerialPixel(payload + i * stride, protocol, chipOrder, 0,
+                                                  i % 2 ? 255 : 0x11, i % 2 ? 255 : 0x22,
+                                                  i % 2 ? 255 : 0x33, i % 2 ? 255 : 0x44, i % 2 ? 255 : 0x55);
+            for (size_t i = 0; i < count; ++i)
+            {
+                const uint8_t* pixel = payload + i * stride;
+                const auto& frame = i % 2 ? full : expected;
+                assert(std::equal(frame.begin(), frame.end(), pixel));
+            }
+            assert(storage.front() == 0xA5 && payload[stride * count] == 0xA5);
+        }
+
+        Pixel pixel = full;
+        const auto encode = [&](ColorOrder order, uint8_t swap, uint8_t r, uint8_t g,
+                                uint8_t b, uint8_t ww, uint8_t cw) {
+            ProtocolHelper::encodeSerialPixel(pixel.data(), protocol, order, swap, r, g, b, ww, cw);
+        };
+        for (size_t channel = 0; channel < 5; ++channel)
+        {
+            Pixel isolated{};
+            isolated[channel] = 255;
+            encode(chipOrder, 0, isolated[1], isolated[0], isolated[2], isolated[4], isolated[3]);
+            assert(pixel == isolated);
+        }
+        encode(chipOrder, 1, 0x11, 0x22, 0x33, 0x44, 0x55);
+        assert(pixel == (Pixel{0x22, 0x11, 0x44, 0x55, 0x33, 0}));
+        encode(ColorOrder::GRBCCT, 0, 0x11, 0x22, 0x33, 0x44, 0x55);
+        assert(pixel == (Pixel{0x22, 0x11, 0x33, 0x44, 0x55, 0}));
+        encode(ColorOrder::RGBW, 0, 0x11, 0x22, 0x33, 0x44, 0);
+        assert(pixel == (Pixel{0x11, 0x22, 0x33, 0x44, 0, 0}));
+        encode(ColorOrder::RGB, 0, 0x11, 0x22, 0x33, 0, 0);
+        assert(pixel == (Pixel{0x11, 0x22, 0x33, 0, 0, 0}));
+        encode(chipOrder, 0, 0, 0, 0, 0, 0);
+        assert(pixel == Pixel{});
+
+        PowerManager power(1000);
+        pixel.fill(255); // A nonzero padding byte must never affect measured current.
+        assert(power.calculateStripCurrent(pixel.data(), 1, protocol, chipOrder) == 100);
+        power.setCurrentPerLedMa(60);
+        for (const auto order : {ColorOrder::NONE, chipOrder, ColorOrder::RGBW, ColorOrder::RGB})
+            assert(power.calculateStripCurrent(pixel.data(), 1, protocol, order) == 60);
+        const Pixel whites[] = {{0, 0, 0, 255, 0, 255}, {0, 0, 0, 0, 255, 255}};
+        assert(power.calculateStripCurrent(whites[0].data(), 1, protocol, chipOrder) == 12);
+        assert(power.calculateStripCurrent(whites[1].data(), 1, protocol, chipOrder) == 12);
+    }
 }
 
 int main()
 {
+    testFW1906();
+
     const Strip rgb{ColorOrder::RGB}, rgbw{ColorOrder::RGBW}, grbw{ColorOrder::GRBW};
     const Strip wrgb{ColorOrder::WRGB}, rgbcct{ColorOrder::GRBCCT}, rgbctw{ColorOrder::RGBCTW};
 

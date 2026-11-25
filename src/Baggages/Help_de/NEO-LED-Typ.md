@@ -10,6 +10,7 @@ Wählen Sie den passenden LED-Typ für Ihren LED-Streifen aus. Verschiedene LED-
 - **APA102/SK9822**: SPI-basierte LEDs mit separater Clock-Leitung
 - **WS2814 (RGBW, 4ch)**: Vier Kanäle mit eigenem WS2814-Timing. Die Voreinstellung RGBW kann passend zum Streifen geändert werden, bei BTF-FCOB gegebenenfalls auf WRGB. Der Eintrag SK6812/WS2814 (RGBW) verwendet das bisherige SK6812-Timing.
 - **WS2805**: RGBCCT (5-Kanal) LEDs
+- **FW1906 (RGBCCT, 48 Bit)**: Fünf Farbkanäle mit separatem Kalt- und Warmweiß. Standardfarbordnung GRBCTW. Je IC werden sechs Bytes übertragen, davon ein Nullbyte am Ende.
 - **SM16825**: 16-Bit High-End LEDs
 
 **Wichtig:** Der falsche LED-Typ kann zu Flackern, falschen Farben oder gar keiner Funktion führen. Konsultieren Sie das Datenblatt Ihres LED-Streifens für den korrekten Typ.

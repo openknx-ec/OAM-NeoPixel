@@ -418,6 +418,8 @@ OpenKNX NeoPixel runs on a wide range of OpenKNX-compatible controllers. The **O
 
 ### 0.3.0
 
+- Known issue (GH-4) — the 0.3.0 firmware treats FW1906 (ETS LED type 15) as WS2812B. Use a matching development application and firmware with the FW1906 fix for RGB+CCT strips.
+
 - ⚠️ **not backward compatible with v0.2** — the configuration layout and feature set changed substantially; re-create the configuration in ETS and re-commission the device (a v0.2 project cannot be updated in place, existing group-address links do not carry over)
 - added the **Effektmanager**: cue-based, timed effect sequences per segment with fades, looping and chaining
 - Effektmanager channels now have **three states** — Active, Disabled (removed) and Suspended (kept configured/linked but not rendering); the device tree marks Disabled with ⛔ and Suspended with ⏸ *(this state model may still change in an upcoming version)*

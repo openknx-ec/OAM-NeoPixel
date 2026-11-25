@@ -21,7 +21,8 @@ Die Farbordnung definiert, in welcher Reihenfolge die Farbkanäle an die LEDs ge
 - **RGBCCT**: Rot-Grün-Blau-Warmweiß-Kaltweiß
 - **GRBCCT**: Grün-Rot-Blau-Warmweiß-Kaltweiß
 - **RGBCTW**: Rot-Grün-Blau-Kaltweiß-Warmweiß (umgekehrte W-Reihenfolge)
-- **GRBCTW**: Grün-Rot-Blau-Kaltweiß-Warmweiß
+- **GRBCTW**: Grün-Rot-Blau-Kaltweiß-Warmweiß (Standard für das unterstützte FW1906-RGBCCT-Profil)
+- **Chip-Vorgabe**: Verwendet die Standardfarbordnung des gewählten LED-Typs. Für FW1906 ist dies GRBCTW.
 
 **RGBCCT für HCL (Human Centric Lighting):**
 Für optimale Farbtemperatursteuerung empfehlen wir 5-Kanal RGBCCT-Streifen. Das HCL-System kann die WW/CW-Kanäle direkt ansteuern:

@@ -1,6 +1,6 @@
 ### Strom pro LED (mA)
 
-Global: der Stromverbrauch einer einzelnen LED, wenn alle ihre Kanäle auf 255 stehen. Die Firmware teilt den Wert ganzzahlig auf die Kanäle des LED-Typs auf (z. B. WS2812B: 3, SK6812: 4, FW1906: 6) und berechnet daraus in jedem Bild den Strom. Der Typ „SK6812“ zählt dabei immer 4 Kanäle, auch mit einer Farbordnung ohne Weiß.
+Global: der Stromverbrauch einer einzelnen LED, wenn alle ihre Kanäle auf 255 stehen. Die Firmware teilt den Wert ganzzahlig auf die Kanäle des LED-Typs auf (z. B. WS2812B: 3, SK6812: 4, FW1906: 5 bei GRBCTW) und berechnet daraus in jedem Bild den Strom. Der Typ „SK6812“ zählt dabei immer 4 Kanäle, auch mit einer Farbordnung ohne Weiß. Bei FW1906 zählt die gewählte Farbordnung. Das Füllbyte trägt keinen Strom zur Berechnung bei.
 
 **Wertebereich:** 0–70 mA
 

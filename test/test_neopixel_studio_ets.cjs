@@ -7,6 +7,7 @@ const assert = require('node:assert/strict');
 const source = fs.readFileSync(path.join(__dirname, '../src/NeoPixel.script.js'), 'utf8');
 const context = vm.createContext({
     JSON: undefined,
+    info() {},
     encodeFixtureJson: value => JSON.stringify(value)
 });
 vm.runInContext(`
@@ -21,6 +22,25 @@ Function.prototype.bind = undefined;
 Date.now = undefined;
 `, context);
 vm.runInContext(source, context);
+const fw1906 = {LedType: 15};
+const colorOrder = {};
+context.NEO_LedTypeToRGB_1(fw1906, colorOrder);
+assert.equal(colorOrder.RGBColourOrder, 11, 'FW1906 defaults to GRBCTW');
+colorOrder.RGBColourOrder = 13;
+const typeChange = {};
+context.NEO_MarkLedTypeChange_2({LedType: 8}, typeChange);
+context.NEO_LedTypeToRGB_1({...fw1906, ...typeChange}, colorOrder);
+assert.equal(colorOrder.RGBColourOrder, 13, 'changing another strip preserves Chip-Vorgabe');
+colorOrder.RGBColourOrder = 9;
+context.NEO_LedTypeToRGB_1({...fw1906, ...typeChange}, colorOrder);
+assert.equal(colorOrder.RGBColourOrder, 9, 'changing another strip preserves a manual white order');
+context.NEO_MarkLedTypeChange_1({LedType: 8}, typeChange);
+context.NEO_LedTypeToRGB_1({LedType: 8, ...typeChange}, colorOrder);
+assert.equal(colorOrder.RGBColourOrder, 7, 'switching to RGBW restores GRBW');
+context.NEO_MarkLedTypeChange_1(fw1906, typeChange);
+context.NEO_LedTypeToRGB_1({...fw1906, ...typeChange}, colorOrder);
+assert.equal(colorOrder.RGBColourOrder, 11, 'switching back restores GRBCTW');
+
 const generatedEffectNames = context.NEO_StudioEffectParameters;
 // The tracked ETS script has empty generated maps after -Clean. These names are
 // transport fixtures; the build-cycle regression checks generation of the real map.
