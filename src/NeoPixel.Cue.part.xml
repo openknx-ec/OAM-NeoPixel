@@ -2,17 +2,10 @@
 <?xml-model href="../../Organization/knxprod-support/knx_project_20/knx-editor.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <KNX xmlns:op="http://github.com/OpenKNX/OpenKNXproducer" xmlns="http://knx.org/xml/project/20" CreatedBy="KNX MT" ToolVersion="5.1.255.16695">
     <!--
-      Cue %CUE_NR%: 48 bytes at offset %CUE_OFF% within EM Union
-      Parameters:
-        Byte  0:     EffectID     (1B)
-        Byte  1-10:  Params 0-9   (10B)
-        Byte 11-13:  RGB          (3B)
-        Byte 14:     W            (1B)
-        Byte 15:     Brightness   (1B)
-        Byte 16-17:  DurationSec  (2B)
-        Byte 18-19:  FadeMs       (2B)
-        Byte 20-33:  CueName      (14B)
-        Byte 34-47:  EffectText   (14B)
+      Each cue is one contiguous 54-byte ETS record at %CUE_OFF%.
+      0 effect, 1–10 parameters, 11–15 primary RGB/WW/CW,
+      16–20 secondary RGB/WW/CW, 21 brightness, 22–23 duration,
+      24–25 fade, 26–39 cue name, 40–53 effect text.
     -->
     <ManufacturerData>
     <Manufacturer RefId="M-00FA">
@@ -21,24 +14,28 @@
           <Static>
             <!-- ParameterTypes are declared in NeoPixel.EM.share.xml -->
             <Parameters>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+0%"  Offset="%CUE_OFF%"    BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Effect"     ParameterType="%AID%_PT-CueEffect"    Text="Effekt"            Value="0"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+1%"  Offset="%CUE_OFF+1%"  BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param0"     ParameterType="%AID%_PT-CueParam"     Text="Parameter 0"       Value="0" op:nowarn="true"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+2%"  Offset="%CUE_OFF+2%"  BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param1"     ParameterType="%AID%_PT-CueParam"     Text="Parameter 1"       Value="0" op:nowarn="true"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+3%"  Offset="%CUE_OFF+3%"  BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param2"     ParameterType="%AID%_PT-CueParam"     Text="Parameter 2"       Value="0" op:nowarn="true"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+4%"  Offset="%CUE_OFF+4%"  BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param3"     ParameterType="%AID%_PT-CueParam"     Text="Parameter 3"       Value="0" op:nowarn="true"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+5%"  Offset="%CUE_OFF+5%"  BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param4"     ParameterType="%AID%_PT-CueParam"     Text="Parameter 4"       Value="0" op:nowarn="true"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+6%"  Offset="%CUE_OFF+6%"  BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param5"     ParameterType="%AID%_PT-CueParam"     Text="Parameter 5"       Value="0" op:nowarn="true"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+7%"  Offset="%CUE_OFF+7%"  BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param6"     ParameterType="%AID%_PT-CueParam"     Text="Parameter 6"       Value="0" op:nowarn="true"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+8%"  Offset="%CUE_OFF+8%"  BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param7"     ParameterType="%AID%_PT-CueParam"     Text="Parameter 7"       Value="0" op:nowarn="true"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+9%"  Offset="%CUE_OFF+9%"  BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param8"     ParameterType="%AID%_PT-CueParam"     Text="Parameter 8"       Value="0" op:nowarn="true"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+10%" Offset="%CUE_OFF+10%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param9"     ParameterType="%AID%_PT-CueParam"     Text="Parameter 9"       Value="0" op:nowarn="true"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+11%" Offset="%CUE_OFF+11%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Color"      ParameterType="%AID%_PT-ColorRGB"     Text="Farbe RGB"         Value="#FFFFFF"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+12%" Offset="%CUE_OFF+14%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%W"          ParameterType="%AID%_PT-CueParam"     Text="Weißkanal W"       Value="0"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+13%" Offset="%CUE_OFF+15%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Brightness"  ParameterType="%AID%_PT-CueParam"     Text="Helligkeit"        Value="255"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+14%" Offset="%CUE_OFF+16%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Duration"   ParameterType="%AID%_PT-CueDuration"  Text="Dauer in Sekunden (65535 = bis Effekt fertig)" Value="0"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+15%" Offset="%CUE_OFF+18%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Fade"        ParameterType="%AID%_PT-CueFade"      Text="Übergangszeit ms"   Value="300"/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+16%" Offset="%CUE_OFF+20%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Text" ParameterType="%AID%_PT-CueText" Text="Beschreibung" Value=""/>
-              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+17%" Offset="%CUE_OFF+34%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%EffectText" ParameterType="%AID%_PT-CueText" Text="Effekt-Text" Value="" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+0%" Offset="%CUE_OFF+0%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Effect" ParameterType="%AID%_PT-CueEffect" Text="Effekt" Value="0"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+1%" Offset="%CUE_OFF+1%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param0" ParameterType="%AID%_PT-CueParam" Text="Parameter 0" Value="0" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+2%" Offset="%CUE_OFF+2%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param1" ParameterType="%AID%_PT-CueParam" Text="Parameter 1" Value="0" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+3%" Offset="%CUE_OFF+3%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param2" ParameterType="%AID%_PT-CueParam" Text="Parameter 2" Value="0" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+4%" Offset="%CUE_OFF+4%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param3" ParameterType="%AID%_PT-CueParam" Text="Parameter 3" Value="0" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+5%" Offset="%CUE_OFF+5%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param4" ParameterType="%AID%_PT-CueParam" Text="Parameter 4" Value="0" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+6%" Offset="%CUE_OFF+6%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param5" ParameterType="%AID%_PT-CueParam" Text="Parameter 5" Value="0" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+7%" Offset="%CUE_OFF+7%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param6" ParameterType="%AID%_PT-CueParam" Text="Parameter 6" Value="0" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+8%" Offset="%CUE_OFF+8%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param7" ParameterType="%AID%_PT-CueParam" Text="Parameter 7" Value="0" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+9%" Offset="%CUE_OFF+9%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param8" ParameterType="%AID%_PT-CueParam" Text="Parameter 8" Value="0" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+10%" Offset="%CUE_OFF+10%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Param9" ParameterType="%AID%_PT-CueParam" Text="Parameter 9" Value="0" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+11%" Offset="%CUE_OFF+11%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%PrimaryColor" ParameterType="%AID%_PT-ColorRGB" Text="Primärfarbe RGB" Value="#FFFFFF"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+12%" Offset="%CUE_OFF+14%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%PrimaryWW" ParameterType="%AID%_PT-CueParam" Text="Primärfarbe Weiß / Warmweiß" Value="0"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+13%" Offset="%CUE_OFF+15%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%PrimaryCW" ParameterType="%AID%_PT-CueParam" Text="Primärfarbe Kaltweiß" Value="0"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+14%" Offset="%CUE_OFF+16%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%SecondaryColor" ParameterType="%AID%_PT-ColorRGB" Text="Sekundärfarbe RGB" Value="#000000"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+15%" Offset="%CUE_OFF+19%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%SecondaryWW" ParameterType="%AID%_PT-CueParam" Text="Sekundärfarbe Weiß / Warmweiß" Value="0"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+16%" Offset="%CUE_OFF+20%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%SecondaryCW" ParameterType="%AID%_PT-CueParam" Text="Sekundärfarbe Kaltweiß" Value="0"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+17%" Offset="%CUE_OFF+21%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Brightness" ParameterType="%AID%_PT-CueParam" Text="Helligkeit" Value="255"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+18%" Offset="%CUE_OFF+22%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Duration" ParameterType="%AID%_PT-CueDuration" Text="Dauer in Sekunden (65535 = bis Effekt fertig)" Value="0"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+19%" Offset="%CUE_OFF+24%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Fade" ParameterType="%AID%_PT-CueFade" Text="Übergangszeit ms" Value="300"/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+20%" Offset="%CUE_OFF+26%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Text" ParameterType="%AID%_PT-CueText" Text="Beschreibung" Value=""/>
+              <Parameter Id="%AID%_UP-%TT%%CC%%CUE_PPP+21%" Offset="%CUE_OFF+40%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%EffectText" ParameterType="%AID%_PT-CueText" Text="Effekt-Text" Value="" op:nowarn="true"/>
               <!-- BEGIN AUTO-GENERATED: Cue Effect Typed Parameters -->
               <!-- Wipe (ID 1) -->
               <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+10%" Offset="%CUE_OFF+1%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%WipeSpeed" ParameterType="%AID%_PT-WipeSpeed" Text="Geschwindigkeit" Value="0" op:nowarn="true"/>
@@ -140,7 +137,7 @@
               <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+190%" Offset="%CUE_OFF+1%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%LaufschriftSpeed" ParameterType="%AID%_PT-LaufschriftSpeed" Text="Geschwindigkeit" Value="0" op:nowarn="true"/>
               <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+191%" Offset="%CUE_OFF+2%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%LaufschriftGap" ParameterType="%AID%_PT-LaufschriftGap" Text="Zeichenabstand" Value="0" op:nowarn="true"/>
               <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+192%" Offset="%CUE_OFF+3%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%LaufschriftLoop" ParameterType="%AID%_PT-LaufschriftLoop" Text="Wiederholen" Value="0" op:nowarn="true"/>
-              <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+193%" Offset="%CUE_OFF+34%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%LaufschriftText" ParameterType="%AID%_PT-LaufschriftText" Text="Laufschrift-Text" Value="" op:nowarn="true"/>
+              <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+193%" Offset="%CUE_OFF+40%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%LaufschriftText" ParameterType="%AID%_PT-LaufschriftText" Text="Laufschrift-Text" Value="" op:nowarn="true"/>
               <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+194%" Offset="%CUE_OFF+5%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%LaufschriftFont" ParameterType="%AID%_PT-LaufschriftFont" Text="Schrift" Value="0" op:nowarn="true"/>
               <!-- Uhr 2D (ID 20) -->
               <Parameter Id="%AID%_UP-22%CC%%CUE_TPP+200%" Offset="%CUE_OFF+1%" BitOffset="0" Name="NEOEM%C%Cue%CUE_NR%Uhr2DViewMode" ParameterType="%AID%_PT-Uhr2DViewMode" Text="Anzeigemodus" Value="0" op:nowarn="true"/>
@@ -228,6 +225,10 @@
               <op:include href="NeoPixel.hw.filters.gen.xml" xpath="//Block[@name='Filter_CueFx_Parameters']/*" />
             </FilterParameters>
             <ParameterRefs>
+              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+13%_R-%TT%%CC%%CUE_PPP+13%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+13%"/>
+              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+14%_R-%TT%%CC%%CUE_PPP+14%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+14%"/>
+              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+15%_R-%TT%%CC%%CUE_PPP+15%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+15%"/>
+              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+16%_R-%TT%%CC%%CUE_PPP+16%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+16%"/>
               <op:include href="NeoPixel.hw.filters.gen.xml" xpath="//Block[@name='Filter_CueFx_ParameterRefs']/*" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+0%_R-%TT%%CC%%CUE_PPP+0%01"  RefId="%AID%_UP-%TT%%CC%%CUE_PPP+0%"  />
               <!-- BEGIN AUTO-GENERATED: Cue Effect ParameterRefs -->
@@ -428,16 +429,16 @@
               <!-- END AUTO-GENERATED: Cue Effect ParameterRefs -->
               <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+11%_R-%TT%%CC%%CUE_PPP+11%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+11%" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+12%_R-%TT%%CC%%CUE_PPP+12%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+12%" />
-              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+13%_R-%TT%%CC%%CUE_PPP+13%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+13%" />
-              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+14%_R-%TT%%CC%%CUE_PPP+14%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+14%" />
-              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+15%_R-%TT%%CC%%CUE_PPP+15%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+15%" />
-              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+16%_R-%TT%%CC%%CUE_PPP+16%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+16%" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+17%_R-%TT%%CC%%CUE_PPP+17%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+17%" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+18%_R-%TT%%CC%%CUE_PPP+18%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+18%" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+19%_R-%TT%%CC%%CUE_PPP+19%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+19%" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+20%_R-%TT%%CC%%CUE_PPP+20%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+20%" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+21%_R-%TT%%CC%%CUE_PPP+21%01" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+21%" />
               <!-- Table refs (02) for the cue overview table of the EM channel -->
               <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+0%_R-%TT%%CC%%CUE_PPP+0%02"   RefId="%AID%_UP-%TT%%CC%%CUE_PPP+0%"  Text="" />
-              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+14%_R-%TT%%CC%%CUE_PPP+14%02" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+14%" Text="" />
-              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+15%_R-%TT%%CC%%CUE_PPP+15%02" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+15%" Text="" />
-              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+16%_R-%TT%%CC%%CUE_PPP+16%02" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+16%" Text="" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+18%_R-%TT%%CC%%CUE_PPP+18%02" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+18%" Text="" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+19%_R-%TT%%CC%%CUE_PPP+19%02" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+19%" Text="" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%%CUE_PPP+20%_R-%TT%%CC%%CUE_PPP+20%02" RefId="%AID%_UP-%TT%%CC%%CUE_PPP+20%" Text="" />
             </ParameterRefs>
           </Static>
           <Dynamic>
@@ -449,20 +450,24 @@
                                   Text="Cue %CUE_NR%: {{0:...}}"
                                   Icon="effectmanager-cue"
                                   ShowInComObjectTree="true"
-                                  TextParameterRefId="%AID%_UP-%TT%%CC%%CUE_PPP+16%_R-%TT%%CC%%CUE_PPP+16%01">
+                                  TextParameterRefId="%AID%_UP-%TT%%CC%%CUE_PPP+20%_R-%TT%%CC%%CUE_PPP+20%01">
                     <!-- Cue name -->
-                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+16%_R-%TT%%CC%%CUE_PPP+16%01" IndentLevel="1" HelpContext="NEO-Cue-Name"/>
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+20%_R-%TT%%CC%%CUE_PPP+20%01" IndentLevel="1" HelpContext="NEO-Cue-Name"/>
                     <!-- Effect dropdown -->
                     <!-- effect list per hardware (HardwareManifest.xml <Filter name="CueFx">) -->
                     <op:include href="NeoPixel.hw.filters.gen.xml" xpath="//Block[@name='Filter_CueFx']/*" />
                     <!-- notice when the firmware of the selected board leaves the effect out (HardwareManifest.xml <ValueNotice name="CueFx">) -->
                     <op:include href="NeoPixel.hw.notices.gen.xml" xpath="//Block[@name='ValueNotice_CueFx']/*" />
-                    <!-- Colour / brightness / timing -->
+                    <!-- Both complete colours, followed by playback settings. -->
                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+11%_R-%TT%%CC%%CUE_PPP+11%01" IndentLevel="1" HelpContext="NEO-Cue-Farbe"/>
                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+12%_R-%TT%%CC%%CUE_PPP+12%01" IndentLevel="1" HelpContext="NEO-Cue-Weiss"/>
-                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+13%_R-%TT%%CC%%CUE_PPP+13%01" IndentLevel="1" HelpContext="NEO-Cue-Helligkeit"/>
-                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+14%_R-%TT%%CC%%CUE_PPP+14%01" IndentLevel="1" HelpContext="NEO-Cue-Dauer"/>
-                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+15%_R-%TT%%CC%%CUE_PPP+15%01" IndentLevel="1" HelpContext="NEO-Cue-Uebergang"/>
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+13%_R-%TT%%CC%%CUE_PPP+13%01" IndentLevel="1"/>
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+14%_R-%TT%%CC%%CUE_PPP+14%01" IndentLevel="1"/>
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+15%_R-%TT%%CC%%CUE_PPP+15%01" IndentLevel="1"/>
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+16%_R-%TT%%CC%%CUE_PPP+16%01" IndentLevel="1"/>
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+17%_R-%TT%%CC%%CUE_PPP+17%01" IndentLevel="1" HelpContext="NEO-Cue-Helligkeit"/>
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+18%_R-%TT%%CC%%CUE_PPP+18%01" IndentLevel="1" HelpContext="NEO-Cue-Dauer"/>
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+19%_R-%TT%%CC%%CUE_PPP+19%01" IndentLevel="1" HelpContext="NEO-Cue-Uebergang"/>
                     <!-- BEGIN AUTO-GENERATED: Cue Effect Dynamic UI -->
 
                     <choose ParamRefId="%AID%_UP-%TT%%CC%%CUE_PPP+0%_R-%TT%%CC%%CUE_PPP+0%01">
@@ -757,10 +762,10 @@
               <choose ParamRefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201">
                 <when test=">=%CUE_NR%">
                   <ParameterSeparator Id="%AID%_PS-nnn" Text="Cue %CUE_NR%" Cell="%CUE_NR%,1" />
-                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+16%_R-%TT%%CC%%CUE_PPP+16%01" Cell="%CUE_NR%,2" HelpContext="NEO-Cue-Name"/>
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+20%_R-%TT%%CC%%CUE_PPP+20%01" Cell="%CUE_NR%,2" HelpContext="NEO-Cue-Name"/>
                   <op:include href="NeoPixel.hw.filters.gen.xml" xpath="//Block[@name='Filter_CueFx_Table']/*" />
-                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+14%_R-%TT%%CC%%CUE_PPP+14%01" Cell="%CUE_NR%,4" HelpContext="NEO-Cue-Dauer"/>
-                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+15%_R-%TT%%CC%%CUE_PPP+15%01" Cell="%CUE_NR%,5" HelpContext="NEO-Cue-Uebergang"/>
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+18%_R-%TT%%CC%%CUE_PPP+18%01" Cell="%CUE_NR%,4" HelpContext="NEO-Cue-Dauer"/>
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%%CUE_PPP+19%_R-%TT%%CC%%CUE_PPP+19%01" Cell="%CUE_NR%,5" HelpContext="NEO-Cue-Uebergang"/>
                 </when>
               </choose>
             </CueTableRow>

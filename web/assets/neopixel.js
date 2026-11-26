@@ -85,7 +85,7 @@
         hcl: s.hcl, hclSrc: s.hm === 1 ? 'Lichtmanager ' + s.hl + ' (global)' : s.hm === 2 ? 'eigener Lichtmanager-Kanal ' + s.hl : '', scenes: scenes.length ? scenes : null, scene: s.scene, gs: s.gs };
     });
     L.ems = (ems || []).filter(function (e) { return e.id <= L.emCount; }).map(function (e) {
-      return { id: e.id, name: '', st: e.st, loop: e.loop, next: e.next, cues: e.cues.map(function (q) { return { n: esc(q.n) || '—', fx: fxName(q.fx), c: q.c, w: q.w, bri: q.bri === 100 ? 0 : q.bri, d: q.d, f: q.f }; }) };
+      return { id: e.id, name: '', st: e.st, loop: e.loop, next: e.next, cues: e.cues.map(function (q) { return { n: esc(q.n) || '—', fx: fxName(q.fx), primary: q.primary, secondary: q.secondary, bri: q.bri === 100 ? 0 : q.bri, d: q.d, f: q.f }; }) };
     });
     L.relays = j.relays.map(function (r) { return { name: '', st: r.st, inv: r.inv, pin: 'GPIO ' + r.pin, nopin: r.pin === 255, lock: r.lock, offDelay: r.off, minOff: r.min, pend: r.pend, to: r.to }; });
     var w = j.hw, used = [];
@@ -697,6 +697,9 @@
         if (here.length) cls += running ? ' act' : ' paused';
         h += '<div class="np-cue t' + CUET(k) + cls + '" style="flex-grow:' + grow + '"><b>' + (k + 1) + ' · ' + q.n + '</b><small>' + q.fx + (q.bri ? ' · ' + q.bri + ' %' : '') + '</small>' +
           '<small>' + (open ? 'Start per KO' : 'ab ' + tfmt(t0)) + ' · ' + dur(q.d) + (hold ? '' : q.f ? ' · ↘↗ ' + q.f / 1000 + ' s' : ' · harter Schnitt') + '</small>';
+        [q.primary, q.secondary].forEach(function (colour, index) {
+          h += '<small>Farbe ' + (index + 1) + ' ' + esc(colour.rgb) + ' · WW ' + colour.ww + ' · CW ' + colour.cw + '</small>';
+        });
         if (here.length) {
           var el = cueEl(here[0][1]);
           var runL = here.filter(function (u) { return u[1].ems === 'run'; }).map(function (u) { return u[0] + 1; }), pauL = here.filter(function (u) { return u[1].ems !== 'run'; }).map(function (u) { return u[0] + 1; });

@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+<KNX xmlns:op="http://github.com/OpenKNX/OpenKNXproducer" xmlns="http://knx.org/xml/project/20">
+  <ManufacturerData>
+    <Manufacturer RefId="M-00FA">
+      <ApplicationPrograms>
+        <ApplicationProgram>
+          <Static>
+            <ComObjectTable>
+              <ComObject Id="%AID%_O-%TT%%CC%001" Number="%K0%" Name="%C%CCTRel" Text="Farbtemperatur dimmen" FunctionText="Segment %C%" ObjectSize="4 Bit" DatapointType="DPST-3-7" WriteFlag="Enabled" UpdateFlag="Disabled" ReadFlag="Disabled" TransmitFlag="Disabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled"/>
+              <ComObject Id="%AID%_O-%TT%%CC%002" Number="%K1%" Name="%C%SecondaryRGB" Text="Sekundärfarbe RGB" FunctionText="Segment %C%" ObjectSize="3 Bytes" DatapointType="DPST-232-600" WriteFlag="Enabled" UpdateFlag="Disabled" ReadFlag="Disabled" TransmitFlag="Disabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled"/>
+              <ComObject Id="%AID%_O-%TT%%CC%003" Number="%K2%" Name="%C%SecondaryRGBState" Text="Sekundärfarbe RGB Status" FunctionText="Segment %C%" ObjectSize="3 Bytes" DatapointType="DPST-232-600" WriteFlag="Disabled" UpdateFlag="Disabled" ReadFlag="Enabled" TransmitFlag="Enabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled"/>
+              <ComObject Id="%AID%_O-%TT%%CC%004" Number="%K3%" Name="%C%SecondaryWW" Text="Sekundärfarbe Weiß / Warmweiß" FunctionText="Segment %C%" ObjectSize="1 Byte" DatapointType="DPST-5-10" WriteFlag="Enabled" UpdateFlag="Disabled" ReadFlag="Disabled" TransmitFlag="Disabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled"/>
+              <ComObject Id="%AID%_O-%TT%%CC%005" Number="%K4%" Name="%C%SecondaryWWState" Text="Sekundärfarbe Weiß / Warmweiß Status" FunctionText="Segment %C%" ObjectSize="1 Byte" DatapointType="DPST-5-10" WriteFlag="Disabled" UpdateFlag="Disabled" ReadFlag="Enabled" TransmitFlag="Enabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled"/>
+              <ComObject Id="%AID%_O-%TT%%CC%006" Number="%K5%" Name="%C%SecondaryCW" Text="Sekundärfarbe Kaltweiß" FunctionText="Segment %C%" ObjectSize="1 Byte" DatapointType="DPST-5-10" WriteFlag="Enabled" UpdateFlag="Disabled" ReadFlag="Disabled" TransmitFlag="Disabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled"/>
+              <ComObject Id="%AID%_O-%TT%%CC%007" Number="%K6%" Name="%C%SecondaryCWState" Text="Sekundärfarbe Kaltweiß Status" FunctionText="Segment %C%" ObjectSize="1 Byte" DatapointType="DPST-5-10" WriteFlag="Disabled" UpdateFlag="Disabled" ReadFlag="Enabled" TransmitFlag="Enabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled"/>
+            </ComObjectTable>
+            <ComObjectRefs>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_O-%TT%%CC%001" Text="Segment %C% Farbtemperatur dimmen"/>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_O-%TT%%CC%002" Text="Segment %C% Sekundärfarbe RGB"/>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%003_R-%TT%%CC%00301" RefId="%AID%_O-%TT%%CC%003" Text="Segment %C% Sekundärfarbe RGB Status"/>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%004_R-%TT%%CC%00401" RefId="%AID%_O-%TT%%CC%004" Text="Segment %C% Sekundärfarbe Weiß / Warmweiß"/>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%005_R-%TT%%CC%00501" RefId="%AID%_O-%TT%%CC%005" Text="Segment %C% Sekundärfarbe Weiß / Warmweiß Status"/>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%006_R-%TT%%CC%00601" RefId="%AID%_O-%TT%%CC%006" Text="Segment %C% Sekundärfarbe Kaltweiß"/>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%007_R-%TT%%CC%00701" RefId="%AID%_O-%TT%%CC%007" Text="Segment %C% Sekundärfarbe Kaltweiß Status"/>
+            </ComObjectRefs>
+          </Static>
+          <Dynamic>
+            <ChannelIndependentBlock>
+            <choose ParamRefId="%AID%_UP-4000021_R-400002101"><when test=">=%C%">
+              <ParameterBlock Id="%AID%_PB-%TT%%CC%001" Name="Colour%C%" Text="Segment %C%">
+                <ComObjectRefRef RefId="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101"/>
+                <ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201"/>
+                <ComObjectRefRef RefId="%AID%_O-%TT%%CC%003_R-%TT%%CC%00301"/>
+                <ComObjectRefRef RefId="%AID%_O-%TT%%CC%004_R-%TT%%CC%00401"/>
+                <ComObjectRefRef RefId="%AID%_O-%TT%%CC%005_R-%TT%%CC%00501"/>
+                <ComObjectRefRef RefId="%AID%_O-%TT%%CC%006_R-%TT%%CC%00601"/>
+                <ComObjectRefRef RefId="%AID%_O-%TT%%CC%007_R-%TT%%CC%00701"/>
+              </ParameterBlock>
+            </when></choose>
+          </ChannelIndependentBlock>
+          </Dynamic>
+        </ApplicationProgram>
+      </ApplicationPrograms>
+    </Manufacturer>
+  </ManufacturerData>
+</KNX>

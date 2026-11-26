@@ -22,8 +22,8 @@ until Studio is ready.
   input or numeric R/G/B fields. Arrow keys control the saturation/value area.
 - RGB, White and Mix modes select RGB only, white only or combined RGB/white output.
 - White level controls white-channel output. RGBW uses its fixed white channel;
-  RGBCCT splits the level between warm and cool white. A 2000–6500 K control maps
-  to that warm/cool ratio. On RGB-only output, the temperature is approximated by RGB.
+  RGBCCT splits the level between warm and cool white. The Kelvin control uses the configured hardware endpoints of the selected segment
+  and maps them to that warm/cool ratio. The defaults are 2700–6500 K. On RGB-only output, the temperature is approximated by RGB.
   Actual colour depends on the LEDs. The white preview and swatch reflect both tone and white level.
 - Segment power switches output on/off without changing its hardware/power configuration.
   Existing global power, brightness, KNX locks and output limits continue to apply.
@@ -287,3 +287,11 @@ checks still require a device and ETS. On this Mac OpenKNXproducer emits merged/
 XML and a header; final schema validation and `.knxprod` packaging need the missing
 KNX schema/ETS tooling. TP/WiFi currently has a separate existing multicast link issue
 in the checked-out network/KNX dependencies.
+
+
+From Dev 3.12 / Release 1.10, primary white/mixed edits carry an explicit Kelvin target on RGBCCT output. Each physical output uses its own hardware endpoints. A durable Studio save retains the target for runtime restoration. The ETS startup-colour export stores native channel values. Scenes also store native channel values. With different hardware endpoints on duplicated outputs, recalling those native values uses the same WW/CW ratio on each output.
+
+Flash extension version 3 appends a two-byte Kelvin target per segment. Versions 1 and 2 remain readable.
+
+
+Effect-manager cues use two complete RGB/WW/CW colours in a contiguous 54-byte ETS record. The ETS EM header occupies twelve bytes, with four settings bytes and eight bytes reserved for future use. The runtime header uses four bytes. This format requires cue reconfiguration after upgrading the ETS application. Both colours are present on every cue and are shown in the status page and console.

@@ -47,8 +47,9 @@ class Segment {
 public:
     uint8_t brightness = 0, master = 0, color[5] = {};
     uint8_t secondary[5] = {};
-    struct Secondary { const uint8_t* c; uint8_t r2() const{return c[0];} uint8_t g2() const{return c[1];} uint8_t b2() const{return c[2];} uint8_t ww2() const{return c[3];} uint8_t cw2() const{return c[4];} uint8_t cw() const{return 0;} };
-    Secondary getConfig() const { return {secondary}; }
+    mutable uint16_t kelvin = 0;
+    struct Secondary { const uint8_t* c; uint16_t& primaryKelvin; uint8_t r2() const{return c[0];} uint8_t g2() const{return c[1];} uint8_t b2() const{return c[2];} uint8_t ww2() const{return c[3];} uint8_t cw2() const{return c[4];} uint8_t cw() const{return 0;} };
+    Secondary getConfig() const { return {secondary, kelvin}; }
     void setSecondaryColor(uint8_t r,uint8_t g,uint8_t b,uint8_t w,uint8_t c) { secondary[0]=r;secondary[1]=g;secondary[2]=b;secondary[3]=w;secondary[4]=c; }
     bool paused = false;
     bool isPaused() { return paused; }
@@ -97,6 +98,7 @@ public:
         uint8_t savedPower = 1, savedBrightness = 0, savedEffectType = 0;
         uint8_t savedR = 0, savedG = 0, savedB = 0, savedWW = 0, savedCW = 0;
         uint8_t savedSecondaryR=0,savedSecondaryG=0,savedSecondaryB=0,savedSecondaryWW=0,savedSecondaryCW=0;
+        uint16_t savedKelvin = 0, statusCctKelvin = 0;
         uint8_t savedSceneNumber = 0;
         Em emController;
     };
@@ -152,7 +154,7 @@ static State snapshot(bool globalOn, uint8_t segmentOn, uint8_t brightness, bool
     NeoPixelFlashPersistence persistence(&module);
     openknx.flash.bytes.clear();
     persistence.writeToFlash();
-    assert(openknx.flash.bytes.size() == sizeof(State) + 3 + 6 + 370);
+    assert(openknx.flash.bytes.size() == sizeof(State) + 3 + 6 + 372);
     State state;
     memcpy(&state, openknx.flash.bytes.data(), sizeof(state));
     assert(state.brightness == brightness); // retain level for subsequent power-on
@@ -230,6 +232,7 @@ int main(int argc, char** argv) {
         SceneManager scenes;scenes.scenes.resize(37);scenes.scenes[0]=1;scenes.scenes[1]=1;scenes.scenes[12]=120;
         module._sceneManager=&scenes;
         seg.setSecondaryColor(10,20,30,40,50);
+        seg.kelvin=4100;
         NeoPixelFlashPersistence persistence(&module);
         persistence.writeToFlash();
         const auto saved=openknx.flash.bytes;
@@ -238,7 +241,7 @@ int main(int argc, char** argv) {
         seg.setSecondaryColor(0,0,0,0,0);
         persistence.readFromFlash(saved.data(),saved.size());
         assert(persistence.hasSceneSnapshot() && scenes.scenes.size()==37 && scenes.scenes[0]==1);
-        assert(cfg.savedSecondaryR==10 && cfg.savedSecondaryCW==50);
+        assert(cfg.savedSecondaryR==10 && cfg.savedSecondaryCW==50 && cfg.savedKelvin==4100);
         assert(seg.secondary[0]==10 && seg.secondary[4]==50);
         // ETS download without scene changes: the learned scenes stay
         openknx.flash.bytes.clear();persistence.writeToFlash();
@@ -253,12 +256,17 @@ int main(int argc, char** argv) {
         persistence.readFromFlash(unchanged.data(),unchanged.size());
         assert(persistence.hasSceneSnapshot() && scenes.scenes.size()==1);
         assert(cfg.savedBrightness==120 && seg.secondary[0]==10 && seg.secondary[4]==50);
+        // v2 extension preserves scenes and native colours and starts without Kelvin metadata.
+        auto v2=unchanged;
+        v2.resize(v2.size()-2);v2[sizeof(State)+3+3]=2;
+        persistence.readFromFlash(v2.data(),v2.size());
+        assert(cfg.savedKelvin==0 && persistence.hasSceneSnapshot());
         // v1 extension (no signature): imported unless written during an ETS download (header byte 5)
         std::vector<uint8_t> v1(unchanged.begin(),unchanged.begin()+sizeof(State)+3);
         const uint8_t header[6]={'N','S','C',1,1,0};
         v1.insert(v1.end(),header,header+6);
         v1.insert(v1.end(),unchanged.begin()+sizeof(State)+3+6,unchanged.begin()+sizeof(State)+3+6+5);
-        v1.insert(v1.end(),unchanged.begin()+sizeof(State)+3+6+9,unchanged.end());
+        v1.insert(v1.end(),unchanged.begin()+sizeof(State)+3+6+9,unchanged.end()-2);
         assert(v1.size()==sizeof(State)+3+6+366);
         scenes.scenes={0};
         persistence.readFromFlash(v1.data(),v1.size());
@@ -272,7 +280,7 @@ int main(int argc, char** argv) {
         persistence.readFromFlash(bad.data(),bad.size());
         assert(cfg.savedBrightness==0 && scenes.scenes.size()==1 && seg.secondary[0]==0);
     } else if (test == "scene-extension-two-segments") {
-        // The second segment's extension starts one v2 record (370 bytes) after the first
+        // The second segment's extension starts one v3 record (372 bytes) after the first
         NeoPixelBusModule module;
         Segment seg[2];
         module.segments.resize(2);
@@ -283,8 +291,8 @@ int main(int argc, char** argv) {
         NeoPixelFlashPersistence persistence(&module);
         openknx.flash.bytes.clear();persistence.writeToFlash();
         const auto saved=openknx.flash.bytes;
-        assert(saved.size()==2*sizeof(State)+3+6+2*370);
-        const size_t second=2*sizeof(State)+3+6+370;
+        assert(saved.size()==2*sizeof(State)+3+6+2*372);
+        const size_t second=2*sizeof(State)+3+6+372;
         assert(saved[second]==6 && saved[second+4]==10 && saved[second+9]==1 && saved[second+9+12]==77);
         behavior[0]=2;behavior[1]=2;
         seg[0].setSecondaryColor(0,0,0,0,0);seg[1].setSecondaryColor(0,0,0,0,0);

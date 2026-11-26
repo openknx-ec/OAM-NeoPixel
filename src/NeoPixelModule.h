@@ -138,6 +138,9 @@ class NeoPixelBusModule : public OpenKNX::Module
         uint8_t savedB = 0;
         uint8_t savedWW = 0; // Warm White (or single white for RGBW)
         uint8_t savedSecondaryR = 0, savedSecondaryG = 0, savedSecondaryB = 0, savedSecondaryWW = 0, savedSecondaryCW = 0;
+        uint16_t savedKelvin = 0;
+        uint16_t dimmingCctPosition = 0;
+        uint8_t dimmingCctLevel = 255;
         uint8_t savedCW = 0; // Cool White (RGBCCT only)
         uint8_t savedBrightness = 0;
 
@@ -172,7 +175,8 @@ class NeoPixelBusModule : public OpenKNX::Module
             COOL_WHITE,
             HUE,
             SATURATION,
-            VALUE
+            VALUE,
+            CCT
         };
         DimmingChannel activeDimming = NONE; // Which channel is currently dimming
         bool dimmingIncrease = false;        // Dimming direction (true = increase/up, false = decrease/down)
@@ -298,6 +302,7 @@ class NeoPixelBusModule : public OpenKNX::Module
     friend bool openknxNeoPixelHandleCueSet(uint8_t emId, uint8_t cueNum, uint8_t effectId,
                                             uint16_t durSec, uint16_t fadeMs,
                                             uint8_t bri, uint8_t r, uint8_t g, uint8_t b);
+    friend bool openknxNeoPixelHandleCueColor(uint8_t emId, uint8_t cueNum, uint8_t colour, const CueColor& value);
     friend bool openknxNeoPixelHandleCueParam(uint8_t emId, uint8_t cueNum, uint8_t paramIdx, uint8_t value);
     friend bool openknxNeoPixelHandleCueText(uint8_t emId, uint8_t cueNum, const char* text);
     friend int openknxNeoPixelEmSegmentCount();
@@ -468,6 +473,7 @@ class NeoPixelBusModule : public OpenKNX::Module
     bool executeCueSet(uint8_t emId, uint8_t cueNum, uint8_t effectId,
                        uint16_t durSec, uint16_t fadeMs,
                        uint8_t bri, uint8_t r, uint8_t g, uint8_t b);
+    bool executeCueColor(uint8_t emId, uint8_t cueNum, uint8_t colour, const CueColor& value);
     bool executeCueParam(uint8_t emId, uint8_t cueNum, uint8_t paramIdx, uint8_t value);
     bool executeCueText(uint8_t emId, uint8_t cueNum, const char* text);
     int  bindConsoleSegment(int managerSegIdx);
@@ -540,7 +546,10 @@ class NeoPixelBusModule : public OpenKNX::Module
     void segmentOff(size_t segmentIndex, bool show); ///< own power OFF: pause the EM, stop and clear the segment
     void segmentOn(size_t segmentIndex);             ///< own power ON without the power-on EM edge
     void applyStartupColors(Segment* segment);
-    void captureDirectColor(size_t segmentIndex);    ///< live primary colour -> saved* (no EM running)
+    void captureDirectColor(size_t segmentIndex);
+    void cctRange(size_t segmentIndex, uint16_t& warm, uint16_t& cool) const;
+    void applyCct(size_t segmentIndex, uint16_t kelvin, uint8_t whiteLevel = 255);
+    bool processColourKo(GroupObject& ko, uint16_t koNumber);    ///< live primary colour -> saved* (no EM running)
     static void setPrimaryColorOneWhite(Segment* seg, uint8_t r, uint8_t g, uint8_t b, uint8_t w); ///< one W value, split on RGBCCT
     void segmentPowerOn(size_t segmentIndex);        ///< ON command: power-on EM on the off->on edge, else segmentOn()
     void showSegmentOutput(size_t segmentIndex);     ///< make a segment with power ON visible (resume EM or effect)
@@ -661,6 +670,9 @@ class NeoPixelBusModule : public OpenKNX::Module
         kSegEmCue,
         kSegEmRunState,
         kSegCct,
+        kSegSecondaryRgb,
+        kSegSecondaryWW,
+        kSegSecondaryCW,
         kSegmentStatusCount
     };
     static constexpr uint8_t kStatusSegmentMax = 16;   ///< segment KO channels in the KO table (NEO_ChannelCount)

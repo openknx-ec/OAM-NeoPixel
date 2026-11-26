@@ -4365,8 +4365,8 @@ function Get-CueTypedParamPlan {
 
       # Map parameter to the generic cue slot it overlays (same flash offset).
       if ($param.Type -eq 'PARAM_STRING') {
-        # String params share the dedicated EffectText field (PPP+17 @ CUE_OFF+34).
-        $offsetMacro = '%CUE_OFF+34%'
+        # String params share the dedicated EffectText field (PPP+21 @ CUE_OFF+40).
+        $offsetMacro = '%CUE_OFF+40%'
       }
       elseif ($i -lt $script:Config.CueGenericSlotCount) {
         # Numeric/enum/bool params 0..9 map to slot bytes CUE_OFF+1..+10.

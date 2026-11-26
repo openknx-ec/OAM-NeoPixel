@@ -156,12 +156,16 @@
         return '#' + rgb.map(v => Math.round((v + m) * 255).toString(16).padStart(2, '0')).join('');
     }
     function kelvinRgb(kelvin) {
-        const t = Math.max(2000, Math.min(6500, kelvin)) / 100;
+        const t = Math.max(1000, Math.min(10000, kelvin)) / 100;
         const clamp = v => Math.round(Math.max(0, Math.min(255, v)));
-        return [255, clamp(99.4708025861 * Math.log(t) - 161.1195681661), t <= 19 ? 0 : clamp(138.5177312231 * Math.log(t - 10) - 305.0447927307)];
+        return t <= 66 ? [255, clamp(99.4708025861 * Math.log(t) - 161.1195681661), t <= 19 ? 0 : clamp(138.5177312231 * Math.log(t - 10) - 305.0447927307)] : [clamp(329.698727446 * Math.pow(t - 60, -0.1332047592)), clamp(288.1221695283 * Math.pow(t - 60, -0.0755148492)), 255];
     }
-    function whiteTone(blend) { return 'rgb(' + kelvinRgb(2000 + 45 * blend).join(',') + ')'; }
+    function whiteTone(blend, warm = 2700, cool = 6500) { return 'rgb(' + kelvinRgb(warm + (cool - warm) * blend / 100).join(',') + ')'; }
     function colourPicker(key, name, colour) {
+        const current = state.segments.find(segment => segment.id === selected);
+        const warmKelvin = current?.warmKelvin || 2700;
+        const coolKelvin = current?.coolKelvin || 6500;
+        const kelvinStep = (coolKelvin - warmKelvin) / 100;
         const memoryKey = selected + ':' + key;
         if (!pickerMemory.has(memoryKey)) pickerMemory.set(memoryKey, {
             mode: colour.ww + colour.cw > 0 ? colour.rgb === '#000000' ? 'white' : 'mixed' : 'rgb',
@@ -184,7 +188,7 @@
 </div>
 <div class="studio-white-picker" hidden>
 <div class="studio-white-preview" aria-hidden="true">Weißvorschau</div>
-<div class="studio-white-blend"><label class="studio-picker-label" for="studio-${key}-blend">Weißton</label><input id="studio-${key}-blend" class="studio-white-tone" type="range" min="0" max="100" step="1"><div class="studio-picker-ends"><span>Warm</span><span>Kalt</span></div><label class="studio-picker-label" for="studio-${key}-kelvin">Farbtemperatur (K)</label><input id="studio-${key}-kelvin" type="number" required min="2000" max="6500" step="1"></div>
+<div class="studio-white-blend"><label class="studio-picker-label" for="studio-${key}-blend">Weißton</label><input id="studio-${key}-blend" class="studio-white-tone" type="range" min="0" max="100" step="1"><div class="studio-picker-ends"><span>Warm</span><span>Kalt</span></div><label class="studio-picker-label" for="studio-${key}-kelvin">Farbtemperatur (K)</label><input id="studio-${key}-kelvin" type="number" required min="${warmKelvin}" max="${coolKelvin}" step="1"></div>
 <label class="studio-picker-label" for="studio-${key}-level">Weißanteil <output id="studio-${key}-level-value"></output></label><input id="studio-${key}-level" type="range" min="0" max="255" step="1">
 <p class="meta studio-white-help"></p>
 </div><p class="meta studio-mixed" hidden>Mix kombiniert RGB und Weiß. RGB und Weiß nutzen jeweils nur eine Quelle.</p>`;
@@ -209,7 +213,7 @@
             native.value = hex.value = memory.rgb;
             hue.value = Math.round(hsv[0]);
             memory.rgb.match(/[0-9a-f]{2}/gi).forEach((v,i) => { find('-rgb-' + i).value = parseInt(v,16); });
-            find('-kelvin').value = Math.round(2000 + memory.blend * 45);
+            find('-kelvin').value = Math.round(warmKelvin + memory.blend * kelvinStep);
             level.value = memory.level;
             blend.value = memory.blend;
             find('-level-value').textContent = levelPercent(memory.level);
@@ -217,8 +221,8 @@
             panel.querySelector('.studio-white-blend').hidden = state.channels === 4;
             panel.querySelector('.studio-white-help').textContent = state.channels === 3 ? 'Die Farbtemperatur wird über die RGB-Kanäle angenähert.' : state.channels === 4 ? 'Nutzt den Weißkanal des Streifens.' : 'Nutzt die Warm- und Kaltweißkanäle.';
             // The tone slider keeps its full gradient; the preview reflects white output level.
-            blend.style.setProperty('--studio-white-gradient', 'linear-gradient(to right in srgb,' + [0,25,50,75,100].map(v => whiteTone(v) + ' ' + v + '%').join(',') + ')');
-            const tone = state.channels !== 4 ? kelvinRgb(2000 + memory.blend * 45) : [255,255,255];
+            blend.style.setProperty('--studio-white-gradient', 'linear-gradient(to right in srgb,' + [0,25,50,75,100].map(v => whiteTone(v, warmKelvin, coolKelvin) + ' ' + v + '%').join(',') + ')');
+            const tone = state.channels !== 4 ? kelvinRgb(warmKelvin + memory.blend * kelvinStep) : [255,255,255];
             const sample = 'rgb(' + tone.map(channel => Math.round(channel * memory.level / 255)).join(',') + ')';
             panel.querySelector('.studio-white-preview').style.background = sample;
             panel.querySelector('.studio-white-preview').style.color = memory.level < 140 ? '#fff' : '#333';
@@ -229,7 +233,7 @@
             if (memory.mode === 'white' || memory.mode === 'mixed') {
                 if (state.channels === 3) {
                     const base = memory.mode === 'mixed' ? memory.rgb.match(/[0-9a-f]{2}/gi).map(v => parseInt(v,16)) : [0,0,0];
-                    const tone = kelvinRgb(2000 + memory.blend * 45), level = memory.level / 255;
+                    const tone = kelvinRgb(warmKelvin + memory.blend * kelvinStep), level = memory.level / 255;
                     value.rgb = '#' + base.map((v,i) => Math.round(memory.mode === 'mixed' ? v * (1-level) + tone[i]*level : tone[i]*level).toString(16).padStart(2,'0')).join('');
                 }
                 else {
@@ -238,6 +242,8 @@
                     value.ww = memory.level - value.cw;
                 }
             }
+            if (key === 'primary' && state.channels === 5 && memory.mode !== 'rgb')
+                value.kelvin = Math.round(warmKelvin + memory.blend * kelvinStep);
             memory.lastSent = clone(value);
             return command(key + 'Channels', value);
         }
@@ -266,7 +272,7 @@
         find('-kelvin').addEventListener('change', () => {
             const input = find('-kelvin');
             if (!input.checkValidity() || !Number.isInteger(Number(input.value))) { input.reportValidity(); return; }
-            memory.blend = (Number(input.value)-2000)/45; paint(); send();
+            memory.blend = (Number(input.value) - warmKelvin) / kelvinStep; paint(); send();
         });
         native.addEventListener('input', () => setRgb(native.value));
         native.addEventListener('change', send);
@@ -351,7 +357,7 @@
         el('b-bri').textContent = levelPercent(live.brightness);
         el('b-scene').textContent = live.activeScene || '–';
         el('b-em').hidden = !live.em;
-        const nextSignature = JSON.stringify([selected, segment.effect, state.channels, segment.parameters.map(p => [p.id, p.type, p.min, p.max, p.options])]);
+        const nextSignature = JSON.stringify([selected, segment.effect, state.channels, segment.warmKelvin, segment.coolKelvin, segment.parameters.map(p => [p.id, p.type, p.min, p.max, p.options])]);
         // Preserve focused inputs while polling, including unfinished text edits.
         if (signature !== nextSignature) {
             signature = nextSignature;

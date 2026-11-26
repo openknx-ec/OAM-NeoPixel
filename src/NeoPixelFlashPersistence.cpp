@@ -151,13 +151,16 @@ void NeoPixelFlashPersistence::writeToFlash()
         const uint32_t etsSignature = _module->_sceneManager ? _module->_sceneManager->etsSignature(i) : 0;
         uint8_t signature[4] = {uint8_t(etsSignature), uint8_t(etsSignature >> 8), uint8_t(etsSignature >> 16), uint8_t(etsSignature >> 24)};
         openknx.flash.write(signature, sizeof(signature));
-        uint8_t scenes[kExtSegmentSize - 5 - 4] = {};
+        uint8_t scenes[kExtSegmentSizeV2 - 5 - 4] = {};
         if (_module->_sceneManager)
         {
             const auto data = _module->_sceneManager->exportScenes(i);
             if (data.size() <= sizeof(scenes)) memcpy(scenes, data.data(), data.size());
         }
         openknx.flash.write(scenes, sizeof(scenes));
+        const uint16_t kelvin = cfg.emController.isRunning() ? cfg.savedKelvin : (cfg.segment ? cfg.segment->getConfig().primaryKelvin : 0);
+        uint8_t temperature[2] = {uint8_t(kelvin), uint8_t(kelvin >> 8)};
+        openknx.flash.write(temperature, sizeof(temperature));
     }
 
 #ifdef OPENKNX_DEBUG
@@ -202,9 +205,10 @@ void NeoPixelFlashPersistence::readFromFlash(const uint8_t* data, uint16_t size)
     {
         expectedTotalSize += sizeof(RelayFlashState);
     }
-    // Extension v1 (without ETS scene signatures) or v2; the size selects the version, the header confirms it
+    // Extension v1, v2 (ETS scene signatures), or v3 (Kelvin). Size selects the version, the header confirms it.
     uint8_t extVersion = 0;
     if (size == expectedTotalSize + kExtHeaderSize + segments.size() * kExtSegmentSize) extVersion = kExtVersion;
+    else if (size == expectedTotalSize + kExtHeaderSize + segments.size() * kExtSegmentSizeV2) extVersion = 2;
     else if (size == expectedTotalSize + kExtHeaderSize + segments.size() * kExtSegmentSizeV1) extVersion = 1;
     const bool hasExtension = extVersion != 0;
     if (hasExtension && (memcmp(data + expectedTotalSize, "NSC", 3) != 0 || data[expectedTotalSize + 3] != extVersion ||
@@ -363,11 +367,15 @@ void NeoPixelFlashPersistence::readFromFlash(const uint8_t* data, uint16_t size)
     _hasSceneSnapshot = hasExtension && data[expectedTotalSize + 5] == 0;
     if (_hasSceneSnapshot)
     {
-        const uint16_t segmentSize = extVersion == 1 ? kExtSegmentSizeV1 : kExtSegmentSize;
+        const uint16_t segmentSize = extVersion == 1 ? kExtSegmentSizeV1 : extVersion == 2 ? kExtSegmentSizeV2 : kExtSegmentSize;
         for (size_t i = 0; i < segments.size(); ++i)
         {
             const uint8_t* extension = data + expectedTotalSize + kExtHeaderSize + i * segmentSize;
             auto& cfg = _module->getSegments()[i];
+            cfg.savedKelvin = extVersion >= 3 ? uint16_t(extension[kExtSegmentSizeV2]) | (uint16_t(extension[kExtSegmentSizeV2 + 1]) << 8) : 0;
+            if (cfg.savedKelvin < 1000 || cfg.savedKelvin > 10000) cfg.savedKelvin = 0;
+            cfg.statusCctKelvin = cfg.savedKelvin;
+            if (cfg.segment && _module->effectiveStartupBehavior(i) == 1) cfg.segment->getConfig().primaryKelvin = cfg.savedKelvin;
             cfg.savedSecondaryR = extension[0];
             cfg.savedSecondaryG = extension[1];
             cfg.savedSecondaryB = extension[2];
@@ -479,6 +487,7 @@ void NeoPixelFlashPersistence::restoreStatesAfterStartup()
             {
                 if (cfg.savedEffectValid) _module->applyEffectToSegment(seg, cfg.savedEffectType);
                 seg->setPrimaryColor(cfg.savedR, cfg.savedG, cfg.savedB, cfg.savedWW, cfg.savedCW);
+                seg->getConfig().primaryKelvin = cfg.savedKelvin;
                 seg->setSecondaryColor(cfg.savedSecondaryR, cfg.savedSecondaryG, cfg.savedSecondaryB, cfg.savedSecondaryWW, cfg.savedSecondaryCW);
             }
 
@@ -568,6 +577,7 @@ void NeoPixelFlashPersistence::restoreStatesAfterStartup()
 
             // Restore color from flash
             seg->setPrimaryColor(cfg.savedR, cfg.savedG, cfg.savedB, cfg.savedWW, cfg.savedCW);
+            seg->getConfig().primaryKelvin = cfg.savedKelvin;
             seg->setSecondaryColor(cfg.savedSecondaryR, cfg.savedSecondaryG, cfg.savedSecondaryB, cfg.savedSecondaryWW, cfg.savedSecondaryCW);
 
             // Restore brightness/power state. Drive the MASTER (intent) layer like the boot seed

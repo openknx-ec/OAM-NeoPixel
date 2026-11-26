@@ -30,6 +30,7 @@ using OpenKNX::Format::JSON::Reader;
 using OpenKNX::Format::JSON::Writer;
 enum class ParameterType { PARAM_UINT8, PARAM_BOOL, PARAM_ENUM, PARAM_STRING };
 struct Config {
+    uint16_t primaryKelvin=0;
     char effectText[241] = {};
     uint8_t effectType = 1; // Segment::effect starts at effects[1]
     uint8_t colours[10] = {10,20,30,40,50,60,70,80,90,100};
@@ -103,6 +104,7 @@ struct NeoPixelBusModule {
     bool _localTestMode=false, _globalPowerOn=true;
     VirtualStrip strip;
     VirtualStrip* _virtualStrip=&strip;
+    void cctRange(size_t, uint16_t& warm, uint16_t& cool) const { warm=2700;cool=6500; }
     int interrupts=0, captures=0, hides=0, statuses=0, syncs=0, restores=0;
     void segmentOn(size_t i) { _segments[i].savedPower=1; if(!_segments[i].savedBrightness)_segments[i].savedBrightness=255; } void segmentOff(size_t i,bool) { _segments[i].savedPower=0; }
     struct SceneDouble {

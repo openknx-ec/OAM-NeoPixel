@@ -105,6 +105,18 @@ void SegmentController::processActiveDimming()
                 break;
             }
 
+            case NeoPixelBusModule::SegmentConfig::CCT:
+            {
+                const size_t index = &segConfig - _module->_segments.data();
+                uint16_t warm, cool;
+                _module->cctRange(index, warm, cool);
+                segConfig.dimmingCctPosition = constrain(int(segConfig.dimmingCctPosition) + delta, 0, 255);
+                _module->applyCct(index, warm + (uint32_t(cool - warm) * segConfig.dimmingCctPosition + 127) / 255, segConfig.dimmingCctLevel);
+                stepDone = stepDone || segConfig.dimmingCctPosition == 0 || segConfig.dimmingCctPosition == 255;
+                _module->queueStatus(index + 1, false);
+                break;
+            }
+
             case NeoPixelBusModule::SegmentConfig::RED:
                 applyColorChannelDimming(seg, 0, delta); // 0 = Red channel
                 break;

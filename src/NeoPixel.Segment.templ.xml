@@ -317,6 +317,7 @@
                  <Parameter Id="%AID%_UP-%TT%%CC%242" Offset="521" BitOffset="0" Name="NEO%C%HCLMaster" ParameterType="%AID%_PT-LMGMasterSelect" Text="Segment-Lichtmanager" Value="0" />
                  <Parameter Id="%AID%_UP-%TT%%CC%243" Offset="522" BitOffset="0" Name="NEO%C%HCLApplyMode" ParameterType="%AID%_PT-HclApplyMode" Text="Anwendung" Value="0" />
                  <!-- Remaining bytes reserved for future HCL-related layout changes -->
+                <Parameter Id="%AID%_UP-%TT%%CC%265" Offset="703" BitOffset="0" Name="NEO%C%RgbClearsWhite" ParameterType="%AID%_PT-Boolean" Text="RGB-Telegramm löscht Weißkanäle" Value="0"/>
               </Union>
             </Parameters>
             <ParameterRefs>
@@ -563,6 +564,7 @@
               <ParameterRef Id="%AID%_UP-%TT%%CC%241_R-%TT%%CC%24101" RefId="%AID%_UP-%TT%%CC%241" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%242_R-%TT%%CC%24201" RefId="%AID%_UP-%TT%%CC%242" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%243_R-%TT%%CC%24301" RefId="%AID%_UP-%TT%%CC%243" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%265_R-%TT%%CC%26501" RefId="%AID%_UP-%TT%%CC%265"/>
             </ParameterRefs>
             <ComObjectTable>
                <!-- Segment Power -->
@@ -1282,6 +1284,7 @@
                     <ComObjectRefRef RefId="%AID%_O-%TT%%CC%018_R-%TT%%CC%01801" />
                     <!-- Scene Status -->
                     <ComObjectRefRef RefId="%AID%_O-%TT%%CC%019_R-%TT%%CC%01901" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%265_R-%TT%%CC%26501"/>
                     <!-- RGB -->
                     <ComObjectRefRef RefId="%AID%_O-%TT%%CC%020_R-%TT%%CC%02001" />
                     <!-- RGB Status -->

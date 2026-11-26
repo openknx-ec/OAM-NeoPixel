@@ -111,7 +111,9 @@ std::string NeoPixelStudio::exportSegment(size_t index, bool forSave, std::strin
     command("effect");
     json.value(uint32_t(id)).endObject();
     command("primaryChannels");
-    json.beginObject().field("rgb", rgb(c.r(), c.g(), c.b())).field("ww", uint32_t(c.ww())).field("cw", uint32_t(c.cw())).endObject().endObject();
+    json.beginObject().field("rgb", rgb(c.r(), c.g(), c.b())).field("ww", uint32_t(c.ww())).field("cw", uint32_t(c.cw()));
+    if (c.primaryKelvin) json.field("kelvin", uint32_t(c.primaryKelvin));
+    json.endObject().endObject();
     command("secondaryChannels");
     json.beginObject().field("rgb", rgb(c.r2(), c.g2(), c.b2())).field("ww", uint32_t(c.ww2())).field("cw", uint32_t(c.cw2())).endObject().endObject();
     command("brightness");

@@ -179,3 +179,36 @@ Status*, sowie **Effektmanager Status** (welcher EM), **Aktive Cue**, **Effektma
 - **Zentral schalten/dimmen:** entweder das geräte-globale **Alle LEDs** / **Helligkeit**, oder eine gemeinsame GA auf den Segment-KOs mehrerer Segmente.
 - **„Effekt schalten" (FxRel)** und **„Cue +/-"** steppen relativ (DPT 3.7) — ein Taster für nächster/vorheriger Effekt bzw. Cue. **„Sperre"** (DPT 1) blockt alle steuernden KOs des Segments.
 - **Nach ETS-Update:** siehe `doc/Applikationsbeschreibung.md`, „Hinweise zu Firmware- und ETS-Updates", und die Migrationshinweise in `CHANGELOG.md`.
+
+
+## RGB-CCT und Effektfarben ab Dev 3.12 / Release 1.10
+
+Die neue Firmware benötigt die passende aktualisierte ETS-Applikation und einen vollständigen Applikationsdownload. Die bisherigen KNX-Objektnummern bleiben erhalten. Die zusätzlichen Farbobjekte liegen im Bereich 2400–2511 unter „Erweiterte Farbsteuerung“, geordnet nach Segment.
+
+### Farbtemperatur
+
+Pro physischem Streifen lassen sich „Warmweiß-Endpunkt (K)“ und „Kaltweiß-Endpunkt (K)“ einstellen. Standard sind 2700 und 6500 K. Gültig sind 1000–10000 K mit Warmweiß kleiner als Kaltweiß. Bei ungültiger Reihenfolge verwendet die Firmware die Standardwerte. Die lineare Mischung nähert die tatsächliche Farbtemperatur der LEDs an.
+
+Das absolute KO „Farbtemperatur“ steuert bei RGB-CCT die nativen Weißkanäle. Jeder physische Ausgang berücksichtigt seine Endpunkte. Bei einem Segment über mehrere Stripes wird der gemeinsame Temperaturbereich verwendet. Haben die Bereiche keine gemeinsame Überdeckung, dient der erste betroffene Stripe als Referenz und jeder Ausgang begrenzt den Zielwert auf seinen eigenen Bereich. RGB-/RGBW-Ausgänge nähern eine Kelvin-Vorgabe über RGB an.
+
+Das neue KO „Farbtemperatur dimmen“ verwendet DPT 3.007. Erhöhen bedeutet kälter, Verringern wärmer. Schrittcode 1 startet eine Rampe bis zum Stopptelegramm oder Endpunkt. Die Codes 2–7 fahren einen begrenzten Schritt. Der vollständige Bereich dauert etwa drei Sekunden. Die Segmenthelligkeit und ein vorhandener Weißpegel bis 255 bleiben erhalten. Aus einer RGB-Farbe ohne Weißanteil beginnt die Einstellung in der Mitte des Bereichs. Bei ausgeschaltetem Segment wird der Farbzustand im Hintergrund geändert. Die Segment-Sperre gilt auch für die neuen Objekte. Ein direktes Farbkommando beendet einen laufenden Effektmanager. Ein aktiver Lichtmanager bleibt als nachgelagerte Farbkorrektur wirksam.
+
+### Wechsel von CCT zu RGB
+
+„RGB-Telegramm löscht Weißkanäle“ ist eine Option je Segment. Standardmäßig erhält ein RGB-Telegramm die Weißkanäle. Mit aktivierter Option setzt es WW und CW auf null. Diese Option gilt für das kombinierte RGB-KO. HSV und einzelne Farbkanalobjekte behalten ihre bisherige Kanalsteuerung.
+
+Ein RGBW-Telegramm mit W = 0 setzt ebenfalls reines RGB. Ein gemeinsamer W-Wert größer null wird auf RGB-CCT ungefähr hälftig auf WW und CW verteilt.
+
+### Zweite Effektfarbe
+
+Jeder Cue enthält eine Primär- und eine Sekundärfarbe mit jeweils RGB, Weiß/Warmweiß und Kaltweiß. Beide Weißkanäle werden unabhängig vorgegeben. In einem RGBW-Segment dient WW als einzelner Weißkanal. Der CW-Wert ist in Segmenten mit RGB- oder RGBW-Puffer ohne Funktion. In einem gemischten virtuellen RGB-CCT-Puffer werden WW und CW für einen angeschlossenen RGBW-Stripe zu einem Weißwert zusammengeführt. Beide Farben werden beim Eintritt in eine Cue vollständig angewendet.
+
+Der ETS-Header jedes Effektmanagers umfasst zwölf Bytes. Davon sind acht Bytes für spätere Einstellungen reserviert. Der Runtime-Header bleibt vier Bytes groß.
+
+Das Cue-Format ab dieser Version ist inkompatibel zum bisherigen einzelnen W-Wert. Die Cues müssen nach dem ETS-Update neu konfiguriert werden. Die Vorgabe für die Primärfarbe ist RGB-Weiß mit ausgeschalteten Weißkanälen, für die Sekundärfarbe Schwarz mit ausgeschalteten Weißkanälen. Die Wiedergabe verwendet die beiden gespeicherten Weißwerte direkt.
+
+Über die Konsole setzt `neo cue color <em> <cue> <1|2> <r> <g> <b> <ww> <cw>` eine vollständige Cue-Farbe. Alle fünf Kanalwerte liegen zwischen 0 und 255. Die Cue-Übersicht in Konsole und Web zeigt beide Farben und Weißkanäle an.
+
+Das bestehende RGB-KO steuert die Primärfarbe eines direkt laufenden Effekts. Die neuen KOs „Sekundärfarbe RGB“, „Sekundärfarbe Weiß / Warmweiß“ und „Sekundärfarbe Kaltweiß“ steuern die zweite Farbe mit separaten Statusobjekten. Ein Sekundärfarbenkommando übernimmt die manuelle Steuerung und beendet einen laufenden Effektmanager. Szenen können weiterhin beide Farben zusammen setzen.
+
+Der Kelvin-Zielwert wird für die Wiederherstellung des direkten Zustands mitgespeichert. Speicherstände ohne Kelvin-Metadaten werden weiterhin über ihre gespeicherten Farbkanäle wiederhergestellt.

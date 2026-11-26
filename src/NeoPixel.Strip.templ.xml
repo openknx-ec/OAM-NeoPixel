@@ -11,7 +11,7 @@
               <!-- Strip Name -->
               <Parameter Id="%AID%_P-%TT%9%C%000" Name="Description%C%" ParameterType="%AID%_PT-Text40Byte" Text="Beschreibung" Value="" />
               <!-- Strip Parameters -->
-              <Union SizeInBit="200">
+              <Union SizeInBit="232">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
                 <!-- Byte 0: 0..7 (8b) -->
                 <Parameter Id="%AID%_UP-%TT%9%C%030" Offset="0" BitOffset="0" Name="NEO%C%LEDType" ParameterType="%AID%_PT-NEOLedType" Text="LED Typ" Value="0"/>
@@ -84,6 +84,8 @@
                 <!-- NOTE: the GPIO conflict flags (no memory) come from the generated check (HardwareManifest.xml <Conflicts>,
                      NeoPixel.hw.conflicts.gen.xml); the strip page shows ConflictChannel_StripData / StripClock (port assignment section below) -->
                 
+                <Parameter Id="%AID%_UP-%TT%9%C%083" Offset="25" BitOffset="0" Name="NEO%C%WarmKelvin" ParameterType="%AID%_PT-NeoCctKelvin" Text="Warmweiß-Endpunkt (K)" Value="2700"/>
+                <Parameter Id="%AID%_UP-%TT%9%C%084" Offset="27" BitOffset="0" Name="NEO%C%CoolKelvin" ParameterType="%AID%_PT-NeoCctKelvin" Text="Kaltweiß-Endpunkt (K)" Value="6500"/>
               </Union>
             </Parameters>
             <ParameterRefs>
@@ -124,6 +126,8 @@
                    ═══════════════════════════════════════════════════════════════════════════════════ -->
               <op:include href="NeoPixel.hw.strip.gen.xml" xpath="//Block[@name='DataParameterRefs']/*" />
               <op:include href="NeoPixel.hw.strip.gen.xml" xpath="//Block[@name='ClockParameterRefs']/*" />
+              <ParameterRef Id="%AID%_UP-%TT%9%C%083_R-%TT%9%C%08301" RefId="%AID%_UP-%TT%9%C%083"/>
+              <ParameterRef Id="%AID%_UP-%TT%9%C%084_R-%TT%9%C%08401" RefId="%AID%_UP-%TT%9%C%084"/>
             </ParameterRefs>
             <ParameterCalculations>
             <ParameterCalculation Id="%AID%_PC-%TT%9%C%001" Language="JavaScript" Name="Strip%C%_LEDTypeParamCalc" LRTransformationFunc="NEO_LedTypeToRGB_%C%" RLTransformationFunc="NEO_Empty">
@@ -199,6 +203,8 @@
                       <ParameterRefRef RefId="%AID%_UP-%TT%9%C%030_R-%TT%9%C%03001" IndentLevel="1" HelpContext="%DOC%" />    
                       <!-- LED Colour Order -->
                       <ParameterRefRef RefId="%AID%_UP-%TT%9%C%031_R-%TT%9%C%03101" IndentLevel="1" HelpContext="%DOC%"/>
+                      <ParameterRefRef RefId="%AID%_UP-%TT%9%C%083_R-%TT%9%C%08301" IndentLevel="1"/>
+                      <ParameterRefRef RefId="%AID%_UP-%TT%9%C%084_R-%TT%9%C%08401" IndentLevel="1"/>
                       <!-- Voltage (für Leistungsberechnung) -->
                       <ParameterRefRef RefId="%AID%_UP-%TT%9%C%039_R-%TT%9%C%03901" IndentLevel="1" HelpContext="%DOC%"/>
                       <!-- LED Swap (jetzt mit besserem Text) -->

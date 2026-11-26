@@ -321,6 +321,7 @@ std::string NeoPixelStudio::applyDoc(const Reader& doc, bool validateOnly, uint8
     uint8_t r = 0, g = 0, b = 0;
     const bool channelColour = action == "primaryChannels" || action == "secondaryChannels";
     uint8_t white = 0, cool = 0;
+    uint16_t kelvin = 0;
     const bool primary = action == "primary";
     const bool secondary = action == "secondary";
     if (action == "restoreEts")
@@ -356,6 +357,13 @@ std::string NeoPixelStudio::applyDoc(const Reader& doc, bool validateOnly, uint8
             if (!value.isObject() || !integer(value.get("ww"), 0, 255) || !integer(value.get("cw"), 0, 255)) return "Erwartet RGB- und Weißkanäle";
             white = static_cast<uint32_t>(value.get("ww").toFloat());
             cool = static_cast<uint32_t>(value.get("cw").toFloat());
+            if (action == "primaryChannels" && value.get("kelvin").valid())
+            {
+                uint16_t warm, cold;
+                _module.cctRange(index, warm, cold);
+                if (!integer(value.get("kelvin"), warm, cold)) return "Farbtemperatur außerhalb des Stripe-Bereichs";
+                kelvin = value.get("kelvin").toUInt();
+            }
             const uint8_t channels = _module._virtualStrip ? _module._virtualStrip->getBytesPerLed() : 3;
             if ((channels < 4 && white != 0) || (channels < 5 && cool != 0)) return "Weißkanal nicht vorhanden";
         }
@@ -438,7 +446,11 @@ std::string NeoPixelStudio::applyDoc(const Reader& doc, bool validateOnly, uint8
     else
     {
         const auto& c = segment->getConfig();
-        if (action == "primaryChannels") segment->setPrimaryColor(r, g, b, white, cool);
+        if (action == "primaryChannels")
+        {
+            segment->setPrimaryColor(r, g, b, white, cool);
+            segment->getConfig().primaryKelvin = kelvin;
+        }
         else if (action == "secondaryChannels")
             segment->setSecondaryColor(r, g, b, white, cool);
         else if (primary)
@@ -517,6 +529,9 @@ void NeoPixelStudio::snapshot(std::string& output)
         json.field("brightness", uint32_t(cfg.savedBrightness)).field("effect", uint32_t(currentEffectType(i)));
         color(json, "primary", c.r(), c.g(), c.b(), c.ww(), c.cw());
         color(json, "secondary", c.r2(), c.g2(), c.b2(), c.ww2(), c.cw2());
+        uint16_t warmKelvin, coolKelvin;
+        _module.cctRange(i, warmKelvin, coolKelvin);
+        json.field("warmKelvin", uint32_t(warmKelvin)).field("coolKelvin", uint32_t(coolKelvin));
         json.field("ownPower", cfg.savedPower != 0);
         json.field("activeScene", uint32_t(cfg.savedSceneNumber));
         json.key("scenes").beginArray();

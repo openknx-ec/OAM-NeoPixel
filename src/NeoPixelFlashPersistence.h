@@ -14,7 +14,7 @@ class Segment;
  * to/from flash memory. Works with OGM-Common automatic save system.
  *
  * Storage: legacy 14-byte segment records and relay state, followed by a versioned
- * secondary-colour/scene-cache extension (6 + 370 bytes per segment).
+ * secondary-colour/scene-cache/Kelvin extension (6-byte header, 372 bytes per segment).
  */
 class NeoPixelFlashPersistence
 {
@@ -110,11 +110,12 @@ class NeoPixelFlashPersistence
     bool hasSceneSnapshot() const { return _hasSceneSnapshot; }
 
     // Extension after the relay record: header "NSC", version, segment count, reserved byte; then per
-    // segment the secondary colour (5), the ETS scene signature (4, v2 only) and the scene cache (361)
-    static constexpr uint8_t kExtVersion = 2;
+    // segment the secondary colour (5), the ETS scene signature (4, v2 only) and the scene cache (361), followed by Kelvin (2, v3 only)
+    static constexpr uint8_t kExtVersion = 3;
     static constexpr uint16_t kExtHeaderSize = 6;
     static constexpr uint16_t kExtSegmentSizeV1 = 5 + 361;
-    static constexpr uint16_t kExtSegmentSize = 5 + 4 + 361;
+    static constexpr uint16_t kExtSegmentSizeV2 = 5 + 4 + 361;
+    static constexpr uint16_t kExtSegmentSize = kExtSegmentSizeV2 + 2;
 
     /**
      * @brief Read LED states from flash

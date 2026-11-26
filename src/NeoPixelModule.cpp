@@ -143,6 +143,11 @@ bool openknxNeoPixelHandleCueSet(uint8_t emId, uint8_t cueNum, uint8_t effectId,
     return openknxNeoPixelModule.executeCueSet(emId, cueNum, effectId, durSec, fadeMs, bri, r, g, b);
 }
 
+bool openknxNeoPixelHandleCueColor(uint8_t emId, uint8_t cueNum, uint8_t colour, const CueColor& value)
+{
+    return openknxNeoPixelModule.executeCueColor(emId, cueNum, colour, value);
+}
+
 bool openknxNeoPixelHandleCueParam(uint8_t emId, uint8_t cueNum, uint8_t paramIdx, uint8_t value)
 {
     return openknxNeoPixelModule.executeCueParam(emId, cueNum, paramIdx, value);
@@ -770,15 +775,18 @@ bool NeoPixelBusModule::deferKo(GroupObject& ko, uint16_t koNumber)
 {
     // NeoPixel input KOs: the module block (400..; the strip block from 500 has no inputs that are
     // processed) and the segment blocks up to the last channel
+    const bool colourKo = NEOC_KoCalcChannel(koNumber) >= 0;
     const bool segmentKo = koNumber >= NEO_KoBlockOffset && koNumber < NEO_KoBlockOffset + NEO_ChannelCount * NEO_KoBlockSize;
 #ifdef NEOSTRIP_KoOffset
     const bool moduleKo = koNumber >= NEO_KoPower && koNumber < NEOSTRIP_KoOffset;
 #else
     const bool moduleKo = koNumber >= NEO_KoPower && koNumber < NEO_KoBlockOffset;
 #endif
-    if (!(segmentKo || moduleKo) || !ko.writeEnable()) return false;
+    if (!(segmentKo || moduleKo || colourKo) || !ko.writeEnable()) return false;
     const int koIndex = segmentKo ? (int)((koNumber - NEO_KoBlockOffset) % NEO_KoBlockSize) : -1;
     const size_t channel = segmentKo ? (size_t)((koNumber - NEO_KoBlockOffset) / NEO_KoBlockSize) : 0;
+
+    if (!_startupRestoreDone && colourKo && (koNumber - NEOC_KoBlockOffset) % NEOC_KoBlockSize == NEOC_KoCCTRel) return false;
 
     // DPT 3.007 start/stop dimming has no meaning without its timing: drop it during the delay
     if (!_startupRestoreDone &&
@@ -1058,6 +1066,16 @@ bool NeoPixelBusModule::syncSegmentStatusItem(size_t segmentIndex, uint8_t item,
             // 0 = gestoppt, 1 = läuft, 2 = pausiert
             sent = writeStatus(KoNEO_EmRunState, cfg.emController.runState(), DPT_Value_1_Ucount, mode);
 #endif
+            break;
+        case kSegSecondaryRgb:
+            sent = writeStatus(knx.getGroupObject(NEOC_KoCalcNumber(NEOC_KoSecondaryRGBState)),
+                               uint32_t(seg->getSecondaryColor() >> 8), DPT_Colour_RGB, mode);
+            break;
+        case kSegSecondaryWW:
+            sent = writeStatus(knx.getGroupObject(NEOC_KoCalcNumber(NEOC_KoSecondaryWWState)), seg->getConfig().ww2(), DPT_Value_1_Ucount, mode);
+            break;
+        case kSegSecondaryCW:
+            sent = writeStatus(knx.getGroupObject(NEOC_KoCalcNumber(NEOC_KoSecondaryCWState)), seg->getConfig().cw2(), DPT_Value_1_Ucount, mode);
             break;
         case kSegCct:
             // Kelvin is not derivable from the colour and not persisted: only after a CCT command.
@@ -1625,6 +1643,8 @@ void NeoPixelBusModule::processInputKo(GroupObject& ko)
     }
 #endif
 
+    if (processColourKo(ko, koNumber)) return;
+
     // Channel-specific KOs (segment-based) - Calculate which channel this KO belongs to
     int channel = NEO_KoCalcChannel(koNumber);
     if (channel >= 0)
@@ -1740,6 +1760,9 @@ void NeoPixelBusModule::processInputKo(GroupObject& ko)
                                                 koIndex == NEO_KoVRel || koIndex == NEO_KoHSVRel;
         }
 
+        if (_segments[channel].activeDimming == SegmentConfig::CCT && !segmentStatusKo && !dpt3Stop)
+            _segments[channel].activeDimming = SegmentConfig::NONE;
+
         switch (koIndex)
         {
             case NEO_KoR:
@@ -1795,37 +1818,7 @@ void NeoPixelBusModule::processInputKo(GroupObject& ko)
                 uint16_t cct = ko.value(Dpt(7, 600));
                 logInfoP("Segment %d CCT: %dK", channel, cct);
 
-                SegmentConfig& cfg = _segments[channel];
-
-                uint8_t r = 0;
-                uint8_t g = 0;
-                uint8_t b = 0;
-                uint8_t ww = 0;
-                uint8_t cw = 0;
-                if (_virtualStrip && _virtualStrip->hasDualWhiteChannel())
-                {
-                    // A true RGBCCT strip expresses colour temperature with
-                    // its warm and cool dies.  Their sum remains 255; segment
-                    // brightness controls the resulting light level.
-                    ProtocolHelper::kelvinToWWCW(cct, ww, cw);
-                }
-                else
-                {
-                    // RGB and RGBW strips cannot represent independent warm
-                    // and cool white channels.
-                    ColorHelper::kelvinToRGB(cct, r, g, b);
-                }
-                targetSegment->setPrimaryColor(r, g, b, ww, cw);
-
-                // Save color for effect restore
-                cfg.savedR = r;
-                cfg.savedG = g;
-                cfg.savedB = b;
-                cfg.savedWW = ww;
-                cfg.savedCW = cw;
-                cfg.savedValid = true;
-                cfg.savedLastWasEffect = false;
-                cfg.statusCctKelvin = cct; // reported by the CCT status item
+                applyCct(channel, cct);
                 break;
             }
 
@@ -1986,7 +1979,12 @@ void NeoPixelBusModule::processInputKo(GroupObject& ko)
                 cfg.savedValid = true;
 
                 // Always update primary color so running effects can use it immediately
-                targetSegment->setPrimaryColor(r, g, b, targetSegment->getConfig().ww(), targetSegment->getConfig().cw());
+                const auto& color = targetSegment->getConfig();
+                const uint16_t kelvin = color.primaryKelvin;
+                const bool clearWhite = ParamNEO_NEORgbClearsWhite;
+                targetSegment->setPrimaryColor(r, g, b, clearWhite ? 0 : color.ww(), clearWhite ? 0 : color.cw());
+                if (!clearWhite) targetSegment->getConfig().primaryKelvin = kelvin;
+                captureDirectColor(channel);
                 logInfoP("Segment %d: Updated primary color (RGB)", channel);
 
                 break;
@@ -3280,7 +3278,7 @@ bool NeoPixelBusModule::executeEmChainAction(uint8_t action, int arg1, int arg2)
     }
 }
 
-// Console EM/cue authoring: define one cue in _emData (params seeded with effect defaults).
+// Console EM/cue authoring: define one complete cue in _emData (params seeded with effect defaults).
 bool NeoPixelBusModule::executeCueSet(uint8_t emId, uint8_t cueNum, uint8_t effectId,
                                       uint16_t durSec, uint16_t fadeMs,
                                       uint8_t bri, uint8_t r, uint8_t g, uint8_t b)
@@ -3306,7 +3304,7 @@ bool NeoPixelBusModule::executeCueSet(uint8_t emId, uint8_t cueNum, uint8_t effe
             c.params[i] = (uint8_t)eff->getParameterDefault(i);
         }
     }
-    c.r = r; c.g = g; c.b = b; c.w = 0;
+    c.primary = CueColor{r, g, b, 0, 0};
     c.brightness  = bri;
     c.durationSec = durSec;
     c.fadeMs      = fadeMs;
@@ -3316,6 +3314,16 @@ bool NeoPixelBusModule::executeCueSet(uint8_t emId, uint8_t cueNum, uint8_t effe
     // and ScrollText renders its own DEFAULT_TEXT at render time when the text is truly empty.
     c.effectText[0] = '\0';
     if (cueNum > em.header.cueCount) em.header.cueCount = cueNum; // grow active cue count
+    return true;
+}
+
+bool NeoPixelBusModule::executeCueColor(uint8_t emId, uint8_t cueNum, uint8_t colour, const CueColor& value)
+{
+    if (!_emData || emId < 1 || emId > EM_COUNT || cueNum < 1 || cueNum > _emData[emId - 1].header.cueCount ||
+        cueNum > EM_CUE_COUNT || colour < 1 || colour > 2) return false;
+    auto& cue = _emData[emId - 1].cues[cueNum - 1];
+    if (colour == 1) cue.primary = value;
+    else cue.secondary = value;
     return true;
 }
 
@@ -3355,7 +3363,7 @@ bool NeoPixelBusModule::executeCueText(uint8_t emId, uint8_t cueNum, const char*
 
     // Text longer than the 14-byte cue field is kept in a RAM side-store and re-applied to
     // the segment whenever this cue is active (applyCueLongText), so Scroll Text can show the
-    // full string (~240 chars) even though the ETS-mirrored cue itself only holds 13.
+    // full string (~240 chars) even though the ETS cue text holds fourteen characters.
     const uint16_t key = ((uint16_t)emId << 8) | cueNum;
     if (strlen(t) > sizeof(c.effectText) - 1)
         _cueLongText[key] = t;
@@ -3995,6 +4003,7 @@ void NeoPixelBusModule::configureFromETS(bool physicalOnly)
             const uint8_t voltageParam = (uint8_t)ParamNEOSTRIP_NEOVoltage;
             const uint8_t voltage = voltageParam == 1 ? 12 : voltageParam == 2 ? 24 : 5;
             phys->setVoltage(voltage);
+            phys->setCctRange(ParamNEOSTRIP_NEOWarmKelvin, ParamNEOSTRIP_NEOCoolKelvin);
             logInfoP("Strip %d: Supply voltage set to %u V", i, voltage);
 
             _totalLeds += pixels;
@@ -4197,270 +4206,25 @@ void NeoPixelBusModule::loadEffektManagerFromETS()
         return effectType;
     };
 
-    auto clearCue = [](EffektCue& cue) {
-        cue.effectId = 0;
-        for (uint8_t i = 0; i < EM_PARAM_COUNT; ++i)
-            cue.params[i] = 0;
-        cue.r = 0;
-        cue.g = 0;
-        cue.b = 0;
-        cue.w = 0;
-        cue.brightness = 0;
-        cue.durationSec = 0;
-        cue.fadeMs = 0;
-        cue.cueName[0] = '\0';
-        cue.effectText[0] = '\0';
-    };
-
     auto loadCueFromEts = [&](uint8_t cueIndex, EffektCue& cue) {
-        uint8_t effect = 0;
-        uint8_t p0 = 0;
-        uint8_t p1 = 0;
-        uint8_t p2 = 0;
-        uint8_t p3 = 0;
-        uint8_t p4 = 0;
-        uint8_t p5 = 0;
-        uint8_t p6 = 0;
-        uint8_t p7 = 0;
-        uint8_t p8 = 0;
-        uint8_t p9 = 0;
-        uint32_t color = 0;
-        uint8_t w = 0;
-        uint8_t brightness = 0;
-        uint16_t duration = 0;
-        uint16_t fade = 0;
-        std::string cueName;
-        std::string effectText;
-
-        switch (cueIndex)
-        {
-            case 0:
-                effect = (uint8_t)ParamNEOEM_NEOEMCue1Effect;
-                p0 = (uint8_t)ParamNEOEM_NEOEMCue1Param0;
-                p1 = (uint8_t)ParamNEOEM_NEOEMCue1Param1;
-                p2 = (uint8_t)ParamNEOEM_NEOEMCue1Param2;
-                p3 = (uint8_t)ParamNEOEM_NEOEMCue1Param3;
-                p4 = (uint8_t)ParamNEOEM_NEOEMCue1Param4;
-                p5 = (uint8_t)ParamNEOEM_NEOEMCue1Param5;
-                p6 = (uint8_t)ParamNEOEM_NEOEMCue1Param6;
-                p7 = (uint8_t)ParamNEOEM_NEOEMCue1Param7;
-                p8 = (uint8_t)ParamNEOEM_NEOEMCue1Param8;
-                p9 = (uint8_t)ParamNEOEM_NEOEMCue1Param9;
-                color = (uint32_t)ParamNEOEM_NEOEMCue1Color;
-                w = (uint8_t)ParamNEOEM_NEOEMCue1W;
-                brightness = (uint8_t)ParamNEOEM_NEOEMCue1Brightness;
-                duration = (uint16_t)ParamNEOEM_NEOEMCue1Duration;
-                fade = (uint16_t)ParamNEOEM_NEOEMCue1Fade;
-                cueName = ParamNEOEM_NEOEMCue1TextStr;
-                effectText = ParamNEOEM_NEOEMCue1EffectTextStr;
-                break;
-            case 1:
-                effect = (uint8_t)ParamNEOEM_NEOEMCue2Effect;
-                p0 = (uint8_t)ParamNEOEM_NEOEMCue2Param0;
-                p1 = (uint8_t)ParamNEOEM_NEOEMCue2Param1;
-                p2 = (uint8_t)ParamNEOEM_NEOEMCue2Param2;
-                p3 = (uint8_t)ParamNEOEM_NEOEMCue2Param3;
-                p4 = (uint8_t)ParamNEOEM_NEOEMCue2Param4;
-                p5 = (uint8_t)ParamNEOEM_NEOEMCue2Param5;
-                p6 = (uint8_t)ParamNEOEM_NEOEMCue2Param6;
-                p7 = (uint8_t)ParamNEOEM_NEOEMCue2Param7;
-                p8 = (uint8_t)ParamNEOEM_NEOEMCue2Param8;
-                p9 = (uint8_t)ParamNEOEM_NEOEMCue2Param9;
-                color = (uint32_t)ParamNEOEM_NEOEMCue2Color;
-                w = (uint8_t)ParamNEOEM_NEOEMCue2W;
-                brightness = (uint8_t)ParamNEOEM_NEOEMCue2Brightness;
-                duration = (uint16_t)ParamNEOEM_NEOEMCue2Duration;
-                fade = (uint16_t)ParamNEOEM_NEOEMCue2Fade;
-                cueName = ParamNEOEM_NEOEMCue2TextStr;
-                effectText = ParamNEOEM_NEOEMCue2EffectTextStr;
-                break;
-            case 2:
-                effect = (uint8_t)ParamNEOEM_NEOEMCue3Effect;
-                p0 = (uint8_t)ParamNEOEM_NEOEMCue3Param0;
-                p1 = (uint8_t)ParamNEOEM_NEOEMCue3Param1;
-                p2 = (uint8_t)ParamNEOEM_NEOEMCue3Param2;
-                p3 = (uint8_t)ParamNEOEM_NEOEMCue3Param3;
-                p4 = (uint8_t)ParamNEOEM_NEOEMCue3Param4;
-                p5 = (uint8_t)ParamNEOEM_NEOEMCue3Param5;
-                p6 = (uint8_t)ParamNEOEM_NEOEMCue3Param6;
-                p7 = (uint8_t)ParamNEOEM_NEOEMCue3Param7;
-                p8 = (uint8_t)ParamNEOEM_NEOEMCue3Param8;
-                p9 = (uint8_t)ParamNEOEM_NEOEMCue3Param9;
-                color = (uint32_t)ParamNEOEM_NEOEMCue3Color;
-                w = (uint8_t)ParamNEOEM_NEOEMCue3W;
-                brightness = (uint8_t)ParamNEOEM_NEOEMCue3Brightness;
-                duration = (uint16_t)ParamNEOEM_NEOEMCue3Duration;
-                fade = (uint16_t)ParamNEOEM_NEOEMCue3Fade;
-                cueName = ParamNEOEM_NEOEMCue3TextStr;
-                effectText = ParamNEOEM_NEOEMCue3EffectTextStr;
-                break;
-            case 3:
-                effect = (uint8_t)ParamNEOEM_NEOEMCue4Effect;
-                p0 = (uint8_t)ParamNEOEM_NEOEMCue4Param0;
-                p1 = (uint8_t)ParamNEOEM_NEOEMCue4Param1;
-                p2 = (uint8_t)ParamNEOEM_NEOEMCue4Param2;
-                p3 = (uint8_t)ParamNEOEM_NEOEMCue4Param3;
-                p4 = (uint8_t)ParamNEOEM_NEOEMCue4Param4;
-                p5 = (uint8_t)ParamNEOEM_NEOEMCue4Param5;
-                p6 = (uint8_t)ParamNEOEM_NEOEMCue4Param6;
-                p7 = (uint8_t)ParamNEOEM_NEOEMCue4Param7;
-                p8 = (uint8_t)ParamNEOEM_NEOEMCue4Param8;
-                p9 = (uint8_t)ParamNEOEM_NEOEMCue4Param9;
-                color = (uint32_t)ParamNEOEM_NEOEMCue4Color;
-                w = (uint8_t)ParamNEOEM_NEOEMCue4W;
-                brightness = (uint8_t)ParamNEOEM_NEOEMCue4Brightness;
-                duration = (uint16_t)ParamNEOEM_NEOEMCue4Duration;
-                fade = (uint16_t)ParamNEOEM_NEOEMCue4Fade;
-                cueName = ParamNEOEM_NEOEMCue4TextStr;
-                effectText = ParamNEOEM_NEOEMCue4EffectTextStr;
-                break;
-            case 4:
-                effect = (uint8_t)ParamNEOEM_NEOEMCue5Effect;
-                p0 = (uint8_t)ParamNEOEM_NEOEMCue5Param0;
-                p1 = (uint8_t)ParamNEOEM_NEOEMCue5Param1;
-                p2 = (uint8_t)ParamNEOEM_NEOEMCue5Param2;
-                p3 = (uint8_t)ParamNEOEM_NEOEMCue5Param3;
-                p4 = (uint8_t)ParamNEOEM_NEOEMCue5Param4;
-                p5 = (uint8_t)ParamNEOEM_NEOEMCue5Param5;
-                p6 = (uint8_t)ParamNEOEM_NEOEMCue5Param6;
-                p7 = (uint8_t)ParamNEOEM_NEOEMCue5Param7;
-                p8 = (uint8_t)ParamNEOEM_NEOEMCue5Param8;
-                p9 = (uint8_t)ParamNEOEM_NEOEMCue5Param9;
-                color = (uint32_t)ParamNEOEM_NEOEMCue5Color;
-                w = (uint8_t)ParamNEOEM_NEOEMCue5W;
-                brightness = (uint8_t)ParamNEOEM_NEOEMCue5Brightness;
-                duration = (uint16_t)ParamNEOEM_NEOEMCue5Duration;
-                fade = (uint16_t)ParamNEOEM_NEOEMCue5Fade;
-                cueName = ParamNEOEM_NEOEMCue5TextStr;
-                effectText = ParamNEOEM_NEOEMCue5EffectTextStr;
-                break;
-            case 5:
-                effect = (uint8_t)ParamNEOEM_NEOEMCue6Effect;
-                p0 = (uint8_t)ParamNEOEM_NEOEMCue6Param0;
-                p1 = (uint8_t)ParamNEOEM_NEOEMCue6Param1;
-                p2 = (uint8_t)ParamNEOEM_NEOEMCue6Param2;
-                p3 = (uint8_t)ParamNEOEM_NEOEMCue6Param3;
-                p4 = (uint8_t)ParamNEOEM_NEOEMCue6Param4;
-                p5 = (uint8_t)ParamNEOEM_NEOEMCue6Param5;
-                p6 = (uint8_t)ParamNEOEM_NEOEMCue6Param6;
-                p7 = (uint8_t)ParamNEOEM_NEOEMCue6Param7;
-                p8 = (uint8_t)ParamNEOEM_NEOEMCue6Param8;
-                p9 = (uint8_t)ParamNEOEM_NEOEMCue6Param9;
-                color = (uint32_t)ParamNEOEM_NEOEMCue6Color;
-                w = (uint8_t)ParamNEOEM_NEOEMCue6W;
-                brightness = (uint8_t)ParamNEOEM_NEOEMCue6Brightness;
-                duration = (uint16_t)ParamNEOEM_NEOEMCue6Duration;
-                fade = (uint16_t)ParamNEOEM_NEOEMCue6Fade;
-                cueName = ParamNEOEM_NEOEMCue6TextStr;
-                effectText = ParamNEOEM_NEOEMCue6EffectTextStr;
-                break;
-            case 6:
-                effect = (uint8_t)ParamNEOEM_NEOEMCue7Effect;
-                p0 = (uint8_t)ParamNEOEM_NEOEMCue7Param0;
-                p1 = (uint8_t)ParamNEOEM_NEOEMCue7Param1;
-                p2 = (uint8_t)ParamNEOEM_NEOEMCue7Param2;
-                p3 = (uint8_t)ParamNEOEM_NEOEMCue7Param3;
-                p4 = (uint8_t)ParamNEOEM_NEOEMCue7Param4;
-                p5 = (uint8_t)ParamNEOEM_NEOEMCue7Param5;
-                p6 = (uint8_t)ParamNEOEM_NEOEMCue7Param6;
-                p7 = (uint8_t)ParamNEOEM_NEOEMCue7Param7;
-                p8 = (uint8_t)ParamNEOEM_NEOEMCue7Param8;
-                p9 = (uint8_t)ParamNEOEM_NEOEMCue7Param9;
-                color = (uint32_t)ParamNEOEM_NEOEMCue7Color;
-                w = (uint8_t)ParamNEOEM_NEOEMCue7W;
-                brightness = (uint8_t)ParamNEOEM_NEOEMCue7Brightness;
-                duration = (uint16_t)ParamNEOEM_NEOEMCue7Duration;
-                fade = (uint16_t)ParamNEOEM_NEOEMCue7Fade;
-                cueName = ParamNEOEM_NEOEMCue7TextStr;
-                effectText = ParamNEOEM_NEOEMCue7EffectTextStr;
-                break;
-            case 7:
-                effect = (uint8_t)ParamNEOEM_NEOEMCue8Effect;
-                p0 = (uint8_t)ParamNEOEM_NEOEMCue8Param0;
-                p1 = (uint8_t)ParamNEOEM_NEOEMCue8Param1;
-                p2 = (uint8_t)ParamNEOEM_NEOEMCue8Param2;
-                p3 = (uint8_t)ParamNEOEM_NEOEMCue8Param3;
-                p4 = (uint8_t)ParamNEOEM_NEOEMCue8Param4;
-                p5 = (uint8_t)ParamNEOEM_NEOEMCue8Param5;
-                p6 = (uint8_t)ParamNEOEM_NEOEMCue8Param6;
-                p7 = (uint8_t)ParamNEOEM_NEOEMCue8Param7;
-                p8 = (uint8_t)ParamNEOEM_NEOEMCue8Param8;
-                p9 = (uint8_t)ParamNEOEM_NEOEMCue8Param9;
-                color = (uint32_t)ParamNEOEM_NEOEMCue8Color;
-                w = (uint8_t)ParamNEOEM_NEOEMCue8W;
-                brightness = (uint8_t)ParamNEOEM_NEOEMCue8Brightness;
-                duration = (uint16_t)ParamNEOEM_NEOEMCue8Duration;
-                fade = (uint16_t)ParamNEOEM_NEOEMCue8Fade;
-                cueName = ParamNEOEM_NEOEMCue8TextStr;
-                effectText = ParamNEOEM_NEOEMCue8EffectTextStr;
-                break;
-            case 8:
-                effect = (uint8_t)ParamNEOEM_NEOEMCue9Effect;
-                p0 = (uint8_t)ParamNEOEM_NEOEMCue9Param0;
-                p1 = (uint8_t)ParamNEOEM_NEOEMCue9Param1;
-                p2 = (uint8_t)ParamNEOEM_NEOEMCue9Param2;
-                p3 = (uint8_t)ParamNEOEM_NEOEMCue9Param3;
-                p4 = (uint8_t)ParamNEOEM_NEOEMCue9Param4;
-                p5 = (uint8_t)ParamNEOEM_NEOEMCue9Param5;
-                p6 = (uint8_t)ParamNEOEM_NEOEMCue9Param6;
-                p7 = (uint8_t)ParamNEOEM_NEOEMCue9Param7;
-                p8 = (uint8_t)ParamNEOEM_NEOEMCue9Param8;
-                p9 = (uint8_t)ParamNEOEM_NEOEMCue9Param9;
-                color = (uint32_t)ParamNEOEM_NEOEMCue9Color;
-                w = (uint8_t)ParamNEOEM_NEOEMCue9W;
-                brightness = (uint8_t)ParamNEOEM_NEOEMCue9Brightness;
-                duration = (uint16_t)ParamNEOEM_NEOEMCue9Duration;
-                fade = (uint16_t)ParamNEOEM_NEOEMCue9Fade;
-                cueName = ParamNEOEM_NEOEMCue9TextStr;
-                effectText = ParamNEOEM_NEOEMCue9EffectTextStr;
-                break;
-            case 9:
-                effect = (uint8_t)ParamNEOEM_NEOEMCue10Effect;
-                p0 = (uint8_t)ParamNEOEM_NEOEMCue10Param0;
-                p1 = (uint8_t)ParamNEOEM_NEOEMCue10Param1;
-                p2 = (uint8_t)ParamNEOEM_NEOEMCue10Param2;
-                p3 = (uint8_t)ParamNEOEM_NEOEMCue10Param3;
-                p4 = (uint8_t)ParamNEOEM_NEOEMCue10Param4;
-                p5 = (uint8_t)ParamNEOEM_NEOEMCue10Param5;
-                p6 = (uint8_t)ParamNEOEM_NEOEMCue10Param6;
-                p7 = (uint8_t)ParamNEOEM_NEOEMCue10Param7;
-                p8 = (uint8_t)ParamNEOEM_NEOEMCue10Param8;
-                p9 = (uint8_t)ParamNEOEM_NEOEMCue10Param9;
-                color = (uint32_t)ParamNEOEM_NEOEMCue10Color;
-                w = (uint8_t)ParamNEOEM_NEOEMCue10W;
-                brightness = (uint8_t)ParamNEOEM_NEOEMCue10Brightness;
-                duration = (uint16_t)ParamNEOEM_NEOEMCue10Duration;
-                fade = (uint16_t)ParamNEOEM_NEOEMCue10Fade;
-                cueName = ParamNEOEM_NEOEMCue10TextStr;
-                effectText = ParamNEOEM_NEOEMCue10EffectTextStr;
-                break;
-            default:
-                clearCue(cue);
-                return;
-        }
-
-        cue.effectId = mapEtsEffectTypeToRuntimeIndex(effect);
-        cue.params[0] = p0;
-        cue.params[1] = p1;
-        cue.params[2] = p2;
-        cue.params[3] = p3;
-        cue.params[4] = p4;
-        cue.params[5] = p5;
-        cue.params[6] = p6;
-        cue.params[7] = p7;
-        cue.params[8] = p8;
-        cue.params[9] = p9;
-        cue.r = (uint8_t)((color >> 16) & 0xFFu);
-        cue.g = (uint8_t)((color >> 8) & 0xFFu);
-        cue.b = (uint8_t)(color & 0xFFu);
-        cue.w = w;
-        cue.brightness = brightness;
-        cue.durationSec = duration;
-        cue.fadeMs = fade;
-        std::memset(cue.cueName, 0, sizeof(cue.cueName));
-        std::strncpy(cue.cueName, cueName.c_str(), sizeof(cue.cueName) - 1);
-        std::memset(cue.effectText, 0, sizeof(cue.effectText));
-        std::strncpy(cue.effectText, effectText.c_str(), sizeof(cue.effectText) - 1);
+        cue = EffektCue{};
+        const uint16_t stride = NEOEM_NEOEMCue2Effect - NEOEM_NEOEMCue1Effect;
+        const uint16_t shift = cueIndex * stride;
+        auto byte = [&](uint16_t field) { return knx.paramByte(NEOEM_ParamCalcIndex(field + shift)); };
+        auto colour = [&](uint16_t field) {
+            return CueColor{byte(field), byte(field + 1), byte(field + 2), byte(field + 3), byte(field + 4)};
+        };
+        cue.effectId = mapEtsEffectTypeToRuntimeIndex(byte(NEOEM_NEOEMCue1Effect));
+        for (uint8_t i = 0; i < EM_PARAM_COUNT; ++i)
+            cue.params[i] = byte(NEOEM_NEOEMCue1Param0 + i);
+        cue.primary = colour(NEOEM_NEOEMCue1PrimaryColor);
+        cue.secondary = colour(NEOEM_NEOEMCue1SecondaryColor);
+        cue.brightness = byte(NEOEM_NEOEMCue1Brightness);
+        cue.durationSec = knx.paramWord(NEOEM_ParamCalcIndex(NEOEM_NEOEMCue1Duration + shift));
+        cue.fadeMs = knx.paramWord(NEOEM_ParamCalcIndex(NEOEM_NEOEMCue1Fade + shift));
+        static_assert(NEOEM_NEOEMCue1TextLength < EM_TEXT_LEN && NEOEM_NEOEMCue1EffectTextLength < EM_TEXT_LEN, "Cue text buffers must include a terminator");
+        std::memcpy(cue.cueName, knx.paramData(NEOEM_ParamCalcIndex(NEOEM_NEOEMCue1Text + shift)), NEOEM_NEOEMCue1TextLength);
+        std::memcpy(cue.effectText, knx.paramData(NEOEM_ParamCalcIndex(NEOEM_NEOEMCue1EffectText + shift)), NEOEM_NEOEMCue1EffectTextLength);
     };
 
     if (!_emData) return; // EM table not allocated (out of memory) -> nothing to load
@@ -4471,13 +4235,10 @@ void NeoPixelBusModule::loadEffektManagerFromETS()
         _channelIndex = em;
 
         auto& data = _emData[em];
-        std::memset(&data, 0, sizeof(data));
-
-        // EM-Beschreibung ist ETS-only (nicht gespeichert) -> nicht aufs Geraet uebernehmen.
-        // header.reserved[0-15] bleibt 0 (memset oben).
+        data = EffektManagerData{};
 
         uint8_t cueCount = (uint8_t)ParamNEOEM_NEOEMCueCount;
-        if (cueCount > 10) cueCount = 10;
+        if (cueCount > EM_CUE_COUNT) cueCount = EM_CUE_COUNT;
         data.header.cueCount = cueCount;
         data.header.loop = ParamNEOEM_NEOEMLoop ? 1 : 0;
 
@@ -4485,21 +4246,15 @@ void NeoPixelBusModule::loadEffektManagerFromETS()
         data.header.nextEmId = (nextEm <= EM_COUNT) ? nextEm : EM_NONE;
         data.header.enabled = (uint8_t)ParamNEOEM_NEOEMEnabled;
 
-        for (uint8_t cue = 0; cue < 10; ++cue)
-        {
+        for (uint8_t cue = 0; cue < EM_CUE_COUNT; ++cue)
             loadCueFromEts(cue, data.cues[cue]);
-        }
-        for (uint8_t cue = 10; cue < EM_CUE_COUNT; ++cue)
-        {
-            clearCue(data.cues[cue]);
-        }
     }
     _channelIndex = oldChannel;
 
     logInfoP("Loaded %d Effektmanager definitions from ETS", (int)EM_COUNT);
 #else
     if (!_emData) return; // EM table not allocated (out of memory)
-    std::memset(_emData, 0, EM_COUNT * sizeof(EffektManagerData));
+    for (uint8_t em = 0; em < EM_COUNT; ++em) _emData[em] = EffektManagerData{};
     logWarningP("NEOEM parameter block missing - Effektmanager disabled");
 #endif
 }
@@ -5560,45 +5315,53 @@ void NeoPixelBusModule::updateHclTransformContext()
 
     refreshHclMasterStateCache();
 
-    // Register HCL pixel transformation callback only if at least one source is configured.
-    bool hclActive = false;
-    if (_hclTransformContext.globalHclConfig.lightManagerMaster > 0)
-    {
-        hclActive = true;
-    }
-    else
-    {
-        for (const auto& segCfg : _hclTransformContext.segmentConfigs)
+    // CCT and HCL run per physical output so duplicate mappings can use different LEDs.
+    _virtualStrip->setOutputTransformCallback([](uint16_t pixel, PhysicalStrip* strip, uint8_t& r, uint8_t& g, uint8_t& b,
+                                                uint8_t& ww, uint8_t& cw, void* context) {
+        auto& module = *static_cast<NeoPixelBusModule*>(context);
+        if (pixel >= module._hclTransformContext.pixelToSegmentIndex.size()) return;
+        const uint8_t index = module._hclTransformContext.pixelToSegmentIndex[pixel];
+        if (index >= module._segments.size() || !module._segments[index].segment) return;
+#if defined(OPENKNX_WEBSERVER) && (defined(KNX_IP_LAN) || defined(KNX_IP_WIFI))
+        if (module._studio && module._studio->_testSegment == index) return;
+#endif
+        const uint16_t kelvin = module._segments[index].segment->getConfig().primaryKelvin;
+        if (kelvin && strip->hasDualWhiteChannel())
         {
-            if (segCfg.hclMode == NeoHclMode::Custom && segCfg.customHclConfig.lightManagerMaster > 0)
-            {
-                hclActive = true;
-                break;
-            }
+            uint8_t warm, cool;
+            ProtocolHelper::kelvinToWWCW(kelvin, warm, cool, strip->getWarmKelvin(), strip->getCoolKelvin());
+            const uint16_t level = uint16_t(ww) + cw;
+            ww = std::min<uint32_t>(255, (uint32_t(level) * warm + 127) / 255);
+            cw = std::min<uint32_t>(255, (uint32_t(level) * cool + 127) / 255);
         }
-    }
+        else if (kelvin && module._virtualStrip->hasDualWhiteChannel())
+        {
+            // An RGB/RGBW output in a mixed virtual strip approximates the target via RGB.
+            uint8_t kr, kg, kb;
+            ColorHelper::kelvinToRGB(kelvin, kr, kg, kb);
+            const uint16_t level = std::min<uint16_t>(255, uint16_t(ww) + cw);
+            r = std::min<uint16_t>(255, r + uint16_t(kr) * level / 255);
+            g = std::min<uint16_t>(255, g + uint16_t(kg) * level / 255);
+            b = std::min<uint16_t>(255, b + uint16_t(kb) * level / 255);
+            ww = cw = 0;
+        }
+        HclPixelTransform::CallbackForOutput(pixel, r, g, b,
+            strip->hasWhiteChannel() ? &ww : nullptr, strip->hasDualWhiteChannel() ? &cw : nullptr,
+            &module._hclTransformContext, strip->getWarmKelvin(), strip->getCoolKelvin());
+    }, this);
 
 #if defined(OPENKNX_WEBSERVER) && (defined(KNX_IP_LAN) || defined(KNX_IP_WIFI))
     if (_studio && _studio->_testSegment >= 0)
     {
         _virtualStrip->setPixelTransformCallback([](uint16_t pixel, uint8_t& r, uint8_t& g, uint8_t& b, uint8_t* ww, uint8_t* cw, void* context) {
             auto& module = *static_cast<NeoPixelBusModule*>(context);
-            if (!module._studio->transformTestPixel(pixel, r, g, b, ww, cw))
-                HclPixelTransform::Callback(pixel, r, g, b, ww, cw, &module._hclTransformContext);
+            module._studio->transformTestPixel(pixel, r, g, b, ww, cw);
         }, this);
     }
     else
 #endif
-    if (hclActive)
-    {
-        _virtualStrip->setPixelTransformCallback(HclPixelTransform::Callback, &_hclTransformContext);
-        logInfoP("HCL pixel transformation callback registered (LightManager-backed, %d segments)", _hclTransformContext.segments.size());
-    }
-    else
-    {
         _virtualStrip->setPixelTransformCallback(nullptr, nullptr);
-        logInfoP("HCL pixel transformation callback NOT registered (no LightManager source configured)");
-    }
+
 }
 
 // =============================================================================
@@ -6781,6 +6544,8 @@ void NeoPixelBusModule::captureDirectColor(size_t segmentIndex)
     cfg.savedG = (primary >> 16) & 0xFF;
     cfg.savedB = (primary >> 8) & 0xFF;
     cfg.savedWW = primary & 0xFF;
+    cfg.savedKelvin = cfg.segment->getConfig().primaryKelvin;
+    cfg.statusCctKelvin = cfg.savedKelvin;
     cfg.savedCW = cfg.segment->getConfig().cw(); // RGBCCT: the 5th channel is not in primary
     const auto& secondary = cfg.segment->getConfig();
     cfg.savedSecondaryR = secondary.r2(); cfg.savedSecondaryG = secondary.g2(); cfg.savedSecondaryB = secondary.b2();
@@ -7090,4 +6855,115 @@ void NeoPixelBusModule::sendEffectTextStatusKO(size_t segmentIndex)
     if (!_statusSeeded || segmentIndex >= _segments.size()) return;
     queueStatusItem(static_cast<uint8_t>(1 + segmentIndex), kSegEffectText, true);
 #endif
+}
+
+// The shared range is the intersection of native outputs covering the segment. If ranges
+// do not overlap, keep the first output's range and clamp each physical output individually.
+void NeoPixelBusModule::cctRange(size_t index, uint16_t& warm, uint16_t& cool) const
+{
+    warm = 2700;
+    cool = 6500;
+    if (index >= _segments.size() || !_segments[index].segment) return;
+    const auto* segment = _segments[index].segment;
+    bool found = false;
+    uint16_t firstWarm = warm, firstCool = cool;
+    for (const auto& mapping : _virtualStripConfiguration)
+    {
+        if (mapping.physicalStripIndex >= _physicalStrips.size() || !mapping.ledCount) continue;
+        const auto* strip = _physicalStrips[mapping.physicalStripIndex];
+        if (!strip || !strip->hasDualWhiteChannel() ||
+            segment->getEndLed() < mapping.virtualStartPosition ||
+            segment->getStartLed() >= uint32_t(mapping.virtualStartPosition) + mapping.ledCount) continue;
+        if (!found)
+        {
+            warm = strip->getWarmKelvin();
+            cool = strip->getCoolKelvin();
+            firstWarm = warm;
+            firstCool = cool;
+            found = true;
+        }
+        else
+        {
+            warm = std::max(warm, strip->getWarmKelvin());
+            cool = std::min(cool, strip->getCoolKelvin());
+        }
+    }
+    if (warm >= cool) { warm = firstWarm; cool = firstCool; }
+}
+
+void NeoPixelBusModule::applyCct(size_t index, uint16_t kelvin, uint8_t whiteLevel)
+{
+    if (index >= _segments.size() || !_segments[index].segment) return;
+    auto& cfg = _segments[index];
+    uint16_t warm, cool;
+    cctRange(index, warm, cool);
+    if (_virtualStrip && _virtualStrip->hasDualWhiteChannel()) kelvin = std::max(warm, std::min(cool, kelvin));
+    uint8_t r = 0, g = 0, b = 0, ww = 0, cw = 0;
+    if (_virtualStrip && _virtualStrip->hasDualWhiteChannel())
+    {
+        ProtocolHelper::kelvinToWWCW(kelvin, ww, cw, warm, cool);
+        cw = (uint16_t(cw) * whiteLevel + 127) / 255;
+        ww = whiteLevel - cw;
+    }
+    else
+        ColorHelper::kelvinToRGB(kelvin, r, g, b);
+    cfg.segment->setPrimaryColor(r, g, b, ww, cw);
+    cfg.segment->getConfig().primaryKelvin = kelvin;
+    cfg.savedLastWasEffect = false;
+    captureDirectColor(index);
+}
+
+bool NeoPixelBusModule::processColourKo(GroupObject& ko, uint16_t number)
+{
+    const int channel = NEOC_KoCalcChannel(number);
+    if (channel < 0) return false;
+    if (size_t(channel) >= _segments.size() || !_segments[channel].segment) return true;
+    auto& cfg = _segments[channel];
+    const uint8_t previous = _channelIndex;
+    _channelIndex = channel;
+    const int item = NEOC_KoCalcIndex(number);
+    const bool status = item == NEOC_KoSecondaryRGBState || item == NEOC_KoSecondaryWWState || item == NEOC_KoSecondaryCWState;
+    if (!status && !cfg.locked)
+    {
+        const uint8_t rel = ko.valueRef()[0] & 15;
+        const bool stop = item == NEOC_KoCCTRel && (rel & 7) == 0;
+        if (!stop)
+        {
+            interruptEmIfRunning(channel);
+            cfg.savedSceneNumber = 0;
+            cfg.activeDimming = SegmentConfig::NONE;
+            if (cfg.syncMode == 2) cfg.localOverride = true;
+        }
+        if (item == NEOC_KoCCTRel)
+        {
+            if (!stop)
+            {
+                uint16_t warm, cool;
+                cctRange(channel, warm, cool);
+                const auto& color = cfg.segment->getConfig();
+                const uint16_t sum = uint16_t(color.ww()) + color.cw();
+                cfg.dimmingCctLevel = sum ? std::min<uint16_t>(255, sum) : 255;
+                uint16_t kelvin = color.primaryKelvin;
+                if (!kelvin) kelvin = sum ? warm + (uint32_t(cool - warm) * color.cw()) / sum : (warm + cool) / 2;
+                cfg.dimmingCctPosition = uint32_t(std::max(warm, std::min(cool, kelvin)) - warm) * 255 / (cool - warm);
+            }
+            _segmentController->startStopDimming(channel, SegmentConfig::CCT, rel);
+        }
+        else
+        {
+            const auto& color = cfg.segment->getConfig();
+            uint32_t rgb = color.secondaryRGBW >> 8;
+            uint8_t ww = color.ww2(), cw = color.cw2();
+            if (item == NEOC_KoSecondaryRGB) rgb = ko.value(DPT_Colour_RGB);
+            if (item == NEOC_KoSecondaryWW) ww = ko.value(DPT_Value_1_Ucount);
+            if (item == NEOC_KoSecondaryCW) cw = ko.value(DPT_Value_1_Ucount);
+            if (!_virtualStrip || !_virtualStrip->hasDualWhiteChannel()) cw = 0;
+            cfg.segment->setSecondaryColor((rgb >> 16) & 255, (rgb >> 8) & 255, rgb & 255, ww, cw);
+            captureDirectColor(channel);
+        }
+        hideIfNotVisible(channel);
+        statusAfterCommand(channel + 1);
+    }
+    _channelIndex = previous;
+    return true;
 }

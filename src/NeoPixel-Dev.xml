@@ -10,11 +10,11 @@
        Common.share.xml sets its default -->
   <op:config name="%BASE_InfoLedPart%" value="../../../src/NeoPixel.hw.infoled.gen.xml" />
   <!-- Product version text (page "Allgemein"), per variant; keep it in sync with ApplicationVersion below. -->
-  <op:config name="%NEO_ProductVersion%" value="3.11" />
+  <op:config name="%NEO_ProductVersion%" value="3.12" />
   <op:ETS
     OpenKnxId="0xAD"
     ApplicationNumber="1"
-    ApplicationVersion="3.11"
+    ApplicationVersion="3.12"
     ReplacesVersionsDownTo="0.14"
     ApplicationRevision="0"
     ProductName="OpenKNX NeoPixel"
@@ -94,6 +94,10 @@
     configTransferName="NeoPixel Effektmanager"
     KoOffset="1860">
   </op:define>
+
+  <op:define prefix="NEOC" ModuleType="47" isSubmoduleOf="NEO"
+    share="NeoPixel.Colour.share.xml" template="NeoPixel.Colour.templ.xml"
+    NumChannels="16" KoOffset="2400" noConfigTransfer="true"/>
 
   <op:define prefix="FTM" ModuleType="13" share="../lib/OFM-FileTransferModule/src/FileTransfer.share.xml" />
   <!-- WiFi settings (operating mode, setup WiFi, own AP); shown with "WiFi-Schnittstelle: Ja", one knxprod for TP, LAN and WiFi -->
@@ -218,6 +222,7 @@
             </choose>
             <op:include href="../lib/OFM-LightManager/src/LightManagerModule.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="LMG" />
             <op:include href="NeoPixel.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="NEO" />
+            <op:include href="NeoPixel.Colour.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="NEOC"/>
           </Dynamic>
 </generate>
 </KNX>

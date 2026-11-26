@@ -684,7 +684,10 @@ void NeoPixelWeb::appendEm(std::string& j, uint8_t emId)
         const EffektCue& q = e.cues[k];
         j += k ? ",{\"n\":" : "{\"n\":";
         addJsonStr(j, q.cueName, sizeof(q.cueName));
-        addf(j, ",\"fx\":%u,\"c\":\"#%02x%02x%02x\",\"w\":%u,\"bri\":%u,\"d\":%u,\"f\":%u}", (unsigned)q.effectId, q.r, q.g, q.b, q.w,
+        addf(j, ",\"fx\":%u,\"primary\":{\"rgb\":\"#%02x%02x%02x\",\"ww\":%u,\"cw\":%u},"
+                "\"secondary\":{\"rgb\":\"#%02x%02x%02x\",\"ww\":%u,\"cw\":%u},\"bri\":%u,\"d\":%u,\"f\":%u}",
+             (unsigned)q.effectId, q.primary.r, q.primary.g, q.primary.b, q.primary.ww, q.primary.cw,
+             q.secondary.r, q.secondary.g, q.secondary.b, q.secondary.ww, q.secondary.cw,
              (unsigned)((q.brightness * 100 + 127) / 255), (unsigned)q.durationSec, (unsigned)q.fadeMs);
     }
     j += "]}";
