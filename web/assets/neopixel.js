@@ -614,7 +614,7 @@
       if (pw.mode !== 'off') curTxt = meter(P.load, P.active ? 'warn' : '', pw.thr) + '<b>' + fmt(P.gMa) + ' mA</b><em>/ ' + fmt(pw.lim) + ' mA · ' + P.load + ' %</em>';
       else curTxt = '<b>' + fmt(P.total) + ' mA</b><em>keine globale Grenze</em>';
     }
-    $('bar').innerHTML = '<div class="np-b"><span>Gerät</span>' + (b.power ? pill('ok', 'Ein') : pill('bad', 'Aus')) + '</div>' +
+    $('bar').innerHTML = '<div class="np-b"><span>Gerät</span>' + '<button type="button" id="global-power" class="np-pill np-power ' + (b.power ? 'ok' : 'warn') + '" ' + (Object.keys(LIVE.pend).some(function (k) { return LIVE.pend[k].f === 'globalPower'; }) ? 'disabled ' : '') + 'aria-pressed="' + !!b.power + '" aria-label="Global ' + (b.power ? 'ausschalten' : 'einschalten') + '" title="Global ' + (b.power ? 'ausschalten' : 'einschalten') + '"><i class="np-dot"></i>' + (b.power ? 'Ein' : 'Aus') + '</button>' + '</div>' +
       '<div class="np-b"><span>Helligkeit</span><b>' + b.bri + ' %</b></div>' +
       '<div class="np-b"><span>LEDs</span><b>' + fmt(sc.strips.reduce(function (a, s) { return a + s.leds; }, 0)) + '</b><em>' + sc.strips.length + ' Streifen · ' + b.layout + '</em></div>' +
       '<div class="np-b"><span>Bildrate</span><b class="' + (b.fps && b.fps < b.fpsT * .8 ? 'np-warn' : '') + '">' + (b.fps || '—') + '</b><em>/ ' + b.fpsT + ' fps</em></div>' +
@@ -940,7 +940,10 @@
       }
     });
   }
-  function ctlMsg(i, t) { var el = $('ctl-msg-' + i); if (el) el.textContent = t; }
+  function ctlMsg(i, t) {
+    var el = i === -1 ? $('global-power') : $('ctl-msg-' + i);
+    if (el) { if (i === -1) { el.title = t; el.disabled = t === 'Gesendet …'; } else el.textContent = t; }
+  }
   // One command to the device; its result arrives with a later /neo/state (cmds: [seq, result] of the last commands).
   function sendCtl(i, f, v) {
     var body = { segment: i + 1, function: f, value: v };
@@ -960,6 +963,12 @@
     if (s.ch.m === 2 && f !== 'lock' && !(f === 'dim' && +v === 0)) t += s.ch.pol === 1 ? ' Slave mit „Lokal hat Vorrang“: übernimmt keine Sync-Telegramme mehr bis zum Neustart.' : ' Slave mit „Sync übernimmt immer“: das nächste Sync-Telegramm überschreibt das wieder.';
     return t;
   }
+  $('bar').addEventListener('click', function (e) {
+    var button = e.target.closest('#global-power');
+    if (!button || button.disabled) return;
+    button.disabled = true;
+    sendCtl(-1, 'globalPower', sc.bar.power ? 0 : 1);
+  });
   $('ctl').addEventListener('click', function (e) {
     var g = e.target.closest('[data-emgo]'); if (g) { goEm(+g.dataset.emgo); return; }
     var t = e.target.closest('[data-tog]'); if (t && t.dataset.tog !== undefined) { ctlToggle(+t.dataset.tog); return; }

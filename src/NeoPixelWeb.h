@@ -61,6 +61,7 @@ class NeoPixelWeb
         kFnEmStop,
         kFnCue,
         kFnLock,
+        kFnGlobalPower,
         kFnCount
     };
 

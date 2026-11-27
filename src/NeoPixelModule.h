@@ -371,6 +371,7 @@ class NeoPixelBusModule : public OpenKNX::Module
     uint8_t _globalBrightness = 255; // Global brightness multiplier (0-255, default full)
 
     // Global Power Control
+    void setGlobalPower(bool powerState);
     bool _globalPowerOn = true; // Global power state (default ON)
 
 // External Relays (max derived from knxprod.h)

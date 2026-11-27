@@ -241,6 +241,13 @@ void NeoPixelWeb::executeCommands()
 uint8_t NeoPixelWeb::executeCommand(const Command& cmd)
 {
     NeoPixelBusModule& m = openknxNeoPixelModule;
+    if (cmd.function == kFnGlobalPower)
+    {
+        if (cmd.value != 0 && cmd.value != 1) return kResInvalid;
+        if (!m._startupRestoreDone) return kResInvalid;
+        m.setGlobalPower(cmd.value != 0);
+        return kResOk;
+    }
     if (cmd.segment >= m._segments.size() || cmd.segment >= NEO_ChannelCount || !m._segments[cmd.segment].segment) return kResInvalid;
     NeoPixelBusModule::SegmentConfig& cfg = m._segments[cmd.segment];
 
@@ -864,8 +871,8 @@ bool NeoPixelWeb::parseCommand(const char* body, size_t len, Command& cmd, const
     if (tl == 0 || !t || *t != '"' || strncmp(t + 1, token, tl) != 0 || t[1 + tl] != '"') return false;
     char* end = nullptr;
     const long seg = strtol(s, &end, 10);
-    if (end == s || seg < 1 || seg > 255) return false;
-    static const char* const names[kFnCount] = {"power", "bri", "dim", "rgb", "rgbw", "ww", "cw", "fx", "scene", "emStart", "emStop", "cue", "lock"};
+    if (end == s || seg < 0 || seg > 255) return false;
+    static const char* const names[kFnCount] = {"power", "bri", "dim", "rgb", "rgbw", "ww", "cw", "fx", "scene", "emStart", "emStop", "cue", "lock", "globalPower"};
     f++;
     int fn = -1;
     for (int k = 0; k < kFnCount; k++)
@@ -873,8 +880,8 @@ bool NeoPixelWeb::parseCommand(const char* body, size_t len, Command& cmd, const
         const size_t n = strlen(names[k]);
         if (strncmp(f, names[k], n) == 0 && f[n] == '"') fn = k;
     }
-    if (fn < 0) return false;
-    cmd.segment = (uint8_t)(seg - 1);
+    if (fn < 0 || (seg == 0 && fn != kFnGlobalPower) || (seg != 0 && fn == kFnGlobalPower)) return false;
+    cmd.segment = fn == kFnGlobalPower ? 0 : (uint8_t)(seg - 1);
     cmd.function = (uint8_t)fn;
     cmd.value = 0;
     cmd.color = 0;

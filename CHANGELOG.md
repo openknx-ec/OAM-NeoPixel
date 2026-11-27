@@ -1,5 +1,7 @@
 # Changes
 
+* Dev 3.13 / Release 1.11: global power buttons in the NeoPixel and Studio status bands. Studio switches global power live without applying segment drafts; existing KNX lock semantics remain in force.
+
 ## Next (ETS Dev 3.12 / Release 1.10)
 
 **Migration**

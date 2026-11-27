@@ -120,6 +120,7 @@
     function disabled() {
         const segment = current(), none = busy || !segment;
         const blocked = none || segment.locked || segment.detailsLoaded === false;
+        el('global-power').disabled = busy || !liveState?.ready;
         el('controls').disabled = blocked || segment.testing;
         el('commission-fields').disabled = blocked || segment.testing;
         root.querySelectorAll('[data-test]').forEach(b => { b.disabled = blocked || segment.em || !state.globalPower || (b.dataset.test === 'chase' && !effects.some(e => e.id === 1)) || (b.dataset.test === 'cycle' && !effects.some(e => e.id === 7)); });
@@ -350,6 +351,12 @@
         // The band shows the device, the inputs show the draft.
         const live = liveState?.segments.find(s => s.id === selected) || segment;
         const [cls, text, tip] = segState(live);
+        const globalOn = !!liveState.globalPower, globalButton = el('global-power');
+        globalButton.className = 'np-pill np-power ' + (globalOn ? 'ok' : 'warn');
+        globalButton.lastElementChild.textContent = globalOn ? 'Ein' : 'Aus';
+        globalButton.setAttribute('aria-pressed', String(globalOn));
+        globalButton.title = globalOn ? 'Global ausschalten' : 'Global einschalten';
+        globalButton.setAttribute('aria-label', globalButton.title);
         el('state').className = 'np-pill ' + cls; el('state').lastElementChild.textContent = text; el('state').title = tip;
         el('b-num').className = 'np-badge t' + (selected % 8); // same tone as the segment on /neo
         el('b-num').textContent = selected;
@@ -672,6 +679,7 @@
     el('auto-apply').addEventListener('change', () => setAutoApply(el('auto-apply').checked));
     el('mode').addEventListener('click', () => setAutoApply(!autoApply));
     el('apply').addEventListener('click', async () => { if (await stageCommissioning()) await sendCommand('batch', buildBatch()); });
+    el('global-power').addEventListener('click', () => sendCommand('globalPower', Number(!liveState.globalPower), { segment: 0 }));
     el('reset').addEventListener('click', () => {
         dirty.delete(selected); visualDirty.delete(selected); sceneActions.delete(selected); pickerMemory.clear(); signature = '';
         state.segments = state.segments.map(s => s.id === selected ? clone(liveState.segments.find(live => live.id === selected)) : s); render(true); status('Entwurf verworfen', 'ok', 3000);

@@ -25,6 +25,9 @@ until Studio is ready.
   RGBCCT splits the level between warm and cool white. The Kelvin control uses the configured hardware endpoints of the selected segment
   and maps them to that warm/cool ratio. The defaults are 2700–6500 K. On RGB-only output, the temperature is approximated by RGB.
   Actual colour depends on the LEDs. The white preview and swatch reflect both tone and white level.
+- The **Global** button in the top status band switches global output power immediately,
+  including in draft mode. Segment drafts and individual power choices are retained;
+  KNX locks keep their existing priority. The button reflects the confirmed device state.
 - Segment power switches output on/off without changing its hardware/power configuration.
   Existing global power, brightness, KNX locks and output limits continue to apply.
 
@@ -219,6 +222,9 @@ reimport the ETS product for these fields and the online buttons.
   colours, parameters, scenes and last result.
 - `POST /neopixel/api/control`: JSON command, maximum 4096 bytes. HTTP 202 acknowledges
   queueing; poll state for `completedId` and `error` to confirm execution.
+
+The standalone `globalPower` command uses `segment: 0` and `value: 0|1`; it switches
+the module immediately without applying drafts and cannot appear in a batch.
 
 Commands include effect, brightness, RGB/white channels, parameter, power,
 sceneRecall/sceneStore/sceneAdd/sceneDelete, save, load (reload live values) and

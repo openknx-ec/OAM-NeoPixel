@@ -213,6 +213,14 @@ std::string NeoPixelStudio::apply(const std::string& command)
 
 std::string NeoPixelStudio::applyDoc(const Reader& doc, bool validateOnly, uint8_t expectedEffect)
 {
+    if (doc.isObject() && doc.get("action").equals("globalPower"))
+    {
+        if (validateOnly) return "Globales Schalten lässt sich nicht verschachteln";
+        if (!integer(doc.get("value"), 0, 1)) return "Ungültiger globaler Ein/Aus-Wert";
+        if (!_testRestore.empty()) { const std::string error = stopTest(); if (!error.empty()) return error; }
+        _module.setGlobalPower(doc.get("value").toUInt() != 0);
+        return {};
+    }
     if (!doc.isObject() || !integer(doc.get("segment"), 1, _module._segments.size())) return "Unbekanntes Segment";
     const size_t index = static_cast<uint32_t>(doc.get("segment").toFloat()) - 1;
     auto& cfg = _module._segments[index];

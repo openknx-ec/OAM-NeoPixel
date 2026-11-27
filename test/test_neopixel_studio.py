@@ -106,6 +106,7 @@ struct NeoPixelBusModule {
     VirtualStrip* _virtualStrip=&strip;
     void cctRange(size_t, uint16_t& warm, uint16_t& cool) const { warm=2700;cool=6500; }
     int interrupts=0, captures=0, hides=0, statuses=0, syncs=0, restores=0;
+    void setGlobalPower(bool on) { _globalPowerOn=on; ++statuses; }
     void segmentOn(size_t i) { _segments[i].savedPower=1; if(!_segments[i].savedBrightness)_segments[i].savedBrightness=255; } void segmentOff(size_t i,bool) { _segments[i].savedPower=0; }
     struct SceneDouble {
         static constexpr uint8_t MAX_SCENES=10;
@@ -240,6 +241,17 @@ int main() {
     assert(segment.config.r()==oldR);
     assert(studio.apply(R"({"segment":1,"action":"batch","value":[{"segment":1,"action":"effect","value":1},{"segment":1,"action":"parameter","effect":1,"parameter":0,"value":33}]})").empty());
     assert(segment.params[0]==33);
+    cfg.locked=true;
+    const auto ownPowerBefore=cfg.savedPower;
+    assert(studio.apply(R"({"segment":0,"action":"globalPower","value":0})").empty());
+    assert(!module._globalPowerOn && cfg.savedPower==ownPowerBefore);
+    assert(studio.apply(R"({"segment":0,"action":"globalPower","value":1})").empty());
+    assert(module._globalPowerOn);
+    bad(R"({"segment":0,"action":"globalPower","value":2})");
+    cfg.locked=false;
+    bad(R"({"segment":1,"action":"batch","value":[{"segment":1,"action":"globalPower","value":0}]})");
+    assert(module._globalPowerOn);
+    cfg.locked=false;
     cfg.savedBrightness=0;
     assert(studio.apply(R"({"segment":1,"action":"power","value":1})").empty());
     assert(cfg.savedBrightness==0 && segment.master==0 && cfg.savedPower==1);

@@ -13,6 +13,7 @@ static const char kNeoPixelStudioHtml[] = "<link rel='stylesheet' href='/assets/
 <div class="np-note bad" id="studio-unconf" hidden></div>
 <div class="np-bar" id="studio-bar">
 <span class="np-b st-seg"><span>Segment</span><span class="st-sp"><button type="button" class="st-sp-btn" id="studio-segment" aria-haspopup="listbox" aria-expanded="false" title="Segment wählen"><b class="np-badge t1" id="studio-b-num">1</b><i aria-hidden="true">▾</i></button><span class="st-sp-pop" id="studio-seglist" role="listbox" aria-label="Segmente" hidden></span></span></span>
+<span class="np-b st-seg"><span>Global</span><button type="button" class="np-pill idle np-power" id="studio-global-power" aria-label="Global einschalten" aria-pressed="false" disabled><i class="np-dot"></i><span>Aus</span></button></span>
 <span class="np-b st-seg"><span>Zustand</span><span class="np-pill idle" id="studio-state"><i class="np-dot"></i><span></span></span></span>
 <span class="np-b st-seg st-hs"><span>Effekt</span><b id="studio-b-effect">–</b></span>
 <span class="np-b st-seg"><span>Helligkeit</span><b id="studio-b-bri">–</b></span>

@@ -1374,6 +1374,37 @@ void NeoPixelBusModule::processRelayTimers()
     }
 }
 
+void NeoPixelBusModule::setGlobalPower(bool powerState)
+{
+    // Update global power state flag
+    _globalPowerOn = powerState;
+
+    // Per segment, so a locked segment keeps running (lock has priority over global power).
+    if (powerState == false)
+    {
+        bool suspended = false;
+        for (size_t i = 0; i < _segments.size(); i++)
+        {
+            if (!_segments[i].segment || _segments[i].locked) continue;
+            globalSuspendSegment(i);
+            suspended = true;
+        }
+        if (suspended) showVirtualStripIfIdle(); // one frame for every cleared segment
+    }
+    else
+    {
+        for (size_t i = 0; i < _segments.size(); i++)
+        {
+            if (!_segments[i].segment || _segments[i].locked || !_segments[i].globalSuspended) continue;
+            globalResumeSegment(i);
+        }
+    }
+
+    // Status: module now; every segment's power status follows global power (paced)
+    statusAfterCommand(0);
+    if (_statusSeeded) queueAllSegmentStatus(false); // segments changed with the global value
+}
+
 void NeoPixelBusModule::processInputKo(GroupObject& ko)
 {
     // Get the KO number for routing to correct channel/segment
@@ -1557,33 +1588,7 @@ void NeoPixelBusModule::processInputKo(GroupObject& ko)
         bool powerState = ko.value(DPT_Switch);
         logInfoP("Global Power KO: %s", powerState ? "ON" : "OFF");
 
-        // Update global power state flag
-        _globalPowerOn = powerState;
-
-        // Per segment, so a locked segment keeps running (lock has priority over global power).
-        if (powerState == false)
-        {
-            bool suspended = false;
-            for (size_t i = 0; i < _segments.size(); i++)
-            {
-                if (!_segments[i].segment || _segments[i].locked) continue;
-                globalSuspendSegment(i);
-                suspended = true;
-            }
-            if (suspended) showVirtualStripIfIdle(); // one frame for every cleared segment
-        }
-        else
-        {
-            for (size_t i = 0; i < _segments.size(); i++)
-            {
-                if (!_segments[i].segment || _segments[i].locked || !_segments[i].globalSuspended) continue;
-                globalResumeSegment(i);
-            }
-        }
-
-        // Status: module now; every segment's power status follows global power (paced)
-        statusAfterCommand(0);
-        if (_statusSeeded) queueAllSegmentStatus(false); // segments changed with the global value
+        setGlobalPower(powerState);
         return;
     }
 

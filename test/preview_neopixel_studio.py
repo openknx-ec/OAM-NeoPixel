@@ -92,12 +92,12 @@ class Device:
         self.ets_segments = copy.deepcopy(self.state['segments'])
 
     def apply(self, command):
-        segment = next((s for s in self.state['segments'] if s['id'] == command.get('segment')), None)
+        segment = next((s for s in self.state['segments'] if s['id'] == (1 if command.get('action') == 'globalPower' else command.get('segment'))), None)
         if not segment:
             raise ValueError('Unknown segment')
         action, value = command.get('action'), command.get('value')
         if action == 'batch':
-            if not isinstance(value, list) or not 1 <= len(value) <= 32 or any(not isinstance(c,dict) or c.get('segment') != segment['id'] or c.get('action') in ('batch','save','load','restoreEts','commissioning','testStart','testStop') for c in value):
+            if not isinstance(value, list) or not 1 <= len(value) <= 32 or any(not isinstance(c,dict) or c.get('segment') != segment['id'] or c.get('action') in ('batch','save','load','restoreEts','commissioning','testStart','testStop','globalPower') for c in value):
                 raise ValueError('Invalid batch')
             original = copy.deepcopy(self.state)
             try:
@@ -105,6 +105,13 @@ class Device:
             except (ValueError, TypeError):
                 self.state = original
                 raise
+            return
+        if action == 'globalPower':
+            if type(value) is not int or value not in (0,1): raise ValueError('Invalid global power')
+            self.stop_test()
+            self.state['globalPower'] = bool(value)
+            for other in self.state['segments']:
+                if not other['locked']: other['power'] = other['ownPower'] and bool(value)
             return
         if action == 'load':
             return
