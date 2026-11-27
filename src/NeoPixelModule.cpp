@@ -775,18 +775,17 @@ bool NeoPixelBusModule::deferKo(GroupObject& ko, uint16_t koNumber)
 {
     // NeoPixel input KOs: the module block (400..; the strip block from 500 has no inputs that are
     // processed) and the segment blocks up to the last channel
-    const bool colourKo = NEOC_KoCalcChannel(koNumber) >= 0;
     const bool segmentKo = koNumber >= NEO_KoBlockOffset && koNumber < NEO_KoBlockOffset + NEO_ChannelCount * NEO_KoBlockSize;
 #ifdef NEOSTRIP_KoOffset
     const bool moduleKo = koNumber >= NEO_KoPower && koNumber < NEOSTRIP_KoOffset;
 #else
     const bool moduleKo = koNumber >= NEO_KoPower && koNumber < NEO_KoBlockOffset;
 #endif
-    if (!(segmentKo || moduleKo || colourKo) || !ko.writeEnable()) return false;
+    if (!(segmentKo || moduleKo) || !ko.writeEnable()) return false;
     const int koIndex = segmentKo ? (int)((koNumber - NEO_KoBlockOffset) % NEO_KoBlockSize) : -1;
     const size_t channel = segmentKo ? (size_t)((koNumber - NEO_KoBlockOffset) / NEO_KoBlockSize) : 0;
 
-    if (!_startupRestoreDone && colourKo && (koNumber - NEOC_KoBlockOffset) % NEOC_KoBlockSize == NEOC_KoCCTRel) return false;
+    if (!_startupRestoreDone && koIndex == NEO_KoCCTRel) return false;
 
     // DPT 3.007 start/stop dimming has no meaning without its timing: drop it during the delay
     if (!_startupRestoreDone &&
@@ -1068,14 +1067,14 @@ bool NeoPixelBusModule::syncSegmentStatusItem(size_t segmentIndex, uint8_t item,
 #endif
             break;
         case kSegSecondaryRgb:
-            sent = writeStatus(knx.getGroupObject(NEOC_KoCalcNumber(NEOC_KoSecondaryRGBState)),
+            sent = writeStatus(knx.getGroupObject(NEO_KoCalcNumber(NEO_KoSecondaryRGBState)),
                                uint32_t(seg->getSecondaryColor() >> 8), DPT_Colour_RGB, mode);
             break;
         case kSegSecondaryWW:
-            sent = writeStatus(knx.getGroupObject(NEOC_KoCalcNumber(NEOC_KoSecondaryWWState)), seg->getConfig().ww2(), DPT_Value_1_Ucount, mode);
+            sent = writeStatus(knx.getGroupObject(NEO_KoCalcNumber(NEO_KoSecondaryWWState)), seg->getConfig().ww2(), DPT_Value_1_Ucount, mode);
             break;
         case kSegSecondaryCW:
-            sent = writeStatus(knx.getGroupObject(NEOC_KoCalcNumber(NEOC_KoSecondaryCWState)), seg->getConfig().cw2(), DPT_Value_1_Ucount, mode);
+            sent = writeStatus(knx.getGroupObject(NEO_KoCalcNumber(NEO_KoSecondaryCWState)), seg->getConfig().cw2(), DPT_Value_1_Ucount, mode);
             break;
         case kSegCct:
             // Kelvin is not derivable from the colour and not persisted: only after a CCT command.
@@ -6920,18 +6919,20 @@ void NeoPixelBusModule::applyCct(size_t index, uint16_t kelvin, uint8_t whiteLev
 
 bool NeoPixelBusModule::processColourKo(GroupObject& ko, uint16_t number)
 {
-    const int channel = NEOC_KoCalcChannel(number);
+    const int channel = NEO_KoCalcChannel(number);
     if (channel < 0) return false;
+    const int item = (number - NEO_KoBlockOffset) % NEO_KoBlockSize;
+    if (item < NEO_KoCCTRel) return false;
+    if (item > NEO_KoSecondaryCWState) return true; // reserved slots do not accept commands
     if (size_t(channel) >= _segments.size() || !_segments[channel].segment) return true;
     auto& cfg = _segments[channel];
     const uint8_t previous = _channelIndex;
     _channelIndex = channel;
-    const int item = NEOC_KoCalcIndex(number);
-    const bool status = item == NEOC_KoSecondaryRGBState || item == NEOC_KoSecondaryWWState || item == NEOC_KoSecondaryCWState;
+    const bool status = item == NEO_KoSecondaryRGBState || item == NEO_KoSecondaryWWState || item == NEO_KoSecondaryCWState;
     if (!status && !cfg.locked)
     {
         const uint8_t rel = ko.valueRef()[0] & 15;
-        const bool stop = item == NEOC_KoCCTRel && (rel & 7) == 0;
+        const bool stop = item == NEO_KoCCTRel && (rel & 7) == 0;
         if (!stop)
         {
             interruptEmIfRunning(channel);
@@ -6939,7 +6940,7 @@ bool NeoPixelBusModule::processColourKo(GroupObject& ko, uint16_t number)
             cfg.activeDimming = SegmentConfig::NONE;
             if (cfg.syncMode == 2) cfg.localOverride = true;
         }
-        if (item == NEOC_KoCCTRel)
+        if (item == NEO_KoCCTRel)
         {
             if (!stop)
             {
@@ -6959,9 +6960,9 @@ bool NeoPixelBusModule::processColourKo(GroupObject& ko, uint16_t number)
             const auto& color = cfg.segment->getConfig();
             uint32_t rgb = color.secondaryRGBW >> 8;
             uint8_t ww = color.ww2(), cw = color.cw2();
-            if (item == NEOC_KoSecondaryRGB) rgb = ko.value(DPT_Colour_RGB);
-            if (item == NEOC_KoSecondaryWW) ww = ko.value(DPT_Value_1_Ucount);
-            if (item == NEOC_KoSecondaryCW) cw = ko.value(DPT_Value_1_Ucount);
+            if (item == NEO_KoSecondaryRGB) rgb = ko.value(DPT_Colour_RGB);
+            if (item == NEO_KoSecondaryWW) ww = ko.value(DPT_Value_1_Ucount);
+            if (item == NEO_KoSecondaryCW) cw = ko.value(DPT_Value_1_Ucount);
             if (!_virtualStrip || !_virtualStrip->hasDualWhiteChannel()) cw = 0;
             cfg.segment->setSecondaryColor((rgb >> 16) & 255, (rgb >> 8) & 255, rgb & 255, ww, cw);
             captureDirectColor(channel);

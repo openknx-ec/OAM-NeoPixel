@@ -183,7 +183,7 @@ Status*, sowie **Effektmanager Status** (welcher EM), **Aktive Cue**, **Effektma
 
 ## RGB-CCT und Effektfarben ab Dev 3.12 / Release 1.10
 
-Die neue Firmware benötigt die passende aktualisierte ETS-Applikation und einen vollständigen Applikationsdownload. Die bisherigen KNX-Objektnummern bleiben erhalten. Die zusätzlichen Farbobjekte liegen im Bereich 2400–2511 unter „Erweiterte Farbsteuerung“, geordnet nach Segment.
+Die neue Firmware benötigt die passende aktualisierte ETS-Applikation und einen vollständigen Applikationsdownload. Ab Dev 3.13 / Release 1.11 verwendet jedes Segment einen festen Block aus 65 Kommunikationsobjekten: 60 Steuer-/Statusobjekte und anschließend fünf unsichtbare, deaktivierte Reserveplätze. Segment 1 belegt 600–664 (Reserve 660–664), Segment 2 belegt 665–729 (Reserve 725–729), bis Segment 16 bei 1575–1639 (Reserve 1635–1639). Die zusätzlichen Farbobjekte stehen direkt hinter den bisherigen Objekten des jeweiligen Segments. Neue Objekte können die fünf Reserveplätze später nutzen, ohne nachfolgende Segmentblöcke zu verschieben. Dafür ist weiterhin eine passende Firmware und ETS-Applikation erforderlich. Die LightManager-Einzelobjekte beginnen bei 1640, die Kanalobjekte bei 1648. BI/BTN behalten ihre Nummern. Gegenüber Dev 3.12 verschieben sich die Objektnummern der Segmente 2–16 und des Lichtmanagers; der separate Farbblock 2400–2511 entfällt. Nach dem vollständigen Download müssen die betroffenen Gruppenadress-Verknüpfungen geprüft und gegebenenfalls neu zugeordnet werden.
 
 ### Farbtemperatur
 

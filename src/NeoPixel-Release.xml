@@ -10,11 +10,11 @@
        Common.share.xml sets its default -->
   <op:config name="%BASE_InfoLedPart%" value="../../../src/NeoPixel.hw.infoled.gen.xml" />
   <!-- Product version text (page "Allgemein"), per variant; keep it in sync with ApplicationVersion below. -->
-  <op:config name="%NEO_ProductVersion%" value="1.10" />
+  <op:config name="%NEO_ProductVersion%" value="1.11" />
   <op:ETS
     OpenKnxId="0xAD"
     ApplicationNumber="0"
-    ApplicationVersion="1.10"
+    ApplicationVersion="1.11"
     ReplacesVersionsDownTo="0.1"
     ApplicationRevision="0"
     ProductName="OpenKNX NeoPixel"
@@ -60,8 +60,8 @@
     share="../lib/OFM-LightManager/src/LightManagerModule.share.xml"
     template="../lib/OFM-LightManager/src/LightManagerModule.templ.xml"
     NumChannels="16"
-    KoSingleOffset="1460"
-    KoOffset="1500">
+    KoSingleOffset="1640"
+    KoOffset="1648">
     <op:verify File="../lib/OFM-LightManager/library.json" ModuleVersion="%LMG_VerifyVersion%" />
   </op:define>
 
@@ -88,13 +88,8 @@
     share="NeoPixel.EM.share.xml"
     template="NeoPixel.EM.templ.xml"
     NumChannels="16"
-    configTransferName="NeoPixel Effektmanager"
-    KoOffset="1860">
+    configTransferName="NeoPixel Effektmanager">
   </op:define>
-
-  <op:define prefix="NEOC" ModuleType="47" isSubmoduleOf="NEO"
-    share="NeoPixel.Colour.share.xml" template="NeoPixel.Colour.templ.xml"
-    NumChannels="16" KoOffset="2400" noConfigTransfer="true"/>
 
   <op:define prefix="FTM" ModuleType="13" share="../lib/OFM-FileTransferModule/src/FileTransfer.share.xml" />
   <!-- WiFi settings (operating mode, setup WiFi, own AP); shown with "WiFi-Schnittstelle: Ja", one knxprod for TP, LAN and WiFi -->
@@ -214,7 +209,6 @@
             </choose>
             <op:include href="../lib/OFM-LightManager/src/LightManagerModule.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="LMG" />
             <op:include href="NeoPixel.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="NEO" />
-            <op:include href="NeoPixel.Colour.share.xml" xpath="//ApplicationProgram/Dynamic/*" prefix="NEOC"/>
           </Dynamic>
 </generate>
 </KNX>

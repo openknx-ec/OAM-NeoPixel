@@ -1,6 +1,7 @@
 # Changes
 
 * Dev 3.13 / Release 1.11: global power buttons in the NeoPixel and Studio status bands. Studio switches global power live without applying segment drafts; existing KNX lock semantics remain in force.
+* Breaking change (Dev 3.13 / Release 1.11): each segment uses a fixed block of 65 communication objects: 60 controls/status objects, including relative CCT and secondary RGB/WW/CW, followed by five hidden, disabled slots reserved for future additions. Segment n occupies 600 + 65 × (n−1) through 664 + 65 × (n−1). LightManager single objects move from 1460 to 1640 and channels from 1500 to 1648; BI/BTN numbers stay unchanged. The separate NEOC block at 2400–2511 is removed. Use matching firmware and a full application download, then check/relink group addresses for segments 2–16, moved colour objects and LightManager.
 
 ## Next (ETS Dev 3.12 / Release 1.10)
 

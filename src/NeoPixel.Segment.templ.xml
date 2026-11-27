@@ -663,6 +663,20 @@
               <ComObject Id="%AID%_O-%TT%%CC%055" Number="%K50%" Name="%C%SyncChain"        Text="Effektkette Sync"           FunctionText="NeoPixel Segment %C%: Effektkette Sync-Telegramm (intern)" ObjectSize="14 Bytes" DatapointType="DPST-16-1" WriteFlag="Enabled"  UpdateFlag="Disabled" ReadFlag="Disabled" TransmitFlag="Enabled"  CommunicationFlag="Enabled" ReadOnInitFlag="Disabled" />
               <ComObject Id="%AID%_O-%TT%%CC%056" Number="%K51%" Name="%C%EmPause"          Text="Effektmanager Pause/Resume" FunctionText="NeoPixel Segment %C%: Pause (1) / Resume (0)"       ObjectSize="1 Bit"   DatapointType="DPST-1-1"  WriteFlag="Enabled"  UpdateFlag="Disabled" ReadFlag="Disabled" TransmitFlag="Disabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled" />
               <ComObject Id="%AID%_O-%TT%%CC%057" Number="%K52%" Name="%C%EmRunState"       Text="Effektmanager Zustand"      FunctionText="NeoPixel Segment %C%: Zustand (0=gestoppt,1=laeuft,2=pausiert)" ObjectSize="1 Byte" DatapointType="DPST-5-10" WriteFlag="Disabled" UpdateFlag="Disabled" ReadFlag="Enabled"  TransmitFlag="Enabled"  CommunicationFlag="Enabled" ReadOnInitFlag="Disabled" />
+
+              <ComObject Id="%AID%_O-%TT%%CC%058" Number="%K53%" Name="%C%CCTRel" Text="Farbtemperatur dimmen" FunctionText="Segment %C%" ObjectSize="4 Bit" DatapointType="DPST-3-7" WriteFlag="Enabled" UpdateFlag="Disabled" ReadFlag="Disabled" TransmitFlag="Disabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled"/>
+              <ComObject Id="%AID%_O-%TT%%CC%059" Number="%K54%" Name="%C%SecondaryRGB" Text="Sekundärfarbe RGB" FunctionText="Segment %C%" ObjectSize="3 Bytes" DatapointType="DPST-232-600" WriteFlag="Enabled" UpdateFlag="Disabled" ReadFlag="Disabled" TransmitFlag="Disabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled"/>
+              <ComObject Id="%AID%_O-%TT%%CC%060" Number="%K55%" Name="%C%SecondaryRGBState" Text="Sekundärfarbe RGB Status" FunctionText="Segment %C%" ObjectSize="3 Bytes" DatapointType="DPST-232-600" WriteFlag="Disabled" UpdateFlag="Disabled" ReadFlag="Enabled" TransmitFlag="Enabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled"/>
+              <ComObject Id="%AID%_O-%TT%%CC%061" Number="%K56%" Name="%C%SecondaryWW" Text="Sekundärfarbe Weiß / Warmweiß" FunctionText="Segment %C%" ObjectSize="1 Byte" DatapointType="DPST-5-10" WriteFlag="Enabled" UpdateFlag="Disabled" ReadFlag="Disabled" TransmitFlag="Disabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled"/>
+              <ComObject Id="%AID%_O-%TT%%CC%062" Number="%K57%" Name="%C%SecondaryWWState" Text="Sekundärfarbe Weiß / Warmweiß Status" FunctionText="Segment %C%" ObjectSize="1 Byte" DatapointType="DPST-5-10" WriteFlag="Disabled" UpdateFlag="Disabled" ReadFlag="Enabled" TransmitFlag="Enabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled"/>
+              <ComObject Id="%AID%_O-%TT%%CC%063" Number="%K58%" Name="%C%SecondaryCW" Text="Sekundärfarbe Kaltweiß" FunctionText="Segment %C%" ObjectSize="1 Byte" DatapointType="DPST-5-10" WriteFlag="Enabled" UpdateFlag="Disabled" ReadFlag="Disabled" TransmitFlag="Disabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled"/>
+              <ComObject Id="%AID%_O-%TT%%CC%064" Number="%K59%" Name="%C%SecondaryCWState" Text="Sekundärfarbe Kaltweiß Status" FunctionText="Segment %C%" ObjectSize="1 Byte" DatapointType="DPST-5-10" WriteFlag="Disabled" UpdateFlag="Disabled" ReadFlag="Enabled" TransmitFlag="Enabled" CommunicationFlag="Enabled" ReadOnInitFlag="Disabled"/>
+              <!-- Five disabled, unreferenced slots keep the segment stride at 65 for future objects. -->
+              <ComObject Id="%AID%_O-%TT%%CC%065" Number="%K60%" Name="%C%Reserve1" Text="Reserviert" FunctionText="Reserviert" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Disabled" CommunicationFlag="Disabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <ComObject Id="%AID%_O-%TT%%CC%066" Number="%K61%" Name="%C%Reserve2" Text="Reserviert" FunctionText="Reserviert" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Disabled" CommunicationFlag="Disabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <ComObject Id="%AID%_O-%TT%%CC%067" Number="%K62%" Name="%C%Reserve3" Text="Reserviert" FunctionText="Reserviert" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Disabled" CommunicationFlag="Disabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <ComObject Id="%AID%_O-%TT%%CC%068" Number="%K63%" Name="%C%Reserve4" Text="Reserviert" FunctionText="Reserviert" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Disabled" CommunicationFlag="Disabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <ComObject Id="%AID%_O-%TT%%CC%069" Number="%K64%" Name="%C%Reserve5" Text="Reserviert" FunctionText="Reserviert" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Disabled" CommunicationFlag="Disabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
             </ComObjectTable>
             <ComObjectRefs>
               <!-- Segment Power -->
@@ -761,6 +775,14 @@
               <ComObjectRef Id="%AID%_O-%TT%%CC%055_R-%TT%%CC%05501" RefId="%AID%_O-%TT%%CC%055" Text="{{0:%C%}}: Effektkette Sync" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001"/>
               <ComObjectRef Id="%AID%_O-%TT%%CC%056_R-%TT%%CC%05601" RefId="%AID%_O-%TT%%CC%056" Text="{{0:%C%}}: EM Pause/Resume" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001"/>
               <ComObjectRef Id="%AID%_O-%TT%%CC%057_R-%TT%%CC%05701" RefId="%AID%_O-%TT%%CC%057" Text="{{0:%C%}}: EM Zustand" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001"/>
+
+              <ComObjectRef Id="%AID%_O-%TT%%CC%058_R-%TT%%CC%05801" RefId="%AID%_O-%TT%%CC%058" Text="Segment %C% Farbtemperatur dimmen"/>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%059_R-%TT%%CC%05901" RefId="%AID%_O-%TT%%CC%059" Text="Segment %C% Sekundärfarbe RGB"/>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%060_R-%TT%%CC%06001" RefId="%AID%_O-%TT%%CC%060" Text="Segment %C% Sekundärfarbe RGB Status"/>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%061_R-%TT%%CC%06101" RefId="%AID%_O-%TT%%CC%061" Text="Segment %C% Sekundärfarbe Weiß / Warmweiß"/>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%062_R-%TT%%CC%06201" RefId="%AID%_O-%TT%%CC%062" Text="Segment %C% Sekundärfarbe Weiß / Warmweiß Status"/>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%063_R-%TT%%CC%06301" RefId="%AID%_O-%TT%%CC%063" Text="Segment %C% Sekundärfarbe Kaltweiß"/>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%064_R-%TT%%CC%06401" RefId="%AID%_O-%TT%%CC%064" Text="Segment %C% Sekundärfarbe Kaltweiß Status"/>
             </ComObjectRefs>
             <ParameterCalculations>
               <op:usePart name="Scene" xpath="//ParameterCalculations/*" />
@@ -1325,6 +1347,13 @@
                     <ComObjectRefRef RefId="%AID%_O-%TT%%CC%038_R-%TT%%CC%03801" />
                     <!-- RGBWRel -->
                     <ComObjectRefRef RefId="%AID%_O-%TT%%CC%039_R-%TT%%CC%03901" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%%CC%058_R-%TT%%CC%05801" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%%CC%059_R-%TT%%CC%05901" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%%CC%060_R-%TT%%CC%06001" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%%CC%061_R-%TT%%CC%06101" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%%CC%062_R-%TT%%CC%06201" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%%CC%063_R-%TT%%CC%06301" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%%CC%064_R-%TT%%CC%06401" />
                     <!-- HCL State (only with the segment light manager) -->
                     <choose ParamRefId="%AID%_UP-%TT%%CC%241_R-%TT%%CC%24101">
                       <when test="2"> <!-- Segment light manager -->
